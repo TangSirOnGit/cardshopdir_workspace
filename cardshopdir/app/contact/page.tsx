@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettingsTyped()
   return {
     title: `Contact · ${settings.siteName}`,
-    description: `Get in touch with the ${settings.siteName} team. Questions about submissions, sponsorships, or partnerships.`,
+    description: `Get in touch with the ${settings.siteName} team. Questions about shops, directory listings, or partnerships.`,
     alternates: { canonical: "/contact" },
   }
 }

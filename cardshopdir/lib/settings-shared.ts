@@ -11,14 +11,15 @@ export const SETTINGS_DEFINITION = {
     group: "general",
   },
   site_tagline: {
-    default: "A curated batch of launches, every week.",
+    default: "Find trading card shops near you.",
     type: "string" as const,
     label: "Tagline",
     description: "Shown on the homepage hero section.",
     group: "general",
   },
   site_description: {
-    default: "Find trading card shops near you. Browse by state, city, and game.",
+    default:
+      "Find trading card shops near you. Browse by state, city, and game.",
     type: "string" as const,
     label: "Meta description",
     description: "Default description for SEO and social sharing.",
@@ -33,154 +34,20 @@ export const SETTINGS_DEFINITION = {
     group: "general",
   },
 
-  // ── Launch schedule ──────────────────────────────────────────
-  launch_day: {
-    default: "monday",
-    type: "string" as const,
-    label: "Launch day",
-    description: "Day of the week when batches go live.",
-    group: "schedule",
-  },
-  launch_hour_utc: {
-    default: "6",
+  // ── Directory ────────────────────────────────────────────────
+  shops_per_page: {
+    default: "24",
     type: "number" as const,
-    label: "Launch hour (UTC)",
-    description: "Hour (0–23 UTC) when the weekly cron publishes the batch.",
-    group: "schedule",
+    label: "Shops per page",
+    description: "Number of shops shown per page in directory listings.",
+    group: "directory",
   },
-  free_slots_per_batch: {
-    default: "9",
+  featured_shops_count: {
+    default: "12",
     type: "number" as const,
-    label: "Free slots per batch",
-    description: "Maximum free submissions accepted per weekly batch.",
-    group: "schedule",
-  },
-  highlight_duration_days: {
-    default: "7",
-    type: "number" as const,
-    label: "Highlight duration (days)",
-    description:
-      "How many days a Highlight product stays pinned on the homepage.",
-    group: "schedule",
-  },
-  dofollow_top_n: {
-    default: "3",
-    type: "number" as const,
-    label: "Dofollow top N",
-    description:
-      "Top N voted products per batch get a permanent dofollow backlink.",
-    group: "schedule",
-  },
-
-  // ── Pricing ──────────────────────────────────────────────────
-  boost_price_cents: {
-    default: "900",
-    type: "number" as const,
-    label: "Boost price",
-    description: "Price for a Boost submission.",
-    group: "pricing",
-  },
-  highlight_price_cents: {
-    default: "1900",
-    type: "number" as const,
-    label: "Highlight price",
-    description: "Price for a Highlight submission.",
-    group: "pricing",
-  },
-
-  // ── Sponsors ─────────────────────────────────────────────────
-  sponsor_slot_count: {
-    default: "3",
-    type: "number" as const,
-    label: "Sponsor slots",
-    description: "Number of sponsor cards displayed in the sidebar.",
-    group: "sponsors",
-  },
-  sponsor_base_price_cents: {
-    default: "300",
-    type: "number" as const,
-    label: "Daily price",
-    description: "Base price per day for a sponsor slot.",
-    group: "sponsors",
-  },
-  sponsor_max_discount: {
-    default: "0.3",
-    type: "number" as const,
-    label: "Max discount",
-    description: "Maximum volume discount (0.3 = 30% off for long bookings).",
-    group: "sponsors",
-  },
-  sponsor_discount_full_days: {
-    default: "30",
-    type: "number" as const,
-    label: "Discount full days",
-    description: "Number of days to reach the maximum discount.",
-    group: "sponsors",
-  },
-  sponsor_max_days: {
-    default: "90",
-    type: "number" as const,
-    label: "Max booking days",
-    description: "Maximum number of days for a single sponsor booking.",
-    group: "sponsors",
-  },
-
-  // ── Limits ───────────────────────────────────────────────────
-  votes_per_window: {
-    default: "10",
-    type: "number" as const,
-    label: "Votes per window",
-    description: "Max votes a user can cast within the time window below.",
-    group: "limits",
-  },
-  votes_window_seconds: {
-    default: "3600",
-    type: "number" as const,
-    label: "Vote window",
-    description: "Time window for the vote rate limit.",
-    group: "limits",
-  },
-  submissions_per_day: {
-    default: "3",
-    type: "number" as const,
-    label: "Submissions per day",
-    description: "Maximum product submissions per user per day.",
-    group: "limits",
-  },
-  max_thumbnail_size_mb: {
-    default: "5",
-    type: "number" as const,
-    label: "Max thumbnail (MB)",
-    description: "Maximum file size for uploaded thumbnails.",
-    group: "limits",
-  },
-  related_products_limit: {
-    default: "8",
-    type: "number" as const,
-    label: "Related products",
-    description: "Number of 'also launched this week' products shown.",
-    group: "limits",
-  },
-  admin_products_per_page: {
-    default: "10",
-    type: "number" as const,
-    label: "Admin per page",
-    description: "Products shown per page in the admin table.",
-    group: "limits",
-  },
-  comments_per_window: {
-    default: "5",
-    type: "number" as const,
-    label: "Comments per window",
-    description: "Max comments a user can post within the time window below.",
-    group: "limits",
-  },
-  comments_window_seconds: {
-    default: "3600",
-    type: "number" as const,
-    label: "Comment window (s)",
-    description: "Time window in seconds for the comment rate limit.",
-    group: "limits",
+    label: "Featured shops",
+    description: "Number of featured shops on the homepage.",
+    group: "directory",
   },
 
   // ── SEO & Social ─────────────────────────────────────────────
@@ -246,15 +113,6 @@ export function validateSettings(
       if (num < 0) {
         errors.push(`${def.label} cannot be negative.`)
       }
-      if (
-        key === "launch_hour_utc" &&
-        (num < 0 || num > 23 || !Number.isInteger(num))
-      ) {
-        errors.push("Launch hour must be a whole number between 0 and 23.")
-      }
-      if (key === "sponsor_max_discount" && (num < 0 || num > 1)) {
-        errors.push("Max discount must be between 0 and 1 (e.g. 0.3 = 30%).")
-      }
     }
 
     if (key === "contact_email" && value !== "") {
@@ -274,24 +132,9 @@ export const SETTINGS_GROUPS = [
     description: "Site identity and branding.",
   },
   {
-    id: "schedule",
-    label: "Launch Schedule",
-    description: "Configure when and how batches are published.",
-  },
-  {
-    id: "pricing",
-    label: "Pricing",
-    description: "Submission tier pricing for Stripe checkout.",
-  },
-  {
-    id: "sponsors",
-    label: "Sponsors",
-    description: "Sponsor slot configuration and pricing.",
-  },
-  {
-    id: "limits",
-    label: "Limits & Rate Limiting",
-    description: "Control usage limits and pagination.",
+    id: "directory",
+    label: "Directory",
+    description: "Directory listing configuration.",
   },
   {
     id: "seo",

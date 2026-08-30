@@ -11,10 +11,9 @@ interface HeaderProps {
 }
 
 const staticNavLinks = [
-  { href: "/batches", label: "Batches" },
+  { href: "/directory", label: "Directory" },
   { href: "/blog", label: "Blog" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/submit", label: "Submit" },
+  { href: "/about", label: "About" },
 ]
 
 export function Header({ siteName }: HeaderProps) {

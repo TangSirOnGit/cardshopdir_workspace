@@ -2,17 +2,12 @@ import Link from "next/link"
 import { ThemeSwitcher } from "@/components/theme-switcher/theme-switcher"
 
 const LINKS = [
-  { href: "/batches", label: "Batches" },
+  { href: "/directory", label: "Directory" },
   { href: "/blog", label: "Blog" },
-  { href: "/submit", label: "Submit" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/sponsor", label: "Sponsor" },
   { href: "/about", label: "About" },
-  { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
-  { href: "/legal", label: "Legal" },
 ]
 
 export function Footer({ siteName }: { siteName: string }) {

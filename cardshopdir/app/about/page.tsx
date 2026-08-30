@@ -1,151 +1,91 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { ArrowLeft, ArrowRight } from "lucide-react"
-import { getSettingsTyped } from "@/lib/settings"
 import { db } from "@/lib/db"
-import { products } from "@/lib/db/schema"
-import { sql } from "drizzle-orm"
+import { shops, games } from "@/lib/db/schema"
+import { sql, count } from "drizzle-orm"
+import { getSettingsTyped } from "@/lib/settings"
 
-export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettingsTyped()
-  return {
-    title: `About · ${settings.siteName}`,
-    description: `${settings.siteName} is a directory of trading card shops across the United States. Browse by state, city, and game.`,
-    alternates: { canonical: "/about" },
-  }
-}
+export const dynamic = "force-dynamic"
 
 export default async function AboutPage() {
   const settings = await getSettingsTyped()
-  const contactEmail =
-    settings.contactEmail ||
-    `contact@${new URL(process.env.BETTER_AUTH_URL ?? "http://localhost:3000").hostname}`
-
-  const stats = await db
-    .select({
-      totalProducts: sql<number>`count(*)::int`,
-      totalBatches: sql<number>`count(distinct ${products.batchId})::int`,
-    })
-    .from(products)
-    .then((r) => r[0])
+  const [shopCount, gameCount, stateCount] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(shops)
+      .then((r) => r[0].count),
+    db
+      .select({ count: count() })
+      .from(games)
+      .then((r) => r[0].count),
+    db
+      .select({ count: sql<number>`count(distinct ${shops.state})::int` })
+      .from(shops)
+      .where(sql`${shops.state} is not null`)
+      .then((r) => r[0].count),
+  ])
 
   return (
-    <div className="mx-auto max-w-2xl space-y-10 pt-2 sm:pt-4">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1.5 text-[13px] text-muted-foreground transition-opacity hover:opacity-60"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back
-      </Link>
+    <div className="mx-auto max-w-2xl space-y-6 pt-4">
+      <h1 className="font-serif text-3xl tracking-tight">
+        About {settings.siteName}
+      </h1>
 
-      <header className="space-y-3">
-        <h1 className="font-serif text-2xl tracking-tight sm:text-3xl">
-          About {settings.siteName}
-        </h1>
-        <p className="text-[15px] leading-relaxed text-muted-foreground">
-          {settings.siteDescription}
+      <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground">
+        <p>
+          {settings.siteName} is the most comprehensive directory of trading
+          card shops in the United States. We help collectors and players find
+          local game stores for their favorite TCGs — from Pokemon and Magic:
+          The Gathering to Yu-Gi-Oh!, Flesh and Blood, and more.
         </p>
-      </header>
+        <p>
+          Our directory currently includes{" "}
+          <strong className="text-foreground">
+            {shopCount.toLocaleString()} shops
+          </strong>{" "}
+          across{" "}
+          <strong className="text-foreground">{stateCount} states</strong>,
+          covering{" "}
+          <strong className="text-foreground">
+            {gameCount} game categories
+          </strong>
+          . Whether you&rsquo;re looking for a local comic shop, a dedicated
+          game store, or a sports card dealer, we&rsquo;ve got you covered.
+        </p>
+        <p>
+          Each shop listing includes location details, contact information,
+          opening hours, supported games, ratings, and photos — everything you
+          need to plan your next card-hunting trip.
+        </p>
+      </div>
 
-      <div className="space-y-6 text-[14px] leading-relaxed text-muted-foreground">
-        <section className="space-y-2">
-          <h2 className="font-medium text-foreground">What we do</h2>
-          <p>
-            Every week, we curate and publish a batch of the best new products,
-            tools, and side projects. Makers submit their work, the community
-            votes, and the top launches earn visibility and a permanent dofollow
-            backlink.
+      <div className="grid grid-cols-3 gap-4 pt-4">
+        <div className="rounded-lg border border-border/50 bg-muted/30 p-4 text-center">
+          <p className="text-2xl font-semibold tabular-nums">
+            {shopCount.toLocaleString()}
           </p>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="font-medium text-foreground">How it works</h2>
-          <ul className="list-inside list-disc space-y-1 pl-1">
-            <li>
-              <strong>Submit</strong> your product for free or pick a paid tier
-              for faster, guaranteed placement.
-            </li>
-            <li>
-              <strong>Review</strong> &mdash; our team reviews every submission
-              for quality before publishing.
-            </li>
-            <li>
-              <strong>Launch</strong> &mdash; accepted products go live in the
-              next weekly batch.
-            </li>
-            <li>
-              <strong>Vote</strong> &mdash; the community votes for their
-              favorites throughout the week.
-            </li>
-          </ul>
-        </section>
-
-        {stats && (stats.totalProducts > 0 || stats.totalBatches > 0) && (
-          <section className="space-y-3">
-            <h2 className="font-medium text-foreground">By the numbers</h2>
-            <div className="flex gap-3">
-              <div className="flex-1 rounded-lg border border-border/50 bg-muted/40 px-4 py-3 text-center">
-                <p className="text-2xl font-semibold tabular-nums text-foreground">
-                  {stats.totalProducts}
-                </p>
-                <p className="mt-0.5 text-[12px] text-muted-foreground">
-                  products launched
-                </p>
-              </div>
-              <div className="flex-1 rounded-lg border border-border/50 bg-muted/40 px-4 py-3 text-center">
-                <p className="text-2xl font-semibold tabular-nums text-foreground">
-                  {stats.totalBatches}
-                </p>
-                <p className="mt-0.5 text-[12px] text-muted-foreground">
-                  weekly batches
-                </p>
-              </div>
-            </div>
-          </section>
-        )}
-
-        <section className="space-y-2">
-          <h2 className="font-medium text-foreground">For makers</h2>
-          <p>
-            Whether you just shipped a weekend project or a funded product,
-            {settings.siteName} gives you a stage in front of builders,
-            early adopters, and curious minds.
+          <p className="mt-1 text-[12px] text-muted-foreground">Shops Listed</p>
+        </div>
+        <div className="rounded-lg border border-border/50 bg-muted/30 p-4 text-center">
+          <p className="text-2xl font-semibold tabular-nums">{stateCount}</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">
+            States Covered
           </p>
-          <Link
-            href="/submit"
-            className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium text-foreground transition-opacity hover:opacity-60"
-          >
-            Submit your product
-            <ArrowRight className="h-3 w-3" />
-          </Link>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="font-medium text-foreground">For sponsors</h2>
-          <p>
-            Reach thousands of builders every week. Sponsor slots are visible on
-            every page of the site.
+        </div>
+        <div className="rounded-lg border border-border/50 bg-muted/30 p-4 text-center">
+          <p className="text-2xl font-semibold tabular-nums">{gameCount}</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">
+            Game Categories
           </p>
-          <Link
-            href="/sponsor"
-            className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium text-foreground transition-opacity hover:opacity-60"
-          >
-            Become a sponsor
-            <ArrowRight className="h-3 w-3" />
-          </Link>
-        </section>
+        </div>
+      </div>
 
-        <section className="space-y-2">
-          <h2 className="font-medium text-foreground">Contact</h2>
-          <p>
-            Questions, partnerships, or feedback? Reach us at{" "}
-            <a href={`mailto:${contactEmail}`} className="underline">
-              {contactEmail}
-            </a>
-            .
-          </p>
-        </section>
+      <div className="space-y-2 pt-4">
+        <h2 className="text-lg font-semibold">Our Mission</h2>
+        <p className="text-[15px] leading-relaxed text-muted-foreground">
+          We believe local game stores are the heart of the TCG community.
+          They&rsquo;re where friendships are forged, skills are honed, and
+          collections grow. Our goal is to make it easier than ever to discover
+          and support these businesses.
+        </p>
       </div>
     </div>
   )

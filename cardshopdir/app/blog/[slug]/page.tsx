@@ -6,15 +6,10 @@ import { format } from "date-fns"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, ArrowUpRight, Clock } from "lucide-react"
-import { SharePost } from "@/components/share-post"
 import { SITE_URL } from "@/config"
 import { getSetting } from "@/lib/settings"
 import type { Metadata } from "next"
 import sanitizeHtml from "sanitize-html"
-import { transformCodeBlocks, wrapTables } from "@/lib/transform-code-blocks"
-import { CodeBlockHydrator } from "@/components/code-block-hydrator"
-import { extractToc } from "@/lib/toc"
-import { TocSidebar } from "@/components/toc-sidebar"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -29,7 +24,10 @@ export async function generateStaticParams() {
 }
 
 function estimateReadingTime(html: string): number {
-  const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+  const text = html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
   const words = text ? text.split(" ").length : 0
   return Math.max(1, Math.round(words / 220))
 }
@@ -72,10 +70,33 @@ export default async function BlogPostPage({ params }: Props) {
 
   const safeContent = sanitizeHtml(post.content, {
     allowedTags: [
-      "p", "br", "strong", "em", "ul", "ol", "li",
-      "h2", "h3", "h4", "blockquote", "a", "code", "pre", "img",
-      "hr", "table", "thead", "tbody", "tr", "th", "td",
-      "colgroup", "col", "figure", "figcaption", "kbd",
+      "p",
+      "br",
+      "strong",
+      "em",
+      "ul",
+      "ol",
+      "li",
+      "h2",
+      "h3",
+      "h4",
+      "blockquote",
+      "a",
+      "code",
+      "pre",
+      "img",
+      "hr",
+      "table",
+      "thead",
+      "tbody",
+      "tr",
+      "th",
+      "td",
+      "colgroup",
+      "col",
+      "figure",
+      "figcaption",
+      "kbd",
     ],
     allowedAttributes: {
       a: ["href", "target", "rel"],
@@ -98,9 +119,6 @@ export default async function BlogPostPage({ params }: Props) {
     },
   })
 
-  const { html: htmlWithIds, toc } = extractToc(safeContent)
-  const wrapped = wrapTables(htmlWithIds)
-  const highlightedContent = await transformCodeBlocks(wrapped)
   const readingTime = estimateReadingTime(post.content)
 
   const morePosts = await db
@@ -141,7 +159,12 @@ export default async function BlogPostPage({ params }: Props) {
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-          { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/blog` },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Blog",
+            item: `${SITE_URL}/blog`,
+          },
           { "@type": "ListItem", position: 3, name: post.title },
         ],
       },
@@ -149,8 +172,8 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   return (
-    <div className="py-6 xl:grid xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-10">
-      <article className="mx-auto w-full min-w-0 max-w-184">
+    <div className="py-6">
+      <article className="mx-auto w-full max-w-184 min-w-0">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -178,14 +201,14 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         <header className="mb-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
+          <p className="text-[11px] font-semibold tracking-[0.12em] text-muted-foreground/70 uppercase">
             Article
           </p>
-          <h1 className="mt-3 text-[28px] font-semibold leading-[1.1] tracking-tight text-balance sm:text-[34px] lg:text-[38px]">
+          <h1 className="mt-3 text-[28px] leading-[1.1] font-semibold tracking-tight text-balance sm:text-[34px] lg:text-[38px]">
             {post.title}
           </h1>
           {post.excerpt && (
-            <p className="mt-4 text-[16px] leading-relaxed text-muted-foreground text-balance">
+            <p className="mt-4 text-[16px] leading-relaxed text-balance text-muted-foreground">
               {post.excerpt}
             </p>
           )}
@@ -209,28 +232,21 @@ export default async function BlogPostPage({ params }: Props) {
                 <span className="font-medium text-foreground">
                   {post.author.name}
                 </span>
-                <time className="text-[11px] tabular-nums text-muted-foreground">
+                <time className="text-[11px] text-muted-foreground tabular-nums">
                   {format(post.publishedAt ?? post.createdAt, "MMMM d, yyyy")}
                 </time>
               </div>
             </div>
-            <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-[11px] font-medium tabular-nums text-muted-foreground">
+            <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground tabular-nums">
               <Clock className="h-3 w-3" />
               {readingTime} min read
             </span>
           </div>
         </header>
 
-        <CodeBlockHydrator>
-          <div
-            className="prose-description"
-            dangerouslySetInnerHTML={{ __html: highlightedContent }}
-          />
-        </CodeBlockHydrator>
-
-        <SharePost
-          title={post.title}
-          url={`${SITE_URL}/blog/${post.slug}`}
+        <div
+          className="prose-description"
+          dangerouslySetInnerHTML={{ __html: safeContent }}
         />
 
         {morePosts.length > 0 && (
@@ -246,7 +262,7 @@ export default async function BlogPostPage({ params }: Props) {
                     className="group flex items-start justify-between gap-4 py-4 transition-colors"
                   >
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-[14px] font-semibold leading-snug tracking-tight text-balance transition-colors group-hover:text-muted-foreground">
+                      <h3 className="text-[14px] leading-snug font-semibold tracking-tight text-balance transition-colors group-hover:text-muted-foreground">
                         {p.title}
                       </h3>
                       {p.excerpt && (
@@ -254,11 +270,11 @@ export default async function BlogPostPage({ params }: Props) {
                           {p.excerpt}
                         </p>
                       )}
-                      <time className="mt-1.5 block text-[11px] tabular-nums text-muted-foreground/60">
+                      <time className="mt-1.5 block text-[11px] text-muted-foreground/60 tabular-nums">
                         {format(p.publishedAt ?? p.createdAt, "MMM d, yyyy")}
                       </time>
                     </div>
-                    <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
+                    <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground" />
                   </Link>
                 </li>
               ))}
@@ -266,14 +282,6 @@ export default async function BlogPostPage({ params }: Props) {
           </section>
         )}
       </article>
-
-      {toc.length > 0 && (
-        <aside className="hidden xl:block">
-          <div className="sticky top-24 max-h-[calc(100svh-8rem)] overflow-y-auto pr-2">
-            <TocSidebar toc={toc} />
-          </div>
-        </aside>
-      )}
     </div>
   )
 }

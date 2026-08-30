@@ -7,7 +7,11 @@ import { siteSettings } from "@/lib/db/schema"
 import { SETTINGS_DEFINITION, type SettingKey } from "./settings-shared"
 
 // Re-export shared types/definitions so server code can import from one place
-export { SETTINGS_DEFINITION, SETTINGS_GROUPS, type SettingKey } from "./settings-shared"
+export {
+  SETTINGS_DEFINITION,
+  SETTINGS_GROUPS,
+  type SettingKey,
+} from "./settings-shared"
 
 // ── Cached getter ───────────────────────────────────────────────────────────
 // unstable_cache: cross-request persistence, tagged for on-demand revalidation.
@@ -20,11 +24,9 @@ async function fetchAllSettings(): Promise<Record<string, string>> {
   return map
 }
 
-const getCachedSettings = unstable_cache(
-  fetchAllSettings,
-  ["site-settings"],
-  { tags: ["site-settings"] },
-)
+const getCachedSettings = unstable_cache(fetchAllSettings, ["site-settings"], {
+  tags: ["site-settings"],
+})
 
 export const getSettings = cache(
   async (): Promise<Record<SettingKey, string>> => {
@@ -34,7 +36,7 @@ export const getSettings = cache(
       result[key as SettingKey] = stored[key] ?? def.default
     }
     return result
-  },
+  }
 )
 
 export async function getSetting(key: SettingKey): Promise<string> {
@@ -55,26 +57,8 @@ export async function getSettingsTyped() {
     siteName: s.site_name,
     siteTagline: s.site_tagline,
     siteDescription: s.site_description,
-    launchDay: s.launch_day,
-    launchHourUtc: Number(s.launch_hour_utc),
-    freeSlotsPerBatch: Number(s.free_slots_per_batch),
-    highlightDurationDays: Number(s.highlight_duration_days),
-    dofollowTopN: Number(s.dofollow_top_n),
-    boostPriceCents: Number(s.boost_price_cents),
-    highlightPriceCents: Number(s.highlight_price_cents),
-    sponsorSlotCount: Number(s.sponsor_slot_count),
-    sponsorBasePriceCents: Number(s.sponsor_base_price_cents),
-    sponsorMaxDiscount: Number(s.sponsor_max_discount),
-    sponsorDiscountFullDays: Number(s.sponsor_discount_full_days),
-    sponsorMaxDays: Number(s.sponsor_max_days),
-    votesPerWindow: Number(s.votes_per_window),
-    votesWindowSeconds: Number(s.votes_window_seconds),
-    submissionsPerDay: Number(s.submissions_per_day),
-    maxThumbnailSizeMb: Number(s.max_thumbnail_size_mb),
-    relatedProductsLimit: Number(s.related_products_limit),
-    adminProductsPerPage: Number(s.admin_products_per_page),
-    commentsPerWindow: Number(s.comments_per_window),
-    commentsWindowSeconds: Number(s.comments_window_seconds),
+    shopsPerPage: Number(s.shops_per_page),
+    featuredShopsCount: Number(s.featured_shops_count),
     contactEmail: s.contact_email,
     twitterHandle: s.twitter_handle,
     fontSans: s.font_sans,
@@ -85,11 +69,9 @@ export async function getSettingsTyped() {
 // ── Setter (writes to DB, caller must revalidate) ───────────────────────────
 
 export async function updateSettings(
-  updates: Partial<Record<SettingKey, string>>,
+  updates: Partial<Record<SettingKey, string>>
 ) {
-  const entries = Object.entries(updates).filter(
-    ([, v]) => v !== undefined,
-  )
+  const entries = Object.entries(updates).filter(([, v]) => v !== undefined)
   if (entries.length === 0) return
 
   await db.transaction(async (tx) => {

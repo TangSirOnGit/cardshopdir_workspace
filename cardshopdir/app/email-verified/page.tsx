@@ -15,7 +15,7 @@ export default function EmailVerifiedPage() {
       <div className="max-w-[320px] space-y-4 text-center">
         <h1 className="font-serif text-2xl tracking-tight">Email verified</h1>
         <p className="text-[13px] text-muted-foreground">
-          Your account is now active. You can start submitting products.
+          Your account is now active. You can start discovering shops.
         </p>
         <Link
           href="/submit"

@@ -1,0 +1,350 @@
+import type { Metadata } from "next"
+import { db } from "@/lib/db"
+import { shops, shopGames, games } from "@/lib/db/schema"
+import { eq, and, sql, ilike, desc, count } from "drizzle-orm"
+
+// ── Types ──────────────────────────────────────────────────────
+
+export interface ShopListItem {
+  id: number
+  slug: string
+  name: string
+  city: string | null
+  state: string | null
+  imageUrl: string | null
+  ratingValue: string | null
+  reviewCount: number | null
+  shopType: string
+  description: string | null
+}
+
+// ── Queries ────────────────────────────────────────────────────
+
+/** Get all states with shop counts, sorted by count desc then state asc */
+export async function getStatesWithCounts() {
+  return db
+    .select({
+      state: shops.state,
+      shopCount: sql<number>`count(*)::int`,
+    })
+    .from(shops)
+    .where(sql`${shops.state} is not null and ${shops.state} != ''`)
+    .groupBy(shops.state)
+    .orderBy(desc(sql`count(*)`), sql`${shops.state} asc`)
+}
+
+/** Get all cities for a state with shop counts */
+export async function getCitiesForState(state: string) {
+  const statePattern = state.toUpperCase()
+  return db
+    .select({
+      city: shops.city,
+      shopCount: sql<number>`count(*)::int`,
+    })
+    .from(shops)
+    .where(
+      and(
+        eq(shops.state, statePattern),
+        sql`${shops.city} is not null and ${shops.city} != ''`
+      )
+    )
+    .groupBy(shops.city)
+    .orderBy(desc(sql`count(*)`), sql`${shops.city} asc`)
+}
+
+/** Get shops for a specific state */
+export async function getShopsForState(
+  state: string,
+  limit = 50
+): Promise<ShopListItem[]> {
+  const statePattern = state.toUpperCase()
+  return db
+    .select({
+      id: shops.id,
+      slug: shops.slug,
+      name: shops.name,
+      city: shops.city,
+      state: shops.state,
+      imageUrl: shops.imageUrl,
+      ratingValue: shops.ratingValue,
+      reviewCount: shops.reviewCount,
+      shopType: shops.shopType,
+      description: shops.description,
+    })
+    .from(shops)
+    .where(eq(shops.state, statePattern))
+    .orderBy(
+      desc(shops.shouldIndex),
+      desc(shops.ratingValue),
+      desc(shops.reviewCount)
+    )
+    .limit(limit)
+}
+
+/** Get shops for a specific state + city */
+export async function getShopsForCity(
+  state: string,
+  city: string,
+  limit = 50
+): Promise<ShopListItem[]> {
+  const statePattern = state.toUpperCase()
+  // City slug to display name: "los-angeles" -> "Los Angeles"
+  const cityName = city
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
+  return db
+    .select({
+      id: shops.id,
+      slug: shops.slug,
+      name: shops.name,
+      city: shops.city,
+      state: shops.state,
+      imageUrl: shops.imageUrl,
+      ratingValue: shops.ratingValue,
+      reviewCount: shops.reviewCount,
+      shopType: shops.shopType,
+      description: shops.description,
+    })
+    .from(shops)
+    .where(and(eq(shops.state, statePattern), ilike(shops.city, cityName)))
+    .orderBy(
+      desc(shops.shouldIndex),
+      desc(shops.ratingValue),
+      desc(shops.reviewCount)
+    )
+    .limit(limit)
+}
+
+/** Get all games with shop counts */
+export async function getGamesWithCounts() {
+  return db
+    .select({
+      id: games.id,
+      slug: games.slug,
+      displayName: games.displayName,
+      shopCount: sql<number>`count(${shopGames.shopId})::int`,
+    })
+    .from(games)
+    .leftJoin(shopGames, eq(games.id, shopGames.gameId))
+    .groupBy(games.id, games.slug, games.displayName)
+    .orderBy(
+      desc(sql`count(${shopGames.shopId})`),
+      sql`${games.displayName} asc`
+    )
+}
+
+/** Get shops for a specific game */
+export async function getShopsForGame(
+  gameSlug: string,
+  limit = 50
+): Promise<ShopListItem[]> {
+  return db
+    .select({
+      id: shops.id,
+      slug: shops.slug,
+      name: shops.name,
+      city: shops.city,
+      state: shops.state,
+      imageUrl: shops.imageUrl,
+      ratingValue: shops.ratingValue,
+      reviewCount: shops.reviewCount,
+      shopType: shops.shopType,
+      description: shops.description,
+    })
+    .from(shops)
+    .innerJoin(shopGames, eq(shops.id, shopGames.shopId))
+    .innerJoin(games, eq(shopGames.gameId, games.id))
+    .where(eq(games.slug, gameSlug))
+    .orderBy(
+      desc(shops.shouldIndex),
+      desc(shops.ratingValue),
+      desc(shops.reviewCount)
+    )
+    .limit(limit)
+}
+
+/** Get shops for a specific state + game */
+export async function getShopsForStateGame(
+  state: string,
+  gameSlug: string,
+  limit = 50
+): Promise<ShopListItem[]> {
+  const statePattern = state.toUpperCase()
+  return db
+    .select({
+      id: shops.id,
+      slug: shops.slug,
+      name: shops.name,
+      city: shops.city,
+      state: shops.state,
+      imageUrl: shops.imageUrl,
+      ratingValue: shops.ratingValue,
+      reviewCount: shops.reviewCount,
+      shopType: shops.shopType,
+      description: shops.description,
+    })
+    .from(shops)
+    .innerJoin(shopGames, eq(shops.id, shopGames.shopId))
+    .innerJoin(games, eq(shopGames.gameId, games.id))
+    .where(and(eq(shops.state, statePattern), eq(games.slug, gameSlug)))
+    .orderBy(
+      desc(shops.shouldIndex),
+      desc(shops.ratingValue),
+      desc(shops.reviewCount)
+    )
+    .limit(limit)
+}
+
+/** Search shops by query string */
+export async function searchShops(
+  query: string,
+  limit = 30
+): Promise<ShopListItem[]> {
+  const pattern = `%${query}%`
+  return db
+    .select({
+      id: shops.id,
+      slug: shops.slug,
+      name: shops.name,
+      city: shops.city,
+      state: shops.state,
+      imageUrl: shops.imageUrl,
+      ratingValue: shops.ratingValue,
+      reviewCount: shops.reviewCount,
+      shopType: shops.shopType,
+      description: shops.description,
+    })
+    .from(shops)
+    .where(
+      or(
+        ilike(shops.name, pattern),
+        ilike(shops.city, pattern),
+        ilike(shops.state, pattern)
+      )
+    )
+    .orderBy(desc(shops.shouldIndex), desc(shops.ratingValue))
+    .limit(limit)
+}
+
+// Import or at top to avoid circular dependency
+import { or } from "drizzle-orm"
+
+// ── JSON-LD Helpers ────────────────────────────────────────────
+
+export function collectionPageJsonLd(opts: {
+  name: string
+  description: string
+  url: string
+  numberOfItems: number
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: opts.name,
+    description: opts.description,
+    url: opts.url,
+    numberOfItems: opts.numberOfItems,
+  }
+}
+
+export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }
+}
+
+// ── Display helpers ────────────────────────────────────────────
+
+export function stateName(stateCode: string): string {
+  const names: Record<string, string> = {
+    AL: "Alabama",
+    AK: "Alaska",
+    AZ: "Arizona",
+    AR: "Arkansas",
+    CA: "California",
+    CO: "Colorado",
+    CT: "Connecticut",
+    DE: "Delaware",
+    FL: "Florida",
+    GA: "Georgia",
+    HI: "Hawaii",
+    ID: "Idaho",
+    IL: "Illinois",
+    IN: "Indiana",
+    IA: "Iowa",
+    KS: "Kansas",
+    KY: "Kentucky",
+    LA: "Louisiana",
+    ME: "Maine",
+    MD: "Maryland",
+    MA: "Massachusetts",
+    MI: "Michigan",
+    MN: "Minnesota",
+    MS: "Mississippi",
+    MO: "Missouri",
+    MT: "Montana",
+    NE: "Nebraska",
+    NV: "Nevada",
+    NH: "New Hampshire",
+    NJ: "New Jersey",
+    NM: "New Mexico",
+    NY: "New York",
+    NC: "North Carolina",
+    ND: "North Dakota",
+    OH: "Ohio",
+    OK: "Oklahoma",
+    OR: "Oregon",
+    PA: "Pennsylvania",
+    RI: "Rhode Island",
+    SC: "South Carolina",
+    SD: "South Dakota",
+    TN: "Tennessee",
+    TX: "Texas",
+    UT: "Utah",
+    VT: "Vermont",
+    VA: "Virginia",
+    WA: "Washington",
+    WV: "West Virginia",
+    WI: "Wisconsin",
+    WY: "Wyoming",
+    DC: "District of Columbia",
+  }
+  return names[stateCode?.toUpperCase()] || stateCode
+}
+
+export function cityDisplayName(citySlug: string): string {
+  return citySlug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
+}
+
+export function gameDisplayName(
+  slug: string,
+  games: { slug: string; displayName: string }[]
+): string {
+  return games.find((g) => g.slug === slug)?.displayName || slug
+}
+
+export function shopTypeLabel(type: string): string {
+  const labels: Record<string, string> = {
+    tcg_specialty: "TCG Specialty Store",
+    comic_shop: "Comic Shop",
+    game_store: "Game Store",
+    sports_cards: "Sports Cards",
+    hobby_store: "Hobby Store",
+    toy_store: "Toy Store",
+    collectibles: "Collectibles",
+    general_retail: "General Retail",
+    other: "Other",
+  }
+  return labels[type] || type
+}
