@@ -1,39 +1,91 @@
 import { relations } from "drizzle-orm"
 import {
-  batches,
-  products,
+  shops,
+  games,
+  shopGames,
+  shopHours,
+  shopReviews,
+  shopClaims,
   posts,
-  submissions,
+  sponsors,
   user,
-  votes,
-  comments,
   session,
   account,
 } from "./schema"
 
-export const batchesRelations = relations(batches, ({ many }) => ({
-  products: many(products),
-}))
+// ── Shop relations ────────────────────────────────────────────────────────────
 
-export const productsRelations = relations(products, ({ one, many }) => ({
-  batch: one(batches, {
-    fields: [products.batchId],
-    references: [batches.id],
-  }),
-  votes: many(votes),
-  comments: many(comments),
-}))
-
-export const submissionsRelations = relations(submissions, ({ one }) => ({
-  user: one(user, {
-    fields: [submissions.userId],
+export const shopsRelations = relations(shops, ({ many, one }) => ({
+  games: many(shopGames),
+  hours: many(shopHours),
+  reviews: many(shopReviews),
+  claims: many(shopClaims),
+  claimedBy: one(user, {
+    fields: [shops.claimedBy],
     references: [user.id],
   }),
-  product: one(products, {
-    fields: [submissions.productId],
-    references: [products.id],
+}))
+
+// ── Game relations ────────────────────────────────────────────────────────────
+
+export const gamesRelations = relations(games, ({ many }) => ({
+  shops: many(shopGames),
+}))
+
+// ── ShopGames (junction) ──────────────────────────────────────────────────────
+
+export const shopGamesRelations = relations(shopGames, ({ one }) => ({
+  shop: one(shops, {
+    fields: [shopGames.shopId],
+    references: [shops.id],
+  }),
+  game: one(games, {
+    fields: [shopGames.gameId],
+    references: [games.id],
   }),
 }))
+
+// ── ShopHours ─────────────────────────────────────────────────────────────────
+
+export const shopHoursRelations = relations(shopHours, ({ one }) => ({
+  shop: one(shops, {
+    fields: [shopHours.shopId],
+    references: [shops.id],
+  }),
+}))
+
+// ── ShopReviews ───────────────────────────────────────────────────────────────
+
+export const shopReviewsRelations = relations(shopReviews, ({ one }) => ({
+  shop: one(shops, {
+    fields: [shopReviews.shopId],
+    references: [shops.id],
+  }),
+  user: one(user, {
+    fields: [shopReviews.userId],
+    references: [user.id],
+  }),
+}))
+
+// ── ShopClaims ────────────────────────────────────────────────────────────────
+
+export const shopClaimsRelations = relations(shopClaims, ({ one }) => ({
+  shop: one(shops, {
+    fields: [shopClaims.shopId],
+    references: [shops.id],
+  }),
+  user: one(user, {
+    fields: [shopClaims.userId],
+    references: [user.id],
+  }),
+  reviewedBy: one(user, {
+    fields: [shopClaims.reviewedBy],
+    references: [user.id],
+    relationName: "claimReviewer",
+  }),
+}))
+
+// ── Blog posts ────────────────────────────────────────────────────────────────
 
 export const postsRelations = relations(posts, ({ one }) => ({
   author: one(user, {
@@ -42,12 +94,22 @@ export const postsRelations = relations(posts, ({ one }) => ({
   }),
 }))
 
+// ── Sponsors ──────────────────────────────────────────────────────────────────
+
+export const sponsorsRelations = relations(sponsors, ({ one }) => ({
+  user: one(user, {
+    fields: [sponsors.userId],
+    references: [user.id],
+  }),
+}))
+
+// ── User relations ────────────────────────────────────────────────────────────
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
-  submissions: many(submissions),
-  votes: many(votes),
-  comments: many(comments),
+  reviews: many(shopReviews),
+  claims: many(shopClaims),
   posts: many(posts),
 }))
 
@@ -63,32 +125,4 @@ export const accountRelations = relations(account, ({ one }) => ({
     fields: [account.userId],
     references: [user.id],
   }),
-}))
-
-export const votesRelations = relations(votes, ({ one }) => ({
-  user: one(user, {
-    fields: [votes.userId],
-    references: [user.id],
-  }),
-  product: one(products, {
-    fields: [votes.productId],
-    references: [products.id],
-  }),
-}))
-
-export const commentsRelations = relations(comments, ({ one, many }) => ({
-  user: one(user, {
-    fields: [comments.userId],
-    references: [user.id],
-  }),
-  product: one(products, {
-    fields: [comments.productId],
-    references: [products.id],
-  }),
-  parent: one(comments, {
-    fields: [comments.parentId],
-    references: [comments.id],
-    relationName: "commentThread",
-  }),
-  replies: many(comments, { relationName: "commentThread" }),
 }))

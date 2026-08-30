@@ -8,6 +8,8 @@ import {
   pgEnum,
   boolean,
   date,
+  numeric,
+  jsonb,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core"
 import { index, uniqueIndex } from "drizzle-orm/pg-core"
@@ -91,113 +93,201 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)]
 )
 
-// ── CardShopDir enums ────────────────────────────────────────────────────────────
+// ── CardShopDir enums ─────────────────────────────────────────────────────────
 
-export const productTier = pgEnum("product_tier", [
-  "free",
-  "boost",
-  "highlight",
+export const shopType = pgEnum("shop_type", [
+  "tcg_specialty",
+  "comic_shop",
+  "game_store",
+  "sports_cards",
+  "hobby_store",
+  "toy_store",
+  "collectibles",
+  "general_retail",
+  "other",
 ])
 
-// ── CardShopDir tables ───────────────────────────────────────────────────────────
-
-export const batches = pgTable(
-  "batches",
-  {
-    id: serial("id").primaryKey(),
-    weekNumber: integer("week_number").notNull(),
-    year: integer("year").notNull(),
-    publishedAt: timestamp("published_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-  },
-  (t) => [uniqueIndex("batches_week_year").on(t.weekNumber, t.year)]
-)
-
-export const products = pgTable(
-  "products",
-  {
-    id: serial("id").primaryKey(),
-    batchId: integer("batch_id")
-      .notNull()
-      .references(() => batches.id, { onDelete: "cascade" }),
-    name: varchar("name", { length: 100 }).notNull(),
-    slug: varchar("slug", { length: 100 }).notNull().unique(),
-    tagline: varchar("tagline", { length: 200 }),
-    description: text("description"),
-    thumbnailUrl: text("thumbnail_url").notNull(),
-    websiteUrl: text("website_url").notNull(),
-    position: integer("position").notNull().default(0),
-    tier: productTier("tier").notNull().default("free"),
-    logoUrl: text("logo_url"),
-    stripePaymentId: text("stripe_payment_id"),
-    highlightExpiresAt: timestamp("highlight_expires_at"),
-    voteCount: integer("vote_count").notNull().default(0),
-    dofollow: boolean("dofollow").notNull().default(false),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-  },
-  (t) => [index("products_batchId_idx").on(t.batchId)]
-)
-
-export const submissionStatus = pgEnum("submission_status", [
-  "draft",
+export const claimStatus = pgEnum("claim_status", [
   "pending",
-  "revision",
-  "accepted",
+  "approved",
   "rejected",
 ])
 
-export const submissions = pgTable(
-  "submissions",
+export const reviewStatus = pgEnum("review_status", [
+  "pending",
+  "approved",
+  "rejected",
+])
+
+// ── CardShopDir tables ─────────────────────────────────────────────────────────
+
+// Games (Pokemon, MTG, Yu-Gi-Oh!, etc.)
+export const games = pgTable(
+  "games",
   {
     id: serial("id").primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    slug: varchar("slug", { length: 50 }).notNull().unique(),
     name: varchar("name", { length: 100 }).notNull(),
-    tagline: varchar("tagline", { length: 200 }),
+    displayName: varchar("display_name", { length: 100 }).notNull(),
+    icon: text("icon"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("games_slug_idx").on(t.slug)]
+)
+
+// Shops (trading card shops)
+export const shops = pgTable(
+  "shops",
+  {
+    id: serial("id").primaryKey(),
+    slug: varchar("slug", { length: 200 }).notNull().unique(),
+    name: varchar("name", { length: 200 }).notNull(),
     description: text("description"),
-    websiteUrl: text("website_url").notNull(),
-    thumbnailUrl: text("thumbnail_url").notNull(),
-    tier: productTier("tier").notNull().default("free"),
-    status: submissionStatus("status").notNull().default("pending"),
-    // Unique: the Stripe webhook may be delivered more than once, and
-    // concurrently. The constraint — not a preceding SELECT — is what stops a
-    // single payment from publishing two products.
-    stripeSessionId: text("stripe_session_id").unique(),
-    productId: integer("product_id").references(() => products.id, {
-      onDelete: "set null",
-    }),
-    logoUrl: text("logo_url"),
-    scheduledWeek: integer("scheduled_week"),
-    scheduledYear: integer("scheduled_year"),
-    revisionReasons: text("revision_reasons"),
-    publishedAt: timestamp("published_at"),
+    metaDescription: text("meta_description"),
+    descriptionSource: varchar("description_source", { length: 30 }).default("original"),
+
+    // Location
+    street: text("street"),
+    city: varchar("city", { length: 100 }),
+    state: varchar("state", { length: 50 }),
+    postalCode: varchar("postal_code", { length: 20 }),
+    country: varchar("country", { length: 50 }).default("United States"),
+    latitude: numeric("latitude", { precision: 10, scale: 7 }),
+    longitude: numeric("longitude", { precision: 10, scale: 7 }),
+
+    // Contact
+    telephone: text("telephone"),
+    email: text("email"),
+    website: text("website"),
+
+    // Image
+    imageUrl: text("image_url"),
+    imageSource: varchar("image_source", { length: 20 }).default("none"),
+
+    // Ratings
+    ratingValue: numeric("rating_value", { precision: 3, scale: 1 }),
+    reviewCount: integer("review_count").default(0),
+
+    // Classification
+    shopType: shopType("shop_type").notNull().default("other"),
+
+    // Index control
+    shouldIndex: boolean("should_index").notNull().default(false),
+
+    // Claim status (shop owner can claim their shop)
+    claimedBy: text("claimed_by").references(() => user.id, { onDelete: "set null" }),
+    claimedAt: timestamp("claimed_at"),
+
+    // Sponsor (paid placement)
+    isSponsored: boolean("is_sponsored").notNull().default(false),
+    sponsoredExpiresAt: timestamp("sponsored_expires_at"),
+
+    // Source tracking
+    sourceUrl: text("source_url"),
+
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
   },
   (t) => [
-    index("submissions_userId_idx").on(t.userId),
-    index("submissions_status_idx").on(t.status),
+    index("shops_slug_idx").on(t.slug),
+    index("shops_state_idx").on(t.state),
+    index("shops_city_idx").on(t.city),
+    index("shops_state_city_idx").on(t.state, t.city),
+    index("shops_shopType_idx").on(t.shopType),
+    index("shops_shouldIndex_idx").on(t.shouldIndex),
   ]
 )
 
-export const sponsors = pgTable(
-  "sponsors",
+// Shop ↔ Game many-to-many
+export const shopGames = pgTable(
+  "shop_games",
   {
     id: serial("id").primaryKey(),
-    slot: integer("slot").notNull(),
-    name: varchar("name", { length: 100 }).notNull(),
-    tagline: varchar("tagline", { length: 200 }).notNull(),
-    websiteUrl: text("website_url").notNull(),
-    imageUrl: text("image_url"),
-    startsAt: date("starts_at", { mode: "string" }).notNull(),
-    endsAt: date("ends_at", { mode: "string" }).notNull(),
-    totalCents: integer("total_cents").notNull(),
-    stripeSessionId: text("stripe_session_id").notNull().unique(),
-    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
-    email: text("email").notNull(),
+    shopId: integer("shop_id")
+      .notNull()
+      .references(() => shops.id, { onDelete: "cascade" }),
+    gameId: integer("game_id")
+      .notNull()
+      .references(() => games.id, { onDelete: "cascade" }),
+    gameSource: varchar("game_source", { length: 20 }).default("original"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (t) => [index("sponsors_slot_dates_idx").on(t.slot, t.startsAt, t.endsAt)]
+  (t) => [
+    uniqueIndex("shopGames_shop_game").on(t.shopId, t.gameId),
+    index("shopGames_gameId_idx").on(t.gameId),
+  ]
+)
+
+// Shop hours (opening hours per day group)
+export const shopHours = pgTable(
+  "shop_hours",
+  {
+    id: serial("id").primaryKey(),
+    shopId: integer("shop_id")
+      .notNull()
+      .references(() => shops.id, { onDelete: "cascade" }),
+    days: jsonb("days").notNull(), // ["Monday", "Tuesday", ...]
+    opens: varchar("opens", { length: 10 }), // "10:00"
+    closes: varchar("closes", { length: 10 }), // "18:00"
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("shopHours_shopId_idx").on(t.shopId)]
+)
+
+// Shop reviews (UGC)
+export const shopReviews = pgTable(
+  "shop_reviews",
+  {
+    id: serial("id").primaryKey(),
+    shopId: integer("shop_id")
+      .notNull()
+      .references(() => shops.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(), // 1-5
+    title: varchar("title", { length: 200 }),
+    body: text("body"),
+    status: reviewStatus("status").notNull().default("pending"),
+    ip: text("ip"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+  },
+  (t) => [
+    index("shopReviews_shopId_idx").on(t.shopId),
+    index("shopReviews_status_idx").on(t.status),
+    uniqueIndex("shopReviews_user_shop").on(t.userId, t.shopId),
+  ]
+)
+
+// Shop claims (shop owner verification)
+export const shopClaims = pgTable(
+  "shop_claims",
+  {
+    id: serial("id").primaryKey(),
+    shopId: integer("shop_id")
+      .notNull()
+      .references(() => shops.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    status: claimStatus("status").notNull().default("pending"),
+    proofUrl: text("proof_url"), // link to shop's website/social media
+    notes: text("notes"),
+    reviewedAt: timestamp("reviewed_at"),
+    reviewedBy: text("reviewed_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("shopClaims_shopId_idx").on(t.shopId),
+    index("shopClaims_status_idx").on(t.status),
+  ]
 )
 
 // ── Site settings (key-value store) ──────────────────────────────────────────
@@ -207,6 +297,8 @@ export const siteSettings = pgTable("site_settings", {
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
+
+// ── Blog posts ───────────────────────────────────────────────────────────────
 
 export const postStatus = pgEnum("post_status", ["draft", "published"])
 
@@ -233,47 +325,24 @@ export const posts = pgTable(
   ]
 )
 
-export const votes = pgTable(
-  "votes",
+// ── Sponsors (paid placement — reused from template) ─────────────────────────
+
+export const sponsors = pgTable(
+  "sponsors",
   {
     id: serial("id").primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    productId: integer("product_id")
-      .notNull()
-      .references(() => products.id, { onDelete: "cascade" }),
-    ip: text("ip"),
+    slot: integer("slot").notNull(),
+    name: varchar("name", { length: 100 }).notNull(),
+    tagline: varchar("tagline", { length: 200 }).notNull(),
+    websiteUrl: text("website_url").notNull(),
+    imageUrl: text("image_url"),
+    startsAt: date("starts_at", { mode: "string" }).notNull(),
+    endsAt: date("ends_at", { mode: "string" }).notNull(),
+    totalCents: integer("total_cents").notNull(),
+    stripeSessionId: text("stripe_session_id").notNull().unique(),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    email: text("email").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (t) => [uniqueIndex("votes_user_product").on(t.userId, t.productId)]
-)
-
-// ── Comments ──────────────────────────────────────────────────────
-
-export const commentStatus = pgEnum("comment_status", ["approved", "rejected"])
-
-export const comments = pgTable(
-  "comments",
-  {
-    id: serial("id").primaryKey(),
-    productId: integer("product_id")
-      .notNull()
-      .references(() => products.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    parentId: integer("parent_id").references((): AnyPgColumn => comments.id, {
-      onDelete: "cascade",
-    }),
-    body: text("body").notNull(),
-    status: commentStatus("status").notNull().default("approved"),
-    ip: text("ip"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-  },
-  (t) => [
-    index("comments_product_idx").on(t.productId),
-    index("comments_parent_idx").on(t.parentId),
-    index("comments_status_idx").on(t.status),
-  ]
+  (t) => [index("sponsors_slot_dates_idx").on(t.slot, t.startsAt, t.endsAt)]
 )
