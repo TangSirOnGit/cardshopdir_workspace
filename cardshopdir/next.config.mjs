@@ -1,5 +1,3 @@
-import { withPlausibleProxy } from "next-plausible"
-
 const isDev = process.env.NODE_ENV === "development"
 
 /** @type {import('next').NextConfig} */
@@ -7,8 +5,6 @@ const nextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      // Add your R2/CDN domain here, e.g.:
-      // { protocol: "https", hostname: "cdn.yourdomain.com" },
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
@@ -57,11 +53,11 @@ const nextConfig = {
           key: "Content-Security-Policy",
           value: [
             "default-src 'self'",
-            `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://challenges.cloudflare.com`,
+            `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://challenges.cloudflare.com https://info.ewaltech.com`,
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: blob: https:",
             "font-src 'self' https://fonts.gstatic.com",
-            "connect-src 'self' https://plausible.io https://*.plausible.io https://challenges.cloudflare.com",
+            "connect-src 'self' https://info.ewaltech.com https://challenges.cloudflare.com",
             "frame-src https://js.stripe.com https://challenges.cloudflare.com",
             "frame-ancestors 'none'",
             "object-src 'none'",
@@ -75,12 +71,4 @@ const nextConfig = {
   ],
 }
 
-const baseConfig = nextConfig
-// Plausible is proxied through the Next.js server to avoid ad blockers.
-// Leave `customDomain` unset to use plausible.io (default). Set it to your
-// self-hosted Plausible URL if applicable (e.g., https://stats.your-domain.com).
-const plausibleCustomDomain = process.env.PLAUSIBLE_CUSTOM_DOMAIN
-
-export default withPlausibleProxy(
-  plausibleCustomDomain ? { customDomain: plausibleCustomDomain } : undefined
-)(baseConfig)
+export default nextConfig

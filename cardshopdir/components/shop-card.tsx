@@ -1,13 +1,23 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { MapPin, Star } from "lucide-react"
-import { shopTypeLabel, type ShopListItem } from "@/lib/directory"
+import { shopTypeLabel, type ShopListItem } from "@/lib/shop-types"
+import { trackEvent } from "@/lib/analytics"
 
 export function ShopCard({ shop }: { shop: ShopListItem }) {
   return (
     <Link
       href={`/shop/${shop.slug}`}
       className="group flex gap-3 rounded-lg border border-border/50 p-3 transition-colors hover:bg-muted/30"
+      onClick={() =>
+        trackEvent("shop_click", {
+          slug: shop.slug,
+          name: shop.name,
+          state: shop.state || "",
+        })
+      }
     >
       {shop.imageUrl ? (
         <Image
@@ -33,7 +43,9 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
         {shop.ratingValue && (
           <p className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground">
             <Star className="h-3 w-3 fill-current text-amber-500" />
-            <span className="font-medium text-foreground">{shop.ratingValue}</span>
+            <span className="font-medium text-foreground">
+              {shop.ratingValue}
+            </span>
             <span>({shop.reviewCount} reviews)</span>
           </p>
         )}

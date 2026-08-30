@@ -4,9 +4,10 @@ import { shops, games, shopGames } from "@/lib/db/schema"
 import { eq, desc, sql, count } from "drizzle-orm"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, MapPin, Gamepad2, Search } from "lucide-react"
+import { ArrowRight, MapPin, Gamepad2 } from "lucide-react"
 import { getSettingsTyped } from "@/lib/settings"
 import { SITE_URL } from "@/config"
+import { SearchBox } from "@/components/search-box"
 
 export const dynamic = "force-dynamic"
 
@@ -126,17 +127,7 @@ export default async function Home() {
         </p>
 
         {/* Search bar */}
-        <form action="/directory/search" className="mx-auto mt-6 max-w-md">
-          <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
-            <input
-              type="text"
-              name="q"
-              placeholder="Search by city, state, or shop name..."
-              className="h-11 w-full rounded-lg border border-border bg-background pr-4 pl-10 text-[14px] transition-colors outline-none focus:border-foreground/30"
-            />
-          </div>
-        </form>
+        <SearchBox className="mx-auto mt-6 max-w-md" />
       </header>
 
       {/* ── Stats ────────────────────────────────────── */}

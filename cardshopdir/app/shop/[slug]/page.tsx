@@ -2,20 +2,12 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import {
-  MapPin,
-  Phone,
-  Globe,
-  Mail,
-  Clock,
-  Star,
-  Gamepad2,
-  Navigation,
-} from "lucide-react"
+import { MapPin, Phone, Globe, Mail, Clock, Star, Gamepad2 } from "lucide-react"
 import { db } from "@/lib/db"
 import { shops, shopGames, games, shopHours } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { stateName, shopTypeLabel, breadcrumbJsonLd } from "@/lib/directory"
+import { ShopActions } from "@/components/shop-actions"
 
 export const dynamic = "force-dynamic"
 
@@ -230,37 +222,12 @@ export default async function ShopPage({ params }: PageProps) {
       </div>
 
       {/* Action buttons */}
-      <div className="flex flex-wrap gap-3">
-        {shop.website && (
-          <a
-            href={shop.website}
-            target="_blank"
-            rel="noopener nofollow"
-            className="inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-85"
-          >
-            <Globe className="h-4 w-4" />
-            Visit Website
-          </a>
-        )}
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener"
-          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-[13px] font-medium transition-colors hover:bg-muted/50"
-        >
-          <Navigation className="h-4 w-4" />
-          Get Directions
-        </a>
-        {shop.telephone && (
-          <a
-            href={`tel:${shop.telephone.replace(/[^0-9+]/g, "")}`}
-            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-[13px] font-medium transition-colors hover:bg-muted/50"
-          >
-            <Phone className="h-4 w-4" />
-            {shop.telephone}
-          </a>
-        )}
-      </div>
+      <ShopActions
+        slug={shop.slug}
+        website={shop.website}
+        telephone={shop.telephone}
+        mapsUrl={mapsUrl}
+      />
 
       {/* Description */}
       {shop.description && (

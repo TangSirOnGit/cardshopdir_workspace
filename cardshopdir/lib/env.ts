@@ -55,14 +55,11 @@ const server = z.object({
 
   // Discord (optional)
   DISCORD_WEBHOOK_URL: optionalUrl,
-
-  // Plausible (optional — script hidden when empty)
-  PLAUSIBLE_CUSTOM_DOMAIN: optionalUrl,
 })
 
 const client = z.object({
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
-  NEXT_PUBLIC_PLAUSIBLE_DOMAIN: z.string().optional(),
+  NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
   NEXT_PUBLIC_CDN_HOSTNAME: z.string().optional(),
 })
 

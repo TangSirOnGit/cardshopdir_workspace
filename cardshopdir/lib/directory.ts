@@ -1,21 +1,10 @@
 import { db } from "@/lib/db"
 import { shops, shopGames, games } from "@/lib/db/schema"
 import { eq, and, sql, ilike, desc, or } from "drizzle-orm"
+import type { ShopListItem } from "@/lib/shop-types"
 
-// ── Types ──────────────────────────────────────────────────────
-
-export interface ShopListItem {
-  id: number
-  slug: string
-  name: string
-  city: string | null
-  state: string | null
-  imageUrl: string | null
-  ratingValue: string | null
-  reviewCount: number | null
-  shopType: string
-  description: string | null
-}
+// Re-export shared types and helpers (safe for client/server)
+export { type ShopListItem, shopTypeLabel } from "@/lib/shop-types"
 
 // ── Queries ────────────────────────────────────────────────────
 
@@ -328,19 +317,4 @@ export function gameDisplayName(
   games: { slug: string; displayName: string }[]
 ): string {
   return games.find((g) => g.slug === slug)?.displayName || slug
-}
-
-export function shopTypeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    tcg_specialty: "TCG Specialty Store",
-    comic_shop: "Comic Shop",
-    game_store: "Game Store",
-    sports_cards: "Sports Cards",
-    hobby_store: "Hobby Store",
-    toy_store: "Toy Store",
-    collectibles: "Collectibles",
-    general_retail: "General Retail",
-    other: "Other",
-  }
-  return labels[type] || type
 }

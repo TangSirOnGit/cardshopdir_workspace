@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { searchShops } from "@/lib/directory"
 import { ShopGrid } from "@/components/shop-card"
+import { SearchBox } from "@/components/search-box"
 
 export const dynamic = "force-dynamic"
 
@@ -32,15 +33,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         </p>
       </header>
 
-      <form action="/directory/search" className="max-w-md">
-        <input
-          type="text"
-          name="q"
-          defaultValue={query}
-          placeholder="Search by city, state, or shop name..."
-          className="h-11 w-full rounded-lg border border-border bg-background px-4 text-[14px] outline-none transition-colors focus:border-foreground/30"
-        />
-      </form>
+      <SearchBox className="max-w-md" initialValue={query} />
 
       {query && <ShopGrid shops={results} />}
     </div>
