@@ -19,7 +19,9 @@ interface PageProps {
   params: Promise<{ state: string }>
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { state } = await params
   const stateCode = state.toUpperCase()
   const name = stateName(stateCode)
@@ -40,7 +42,8 @@ export default async function StateDirectoryPage({ params }: PageProps) {
   const stateCode = state.toUpperCase()
   const name = stateName(stateCode)
 
-  if (!name || name === stateCode && state.length > 3) {
+  // Invalid state code (not in our stateName map)
+  if (name === stateCode) {
     notFound()
   }
 
@@ -83,9 +86,13 @@ export default async function StateDirectoryPage({ params }: PageProps) {
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Home</Link>
+        <Link href="/" className="hover:text-foreground">
+          Home
+        </Link>
         <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">Directory</Link>
+        <Link href="/directory" className="hover:text-foreground">
+          Directory
+        </Link>
         <span>/</span>
         <span className="text-foreground">{name}</span>
       </nav>
@@ -95,8 +102,8 @@ export default async function StateDirectoryPage({ params }: PageProps) {
           Trading Card Shops in {name}
         </h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
-          {shopsList.length} shops listed in {name} ({stateCode}). Browse by city
-          below or view all shops.
+          {shopsList.length} shops listed in {name} ({stateCode}). Browse by
+          city below or view all shops.
         </p>
       </header>
 
@@ -138,7 +145,9 @@ export default async function StateDirectoryPage({ params }: PageProps) {
       {/* Cross-links to games */}
       {games.length > 0 && (
         <section>
-          <h2 className="mb-4 text-lg font-semibold">Browse by Game in {name}</h2>
+          <h2 className="mb-4 text-lg font-semibold">
+            Browse by Game in {name}
+          </h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             {games.slice(0, 8).map((g) => (
               <Link

@@ -1,6 +1,14 @@
+import type { Metadata } from "next"
 import { getSettingsTyped } from "@/lib/settings"
 
 export const dynamic = "force-dynamic"
+
+export const metadata: Metadata = {
+  title: "Terms of Service — CardShopDir",
+  description:
+    "Terms of service for CardShopDir. Read the terms and conditions for using our trading card shop directory.",
+  alternates: { canonical: "/terms" },
+}
 
 export default async function TermsPage() {
   const settings = await getSettingsTyped()

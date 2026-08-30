@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { db } from "@/lib/db"
 import { shops, games, shopGames } from "@/lib/db/schema"
 import { eq, desc, sql, count } from "drizzle-orm"
@@ -5,8 +6,23 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, MapPin, Gamepad2, Search } from "lucide-react"
 import { getSettingsTyped } from "@/lib/settings"
+import { SITE_URL } from "@/config"
 
 export const dynamic = "force-dynamic"
+
+export const metadata: Metadata = {
+  title: "CardShopDir — Find Trading Card Shops Near You",
+  description:
+    "Browse 7,700+ trading card shops across all 50 US states. Find local game stores for Pokemon, Magic: The Gathering, Yu-Gi-Oh!, Flesh and Blood, and more.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "CardShopDir — Find Trading Card Shops Near You",
+    description:
+      "Browse 7,700+ trading card shops across all 50 US states. Find local game stores for Pokemon, MTG, Yu-Gi-Oh!, and more.",
+    url: SITE_URL,
+    type: "website",
+  },
+}
 
 export default async function Home() {
   const settings = await getSettingsTyped()
@@ -76,8 +92,27 @@ export default async function Home() {
       .limit(12),
   ])
 
+  const searchActionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "CardShopDir",
+    url: SITE_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/directory/search?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  }
+
   return (
     <div className="space-y-12 pt-4 sm:pt-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(searchActionJsonLd) }}
+      />
       {/* ── Hero ─────────────────────────────────────── */}
       <header className="text-center">
         <h1 className="font-serif text-3xl tracking-tight sm:text-4xl md:text-5xl">

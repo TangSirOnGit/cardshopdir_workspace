@@ -1,4 +1,12 @@
+import type { Metadata } from "next"
 import { db } from "@/lib/db"
+
+export const metadata: Metadata = {
+  title: "About CardShopDir — Trading Card Shop Directory",
+  description:
+    "CardShopDir is the most comprehensive directory of trading card shops in the US. Learn about our mission to help collectors find local game stores.",
+  alternates: { canonical: "/about" },
+}
 import { shops, games } from "@/lib/db/schema"
 import { sql, count } from "drizzle-orm"
 import { getSettingsTyped } from "@/lib/settings"

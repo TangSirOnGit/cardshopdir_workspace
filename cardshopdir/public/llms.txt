@@ -1,0 +1,47 @@
+# CardShopDir
+
+> CardShopDir is a comprehensive directory of trading card game (TCG) shops across the United States. We help collectors and players find local game stores for Pokemon, Magic: The Gathering, Yu-Gi-Oh!, Flesh and Blood, Disney Lorcana, and more.
+
+CardShopDir lists over 7,700 shops across all 50 US states plus DC. Each shop listing includes location details, contact information, opening hours, supported games, ratings, and photos. The directory can be browsed by state, city, or game category.
+
+## Key Pages
+
+- [Home](https://cardshopdir.com/): Search and browse entry point with featured shops
+- [Directory](https://cardshopdir.com/directory): Browse all states and game categories
+- [Browse by Game](https://cardshopdir.com/directory/games): All TCG categories (Pokemon, MTG, Yu-Gi-Oh!, etc.)
+- [About](https://cardshopdir.com/about): About CardShopDir and our mission
+- [Blog](https://cardshopdir.com/blog): TCG community articles and guides
+- [Contact](https://cardshopdir.com/contact): Get in touch with the CardShopDir team
+
+## Directory Structure
+
+- State directory: /directory/[state] (e.g., /directory/ca for California)
+- City directory: /directory/[state]/[city] (e.g., /directory/ca/los-angeles)
+- Game directory: /directory/games/[game] (e.g., /directory/games/pokemon)
+- State + Game: /directory/[state]/games/[game] (e.g., /directory/ca/games/pokemon)
+- Shop detail: /shop/[slug] (e.g., /shop/1st-capital-gaming-york-pa)
+
+## Games Covered
+
+Pokemon, Magic: The Gathering, Yu-Gi-Oh!, Flesh and Blood, Riftbound, Sports Cards, Disney Lorcana, Dragon Ball Super, Star Wars Unlimited, One Piece, Union Arena, Digimon, Final Fantasy TCG, Weiss Schwarz, Cardfight!! Vanguard
+
+## Shop Data
+
+Each shop listing may include:
+- Shop name, type (TCG specialty, comic shop, game store, etc.)
+- Full address (street, city, state, postal code)
+- Latitude/longitude for map directions
+- Phone number, email, website
+- Opening hours by day
+- Supported games/categories
+- Google rating and review count
+- Shop photo
+- Unique description
+
+## Technical
+
+- Built with Next.js 16, Drizzle ORM, PostgreSQL
+- Images hosted on Cloudflare R2 (assert.cardshopdir.com)
+- Deployed on VPS with Nginx reverse proxy
+- Sitemap available at /sitemap.xml
+- Robots.txt at /robots.txt
