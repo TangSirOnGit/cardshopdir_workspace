@@ -1,0 +1,20 @@
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+
+export default function NotFound() {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-4">
+      <h1 className="font-serif text-5xl tracking-tight">404</h1>
+      <p className="text-[14px] text-muted-foreground">
+        This page doesn&apos;t exist.
+      </p>
+      <Link
+        href="/"
+        className="mt-2 inline-flex items-center gap-1.5 text-[13px] text-muted-foreground transition-opacity hover:opacity-60"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to home
+      </Link>
+    </div>
+  )
+}

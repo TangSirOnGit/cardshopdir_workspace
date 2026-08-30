@@ -1,0 +1,22 @@
+# Secrets - never commit
+docs/
+.env
+.env.prod
+.env*.local
+
+# Data files (too large, not for git)
+data/
+sitemap.xml
+
+# Dependencies
+cardshopdir/node_modules/
+
+# Build
+cardshopdir/.next/
+cardshopdir/build/
+
+# OS
+.DS_Store
+
+# IDE
+.claude/

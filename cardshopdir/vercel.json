@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/weekly-batch",
+      "schedule": "0 6 * * 1"
+    },
+    {
+      "path": "/api/cron/cleanup-highlights",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

@@ -1,0 +1,649 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+
+  /* Prose / code surfaces — shared by blog, tiptap, and shiki wrapper */
+  --prose-code-bg: oklch(0.97 0 0);
+  --prose-code-inline-bg: oklch(0.955 0 0);
+  --prose-code-fg: oklch(0.35 0 0);
+  --prose-code-border: oklch(0.922 0 0);
+  --prose-code-header-bg: oklch(0.96 0 0);
+  --prose-code-lang: oklch(0.5 0 0);
+}
+
+.dark {
+  --background: oklch(0.178 0 0);
+  --foreground: oklch(0.93 0 0);
+  --card: oklch(0.21 0 0);
+  --card-foreground: oklch(0.93 0 0);
+  --popover: oklch(0.195 0 0);
+  --popover-foreground: oklch(0.93 0 0);
+  --primary: oklch(0.93 0 0);
+  --primary-foreground: oklch(0.178 0 0);
+  --secondary: oklch(0.245 0 0);
+  --secondary-foreground: oklch(0.93 0 0);
+  --muted: oklch(0.245 0 0);
+  --muted-foreground: oklch(0.62 0 0);
+  --accent: oklch(0.245 0 0);
+  --accent-foreground: oklch(0.93 0 0);
+  --destructive: oklch(0.45 0.15 27);
+  --border: oklch(0.32 0 0);
+  --input: oklch(0.32 0 0);
+  --ring: oklch(0.48 0 0);
+  --chart-1: oklch(0.3 0 0);
+  --chart-2: oklch(0.4 0 0);
+  --chart-3: oklch(0.48 0 0);
+  --chart-4: oklch(0.6 0 0);
+  --chart-5: oklch(0.85 0 0);
+
+  --prose-code-bg: oklch(0.21 0 0);
+  --prose-code-inline-bg: oklch(0.245 0 0);
+  --prose-code-fg: oklch(0.82 0 0);
+  --prose-code-border: oklch(0.32 0 0);
+  --prose-code-header-bg: oklch(0.21 0 0);
+  --prose-code-lang: oklch(0.55 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1,
+      "ss01" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background-color: color-mix(
+      in oklab,
+      var(--color-foreground) 18%,
+      transparent
+    );
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Prose — shared styles for blog post content and the Tiptap editor.
+   Selector targets both `.prose-description` (reader) and `.tiptap` (editor)
+   so the writing experience matches the final published output 1:1.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.prose-description,
+.tiptap {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--color-foreground);
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.prose-description {
+  color: color-mix(
+    in oklab,
+    var(--color-foreground) 88%,
+    var(--color-muted-foreground)
+  );
+}
+
+.prose-description > :first-child,
+.tiptap > :first-child {
+  margin-top: 0;
+}
+.prose-description > :last-child,
+.tiptap > :last-child {
+  margin-bottom: 0;
+}
+
+/* Paragraphs */
+.prose-description p,
+.tiptap p {
+  margin-top: 0;
+  margin-bottom: 1.15em;
+}
+
+/* Inline emphasis */
+.prose-description strong,
+.tiptap strong {
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+.prose-description em,
+.tiptap em {
+  font-style: italic;
+}
+
+/* Headings — sans-serif, balanced, with scroll offset for in-page anchors */
+.prose-description h1,
+.prose-description h2,
+.prose-description h3,
+.prose-description h4,
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap h4 {
+  color: var(--color-foreground);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  scroll-margin-top: 5rem;
+}
+.prose-description h1,
+.tiptap h1 {
+  font-size: 1.55em;
+  line-height: 1.22;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+}
+.prose-description h2,
+.tiptap h2 {
+  font-size: 1.275em;
+  line-height: 1.28;
+  margin-top: 1.85em;
+  margin-bottom: 0.55em;
+}
+.prose-description h3,
+.tiptap h3 {
+  font-size: 1.1em;
+  line-height: 1.32;
+  margin-top: 1.5em;
+  margin-bottom: 0.4em;
+}
+.prose-description h4,
+.tiptap h4 {
+  font-size: 1em;
+  line-height: 1.35;
+  margin-top: 1.25em;
+  margin-bottom: 0.3em;
+}
+
+/* Lists */
+.prose-description ul,
+.prose-description ol,
+.tiptap ul,
+.tiptap ol {
+  padding-left: 1.4em;
+  margin-top: 0;
+  margin-bottom: 1.15em;
+}
+.prose-description ol,
+.tiptap ol {
+  list-style-type: decimal;
+}
+.prose-description ul,
+.tiptap ul {
+  list-style-type: disc;
+}
+.prose-description li,
+.tiptap li {
+  margin-bottom: 0.35em;
+  padding-left: 0.2em;
+}
+.prose-description li::marker,
+.tiptap li::marker {
+  color: var(--color-muted-foreground);
+}
+.prose-description li > p,
+.tiptap li > p {
+  margin-bottom: 0.4em;
+}
+.prose-description ul ul,
+.prose-description ul ol,
+.prose-description ol ul,
+.prose-description ol ol,
+.tiptap ul ul,
+.tiptap ul ol,
+.tiptap ol ul,
+.tiptap ol ol {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+}
+
+/* Blockquote */
+.prose-description blockquote,
+.tiptap blockquote {
+  border-left: 2px solid var(--color-border);
+  padding-left: 1.15em;
+  margin: 1.5em 0;
+  color: var(--color-muted-foreground);
+  font-style: italic;
+}
+.prose-description blockquote p,
+.tiptap blockquote p {
+  margin-bottom: 0.4em;
+}
+.prose-description blockquote p:last-child,
+.tiptap blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Horizontal rule */
+.prose-description hr,
+.tiptap hr {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin: 2.5em 0;
+}
+
+/* Links */
+.prose-description a,
+.tiptap a {
+  color: var(--color-foreground);
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in oklab,
+    var(--color-foreground) 30%,
+    transparent
+  );
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition:
+    text-decoration-color 0.15s ease,
+    color 0.15s ease;
+}
+/* Inside the editor, links are non-navigable: the BubbleMenu offers an
+   explicit "open" button instead. Clicks still reach ProseMirror so the
+   caret lands in the link and the link bubble shows up. */
+.tiptap a {
+  cursor: text;
+  pointer-events: none;
+}
+.prose-description a:hover,
+.tiptap a:hover {
+  text-decoration-color: var(--color-foreground);
+}
+.prose-description a:focus-visible,
+.tiptap a:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Images & figures */
+.prose-description img,
+.tiptap img {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  border-radius: 0.625em;
+  border: 1px solid var(--color-border);
+  margin: 1.75em 0;
+  box-sizing: border-box;
+}
+.prose-description figure,
+.tiptap figure {
+  margin: 1.75em 0;
+}
+.prose-description figure > img,
+.tiptap figure > img {
+  margin: 0;
+}
+.prose-description figcaption,
+.tiptap figcaption {
+  margin-top: 0.6em;
+  font-size: 0.8125em;
+  color: var(--color-muted-foreground);
+  text-align: center;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Tables — ported from the official Tiptap React demo:
+   https://github.com/ueberdosis/tiptap/blob/main/demos/src/Examples/Tables/React/styles.scss
+   Adapted to our design tokens. Applies to both `.prose-description`
+   (reader) and `.tiptap` (editor) so edits look identical to published. */
+
+.prose-description .tableWrapper,
+.prose-description .table-scroll,
+.tiptap .tableWrapper {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.prose-description table,
+.tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.prose-description td,
+.prose-description th,
+.tiptap td,
+.tiptap th {
+  border: 1px solid var(--color-border);
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 0.5em 0.75em;
+  position: relative;
+  vertical-align: top;
+  text-align: left;
+  color: var(--color-foreground);
+}
+
+/* Remove bottom margin on anything nested inside a cell (p, ul, etc.) */
+.prose-description td > *,
+.prose-description th > *,
+.tiptap td > *,
+.tiptap th > * {
+  margin-bottom: 0;
+}
+
+.prose-description th,
+.tiptap th {
+  background-color: var(--color-muted);
+  font-weight: 600;
+}
+
+/* Tiptap multi-cell selection overlay (uses ::after, not background-color) */
+.tiptap .selectedCell::after {
+  background: color-mix(in oklab, var(--color-foreground) 12%, transparent);
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+/* Tiptap column resize handle */
+.tiptap .column-resize-handle {
+  background-color: var(--color-ring);
+  bottom: -2px;
+  pointer-events: none;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 4px;
+}
+
+.tiptap.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+/* Keyboard */
+.prose-description kbd,
+.tiptap kbd {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.8em;
+  padding: 0.1em 0.45em;
+  border-radius: 0.3em;
+  border: 1px solid var(--color-border);
+  border-bottom-width: 2px;
+  background: var(--color-muted);
+  color: var(--color-foreground);
+}
+
+/* Inline & block code — base */
+.prose-description code,
+.tiptap code {
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  font-variant-ligatures: none;
+}
+.prose-description :not(pre) > code,
+.tiptap :not(pre) > code {
+  background: var(--prose-code-inline-bg);
+  border: 1px solid var(--prose-code-border);
+  padding: 0.15em 0.4em;
+  border-radius: 0.35em;
+  color: var(--prose-code-fg);
+  white-space: nowrap;
+}
+.prose-description :not(pre) > code::before,
+.prose-description :not(pre) > code::after,
+.tiptap :not(pre) > code::before,
+.tiptap :not(pre) > code::after {
+  content: "";
+}
+
+/* Fallback <pre> (no Shiki wrapper) — used by the editor and un-highlighted content */
+.prose-description pre,
+.tiptap pre {
+  background: var(--prose-code-bg);
+  border: 1px solid var(--prose-code-border);
+  border-radius: 0.625em;
+  padding: 0.9em 1.05em;
+  margin: 1.25em 0;
+  overflow-x: auto;
+  font-size: 0.8125em;
+  line-height: 1.7;
+  color: var(--prose-code-fg);
+  max-width: 100%;
+}
+.prose-description pre code,
+.tiptap pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: inherit;
+  white-space: pre;
+}
+
+/* Tiptap placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-muted-foreground);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Tiptap images — selectable via click, deletable via Backspace/Delete */
+.tiptap img {
+  cursor: pointer;
+  transition:
+    outline 0.15s ease,
+    outline-offset 0.15s ease;
+}
+.tiptap img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Shiki + copy-button wrapper (used on published posts only)
+   ───────────────────────────────────────────────────────────────────────── */
+
+.code-block-wrapper {
+  position: relative;
+  margin: 1.5em 0;
+  border-radius: 0.625em;
+  border: 1px solid var(--prose-code-border);
+  overflow: hidden;
+  background: var(--prose-code-bg);
+  max-width: 100%;
+}
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45em 0.85em;
+  border-bottom: 1px solid var(--prose-code-border);
+  background: var(--prose-code-header-bg);
+}
+.code-block-lang {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: var(--prose-code-lang);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+.code-block-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  color: var(--prose-code-lang);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.1s ease;
+}
+.code-block-copy:hover {
+  color: var(--color-foreground);
+  background: color-mix(in oklab, var(--color-foreground) 8%, transparent);
+}
+.code-block-copy:active {
+  transform: scale(0.94);
+}
+.code-block-copy:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
+}
+.code-block-copy .code-block-check-icon {
+  display: none;
+}
+.code-block-copy.copied .code-block-copy-icon {
+  display: none;
+}
+.code-block-copy.copied .code-block-check-icon {
+  display: block;
+  color: oklch(0.65 0.17 145);
+}
+.dark .code-block-copy.copied .code-block-check-icon {
+  color: oklch(0.72 0.17 145);
+}
+
+/* Shiki <pre> sits flush inside the wrapper — strip its own chrome */
+.code-block-wrapper .shiki {
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.95em 1.1em !important;
+  font-size: 0.8125em !important;
+  line-height: 1.7 !important;
+  overflow-x: auto;
+  background: transparent !important;
+}
+.code-block-wrapper .shiki code {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  white-space: pre;
+}
+
+/* Dark-theme swap for Shiki's dual-theme CSS variables.
+   Spans get COLOR only (token coloring); the background belongs to the
+   <pre class="shiki"> root so we don't get colored rectangles on every token. */
+.dark .prose-description .shiki span,
+.dark .tiptap .shiki span,
+.dark .code-block-wrapper .shiki span {
+  color: var(--shiki-dark) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+  background-color: transparent !important;
+}
+.dark .prose-description .shiki,
+.dark .tiptap .shiki {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+.dark .code-block-wrapper .shiki,
+.dark .code-block-wrapper .shiki code {
+  color: var(--shiki-dark) !important;
+  background-color: transparent !important;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
