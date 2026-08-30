@@ -1,8 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { MapPin } from "lucide-react"
-import { getStatesWithCounts, getGamesWithCounts, stateName } from "@/lib/directory"
-import { getSettingsTyped } from "@/lib/settings"
+import {
+  getStatesWithCounts,
+  getGamesWithCounts,
+  stateName,
+} from "@/lib/directory"
 
 export const dynamic = "force-dynamic"
 
@@ -14,10 +17,9 @@ export const metadata: Metadata = {
 }
 
 export default async function DirectoryPage() {
-  const [states, games, settings] = await Promise.all([
+  const [states, games] = await Promise.all([
     getStatesWithCounts(),
     getGamesWithCounts(),
-    getSettingsTyped(),
   ])
 
   const totalShops = states.reduce((sum, s) => sum + s.shopCount, 0)
@@ -44,8 +46,8 @@ export default async function DirectoryPage() {
           Trading Card Shop Directory
         </h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
-          Browse {totalShops.toLocaleString()} shops across {states.length} states.
-          Find local game stores for Pokemon, MTG, Yu-Gi-Oh!, and more.
+          Browse {totalShops.toLocaleString()} shops across {states.length}{" "}
+          states. Find local game stores for Pokemon, MTG, Yu-Gi-Oh!, and more.
         </p>
       </header>
 

@@ -1,7 +1,6 @@
-import type { Metadata } from "next"
 import { db } from "@/lib/db"
 import { shops, shopGames, games } from "@/lib/db/schema"
-import { eq, and, sql, ilike, desc, count } from "drizzle-orm"
+import { eq, and, sql, ilike, desc, or } from "drizzle-orm"
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -226,9 +225,6 @@ export async function searchShops(
     .orderBy(desc(shops.shouldIndex), desc(shops.ratingValue))
     .limit(limit)
 }
-
-// Import or at top to avoid circular dependency
-import { or } from "drizzle-orm"
 
 // ── JSON-LD Helpers ────────────────────────────────────────────
 

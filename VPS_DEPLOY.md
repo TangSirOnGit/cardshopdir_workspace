@@ -6,7 +6,7 @@
 - 已有: Postgres 16, Redis 7, Bun 1.1.34, Nginx, Certbot, PM2
 - 已创建数据库: `cardshopdir_prod`（用户 `cardshopdir`，密码 `Bingwu718`）
 - 域名: `cardshopdir.com`（DNS 指向 VPS IP）
-- R2: `asset.cardshopdir.com`（图片 CDN，已配置）
+- R2: `assert.cardshopdir.com`（图片 CDN，已配置）
 
 ---
 
@@ -47,7 +47,7 @@ cat .env | grep -E "DATABASE_URL|BETTER_AUTH_URL|R2_PUBLIC_URL"
 # 应该看到:
 # DATABASE_URL=postgresql://cardshopdir:Bingwu718@localhost:5432/cardshopdir_prod
 # BETTER_AUTH_URL=https://cardshopdir.com
-# R2_PUBLIC_URL=https://asset.cardshopdir.com
+# R2_PUBLIC_URL=https://assert.cardshopdir.com
 ```
 
 ### 4. 运行数据库迁移
@@ -180,7 +180,7 @@ curl -sS -o /dev/null -w "%{http_code}" https://cardshopdir.com
 # 应该返回 200
 
 # 检查图片 CDN
-curl -sS -o /dev/null -w "%{http_code}" https://asset.cardshopdir.com/shops/1st-capital-gaming-york-pa.jpg
+curl -sS -o /dev/null -w "%{http_code}" https://assert.cardshopdir.com/shops/1st-capital-gaming-york-pa.jpg
 # 应该返回 200（SSL 证书生效后）
 
 # 检查 PM2 日志
@@ -284,10 +284,10 @@ pm2 logs cardshopdir --lines 50
 
 ```bash
 # 检查 R2 公开访问
-curl -I https://asset.cardshopdir.com/shops/test.jpg
+curl -I https://assert.cardshopdir.com/shops/test.jpg
 
 # 检查 DNS
-dig asset.cardshopdir.com
+dig assert.cardshopdir.com
 
 # 如果 SSL 没生效，等 Cloudflare 签发证书（可能需要几小时）
 ```

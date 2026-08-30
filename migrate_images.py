@@ -36,7 +36,7 @@ R2_ACCOUNT_ID = "2f20e0cb516260ec8e08588792bd89f4"
 R2_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID", "b19a9294a55ac81765fd525fdca3e7b0")
 R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY", "814c553724cb77e8cd314a8c2c6cb49d2527d79d89eea26cbb7daeb1604386ab")
 R2_BUCKET = "cardshopdir"
-R2_PUBLIC_URL = "https://asset.cardshopdir.com"
+R2_PUBLIC_URL = "https://assert.cardshopdir.com"
 R2_ENDPOINT = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 
 CONCURRENCY = 20  # parallel downloads
