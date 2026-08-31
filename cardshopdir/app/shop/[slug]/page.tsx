@@ -6,8 +6,34 @@ import { MapPin, Phone, Globe, Mail, Clock, Star, Gamepad2 } from "lucide-react"
 import { db } from "@/lib/db"
 import { shops, shopGames, games, shopHours } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
-import { stateName, shopTypeLabel, breadcrumbJsonLd } from "@/lib/directory"
+import {
+  stateName,
+  shopTypeLabel,
+  breadcrumbJsonLd,
+  getNearbyShopsInCity,
+  getMoreShopsInState,
+} from "@/lib/directory"
 import { ShopActions } from "@/components/shop-actions"
+import { ShopGrid } from "@/components/shop-card"
+import { formatTodaySummary } from "@/lib/shop-hours"
+
+const CARRY_ICONS: Record<string, string> = {
+  pokemon: "⚡",
+  "magic-the-gathering": "🪄",
+  "yu-gi-oh": "🎴",
+  "flesh-and-blood": "⚔️",
+  sports: "⚾",
+  lorcana: "✨",
+  "dragon-ball-super": "🐉",
+  "star-wars-unlimited": "🚀",
+  "one-piece": "🏴‍☠️",
+  "union-arena": "🥊",
+  digimon: "🤖",
+  "final-fantasy": "🗡️",
+  "weiss-schwarz": "🌸",
+  "cardfight-vanguard": "🛡️",
+  riftbound: "🌀",
+}
 
 export const dynamic = "force-dynamic"
 
@@ -66,6 +92,21 @@ export default async function ShopPage({ params }: PageProps) {
   const stateCode = shop.state || ""
   const stateFull = stateName(stateCode)
   const cityName = shop.city || ""
+
+  // Nearby (same city) + more in state, for cross-linking.
+  const nearbyShops =
+    cityName && stateCode
+      ? await getNearbyShopsInCity(stateCode, cityName, shop.id, 3)
+      : []
+  const moreInState = stateCode
+    ? await getMoreShopsInState(
+        stateCode,
+        [shop.id, ...nearbyShops.map((s) => s.id)],
+        6
+      )
+    : []
+
+  const todaySummary = formatTodaySummary(hoursRows)
 
   // LocalBusiness JSON-LD
   const businessJsonLd: Record<string, unknown> = {
@@ -218,6 +259,31 @@ export default async function ShopPage({ params }: PageProps) {
             {shop.street && <span>{shop.street}, </span>}
             {cityName}, {stateCode} {shop.postalCode}
           </p>
+
+          {/* Today's status */}
+          {hoursRows.length > 0 && (
+            <p className="flex items-center gap-2 text-[13px]">
+              <span
+                className={`flex items-center gap-1.5 font-medium ${
+                  todaySummary.open
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    todaySummary.open
+                      ? "bg-emerald-500"
+                      : "bg-muted-foreground/40"
+                  }`}
+                />
+                {todaySummary.status}
+              </span>
+              <span className="text-muted-foreground">
+                {todaySummary.hours}
+              </span>
+            </p>
+          )}
         </div>
       </div>
 
@@ -236,6 +302,25 @@ export default async function ShopPage({ params }: PageProps) {
           <p className="text-[15px] leading-relaxed whitespace-pre-line text-muted-foreground">
             {shop.description}
           </p>
+        </section>
+      )}
+
+      {/* What They Carry — icon grid */}
+      {shopGameRows.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-semibold">What They Carry</h2>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {shopGameRows.map((g) => (
+              <Link
+                key={g.slug}
+                href={`/directory/games/${g.slug}`}
+                className="flex flex-col items-center gap-1.5 rounded-lg border border-border/50 bg-muted/30 px-3 py-3 text-center transition-colors hover:bg-muted/60"
+              >
+                <span className="text-2xl">{CARRY_ICONS[g.slug] ?? "🃏"}</span>
+                <span className="text-[12px] font-medium">{g.displayName}</span>
+              </Link>
+            ))}
+          </div>
         </section>
       )}
 
@@ -355,6 +440,34 @@ export default async function ShopPage({ params }: PageProps) {
           </section>
         )}
       </div>
+
+      {/* Nearby shops in the same city */}
+      {nearbyShops.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-lg font-semibold">
+            More Card Shops in {cityName}
+          </h2>
+          <ShopGrid shops={nearbyShops} />
+        </section>
+      )}
+
+      {/* More shops in the same state */}
+      {moreInState.length > 0 && (
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">
+              More Card Shops in {stateFull}
+            </h2>
+            <Link
+              href={`/directory/${stateCode.toLowerCase()}`}
+              className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              View all →
+            </Link>
+          </div>
+          <ShopGrid shops={moreInState} />
+        </section>
+      )}
     </div>
   )
 }

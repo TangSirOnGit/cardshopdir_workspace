@@ -1,10 +1,26 @@
 import { db } from "@/lib/db"
-import { shops, shopGames, games } from "@/lib/db/schema"
-import { eq, and, sql, ilike, desc, or } from "drizzle-orm"
-import type { ShopListItem } from "@/lib/shop-types"
+import { shops, shopGames, games, shopHours } from "@/lib/db/schema"
+import {
+  eq,
+  and,
+  sql,
+  ilike,
+  desc,
+  or,
+  ne,
+  inArray,
+  notInArray,
+} from "drizzle-orm"
+import type { ShopListItem, ShopGameTag } from "@/lib/shop-types"
+import { getTodayHours, isOpenNow } from "@/lib/shop-hours"
 
 // Re-export shared types and helpers (safe for client/server)
-export { type ShopListItem, shopTypeLabel } from "@/lib/shop-types"
+export {
+  type ShopListItem,
+  type ShopGameTag,
+  shopTypeLabel,
+  isTopRated,
+} from "@/lib/shop-types"
 
 // ── Queries ────────────────────────────────────────────────────
 
@@ -53,6 +69,8 @@ export async function getShopsForState(
       name: shops.name,
       city: shops.city,
       state: shops.state,
+      street: shops.street,
+      telephone: shops.telephone,
       imageUrl: shops.imageUrl,
       ratingValue: shops.ratingValue,
       reviewCount: shops.reviewCount,
@@ -88,6 +106,8 @@ export async function getShopsForCity(
       name: shops.name,
       city: shops.city,
       state: shops.state,
+      street: shops.street,
+      telephone: shops.telephone,
       imageUrl: shops.imageUrl,
       ratingValue: shops.ratingValue,
       reviewCount: shops.reviewCount,
@@ -134,6 +154,8 @@ export async function getShopsForGame(
       name: shops.name,
       city: shops.city,
       state: shops.state,
+      street: shops.street,
+      telephone: shops.telephone,
       imageUrl: shops.imageUrl,
       ratingValue: shops.ratingValue,
       reviewCount: shops.reviewCount,
@@ -166,6 +188,8 @@ export async function getShopsForStateGame(
       name: shops.name,
       city: shops.city,
       state: shops.state,
+      street: shops.street,
+      telephone: shops.telephone,
       imageUrl: shops.imageUrl,
       ratingValue: shops.ratingValue,
       reviewCount: shops.reviewCount,
@@ -203,6 +227,8 @@ export async function searchShops(
       name: shops.name,
       city: shops.city,
       state: shops.state,
+      street: shops.street,
+      telephone: shops.telephone,
       imageUrl: shops.imageUrl,
       ratingValue: shops.ratingValue,
       reviewCount: shops.reviewCount,
@@ -221,6 +247,199 @@ export async function searchShops(
     )
     .orderBy(desc(shops.shouldIndex), desc(shops.ratingValue))
     .limit(limit)
+}
+
+// ── Popular cities (for homepage quick links) ───────────────────
+
+export async function getPopularCities(limit = 6) {
+  return db
+    .select({
+      city: shops.city,
+      state: shops.state,
+      shopCount: sql<number>`count(*)::int`,
+    })
+    .from(shops)
+    .where(
+      sql`${shops.city} is not null and ${shops.city} != '' and ${shops.state} is not null`
+    )
+    .groupBy(shops.city, shops.state)
+    .orderBy(desc(sql`count(*)`))
+    .limit(limit)
+}
+
+// ── Card enrichment ─────────────────────────────────────────────
+
+/**
+ * Batch-enrich shop rows with their game tags + today's hours / open status.
+ * Runs two extra queries (games, hours) for the whole batch and merges.
+ */
+export async function enrichShopsWithCardMeta(
+  shopRows: ShopListItem[]
+): Promise<ShopListItem[]> {
+  if (shopRows.length === 0) return shopRows
+  const ids = shopRows.map((s) => s.id)
+
+  const [gameRows, hoursRows] = await Promise.all([
+    db
+      .select({
+        shopId: shopGames.shopId,
+        slug: games.slug,
+        displayName: games.displayName,
+        sortOrder: games.sortOrder,
+      })
+      .from(shopGames)
+      .innerJoin(games, eq(shopGames.gameId, games.id))
+      .where(inArray(shopGames.shopId, ids)),
+    db
+      .select({
+        shopId: shopHours.shopId,
+        days: shopHours.days,
+        opens: shopHours.opens,
+        closes: shopHours.closes,
+      })
+      .from(shopHours)
+      .where(inArray(shopHours.shopId, ids)),
+  ])
+
+  const gamesByShop = new Map<number, ShopGameTag[]>()
+  for (const g of gameRows) {
+    const arr = gamesByShop.get(g.shopId) ?? []
+    arr.push({ slug: g.slug, displayName: g.displayName })
+    gamesByShop.set(g.shopId, arr)
+  }
+
+  const hoursByShop = new Map<
+    number,
+    { days: unknown; opens: string | null; closes: string | null }[]
+  >()
+  for (const h of hoursRows) {
+    const arr = hoursByShop.get(h.shopId) ?? []
+    arr.push({ days: h.days, opens: h.opens, closes: h.closes })
+    hoursByShop.set(h.shopId, arr)
+  }
+
+  return shopRows.map((s) => {
+    const hours = hoursByShop.get(s.id) ?? []
+    return {
+      ...s,
+      games: gamesByShop.get(s.id),
+      todayHours: getTodayHours(
+        hours as {
+          days: string[]
+          opens: string | null
+          closes: string | null
+        }[]
+      ),
+      isOpenNow: isOpenNow(
+        hours as {
+          days: string[]
+          opens: string | null
+          closes: string | null
+        }[]
+      ),
+    }
+  })
+}
+
+// ── Nearby shops (for shop detail page) ─────────────────────────
+
+/** Same-city shops excluding the current one, limited. */
+export async function getNearbyShopsInCity(
+  state: string,
+  city: string,
+  excludeId: number,
+  limit = 3
+): Promise<ShopListItem[]> {
+  const statePattern = state.toUpperCase()
+  const rows = await db
+    .select({
+      id: shops.id,
+      slug: shops.slug,
+      name: shops.name,
+      city: shops.city,
+      state: shops.state,
+      street: shops.street,
+      telephone: shops.telephone,
+      imageUrl: shops.imageUrl,
+      ratingValue: shops.ratingValue,
+      reviewCount: shops.reviewCount,
+      shopType: shops.shopType,
+      description: shops.description,
+    })
+    .from(shops)
+    .where(
+      and(
+        eq(shops.state, statePattern),
+        ilike(shops.city, city),
+        ne(shops.id, excludeId)
+      )
+    )
+    .orderBy(desc(shops.ratingValue), desc(shops.reviewCount))
+    .limit(limit)
+  return enrichShopsWithCardMeta(rows)
+}
+
+/** Same-state shops excluding the current one + already-shown nearby, limited. */
+export async function getMoreShopsInState(
+  state: string,
+  excludeIds: number[],
+  limit = 6
+): Promise<ShopListItem[]> {
+  const statePattern = state.toUpperCase()
+  const rows = await db
+    .select({
+      id: shops.id,
+      slug: shops.slug,
+      name: shops.name,
+      city: shops.city,
+      state: shops.state,
+      street: shops.street,
+      telephone: shops.telephone,
+      imageUrl: shops.imageUrl,
+      ratingValue: shops.ratingValue,
+      reviewCount: shops.reviewCount,
+      shopType: shops.shopType,
+      description: shops.description,
+    })
+    .from(shops)
+    .where(
+      and(
+        eq(shops.state, statePattern),
+        excludeIds.length > 0 ? notInArray(shops.id, excludeIds) : undefined
+      )
+    )
+    .orderBy(desc(shops.ratingValue), desc(shops.reviewCount))
+    .limit(limit)
+  return enrichShopsWithCardMeta(rows)
+}
+
+// ── State-level aggregate stats ─────────────────────────────────
+
+export interface StateStats {
+  shopCount: number
+  cityCount: number
+  avgRating: number | null
+  totalReviews: number
+}
+
+export async function getStateStats(state: string): Promise<StateStats> {
+  const statePattern = state.toUpperCase()
+  const row = await db
+    .select({
+      shopCount: sql<number>`count(*)::int`,
+      cityCount: sql<number>`count(distinct ${shops.city})::int`,
+      avgRating: sql<number>`round(avg(${shops.ratingValue})::numeric, 1)`,
+      totalReviews: sql<number>`coalesce(sum(${shops.reviewCount}), 0)::int`,
+    })
+    .from(shops)
+    .where(eq(shops.state, statePattern))
+    .then((r) => r[0])
+  return {
+    shopCount: row?.shopCount ?? 0,
+    cityCount: row?.cityCount ?? 0,
+    avgRating: row?.avgRating ? Number(row.avgRating) : null,
+    totalReviews: row?.totalReviews ?? 0,
+  }
 }
 
 // ── JSON-LD Helpers ────────────────────────────────────────────
@@ -317,6 +536,87 @@ const STATE_CODE_BY_NAME: Record<string, string> = Object.fromEntries(
 
 export function stateName(stateCode: string): string {
   return STATE_NAMES[stateCode?.toUpperCase()] || stateCode
+}
+
+// State nicknames / taglines for directory headers.
+const STATE_TAGLINES: Record<string, string> = {
+  AL: "Heart of Dixie, Hard-To-Find Hits",
+  AK: "The Last Frontier of Card Collecting",
+  AZ: "Desert Heat, Hot Pulls",
+  AR: "The Natural State, Natural Pulls",
+  CA: "Golden State, Golden Pulls",
+  CO: "Centennial State, Centennial Slabs",
+  CT: "Constitution State, Condition Kings",
+  DE: "The First State, First Editions",
+  FL: "Sunshine State, Shine Pulls",
+  GA: "Peach State, Premium Pulls",
+  HI: "Aloha State, Alt-Art Aloha",
+  ID: "Gem State, Gem Mint",
+  IL: "Land of Lincoln, Land of Legends",
+  IN: "Hoosier State, Hobby Heroes",
+  IA: "Hawkeye State, Hunted Hits",
+  KS: "Sunflower State, Sealed Stacks",
+  KY: "Bluegrass State, Box Breaks",
+  LA: "Pelican State, Premium Wax",
+  ME: "Pine Tree State, Pristine Packs",
+  MD: "Old Line State, Old-School Wax",
+  MA: "Bay State, Big Pulls",
+  MI: "Great Lakes, Great Slabs",
+  MN: "North Star State, Near-Mint Stars",
+  MS: "Magnolia State, Mint Magnolias",
+  MO: "Show-Me State, Show-Me Slabs",
+  MT: "Treasure State, Treasure Pulls",
+  NE: "Cornhusker State, Collector Corners",
+  NV: "Silver State, Silver Slabs",
+  NH: "Granite State, Graded Gems",
+  NJ: "Garden State, Grail Cards",
+  NM: "Land of Enchantment, Enchanted Pulls",
+  NY: "Empire State, Empire Hits",
+  NC: "Tar Heel State, Top-Tier TCG",
+  ND: "Flickertail State, Fresh Packs",
+  OH: "Buckeye State, Box-Break Bucks",
+  OK: "Sooner State, Sooner Slabs",
+  OR: "Beaver State, Binder Builders",
+  PA: "Keystone State, Keystone Cards",
+  RI: "Ocean State, Open Packs",
+  SC: "Palmetto State, Premium Pulls",
+  SD: "Mount Rushmore State, Mount Mint",
+  TN: "Volunteer State, Vintage Vaults",
+  TX: "Lone Star State, Legend Pulls",
+  UT: "Beehive State, Binder Hives",
+  VT: "Green Mountain State, Graded Mountains",
+  VA: "Old Dominion, Dominion Drafts",
+  WA: "Evergreen State, Eternal Pulls",
+  WV: "Mountain State, Mint Mountains",
+  WI: "Badger State, Binder Badgers",
+  WY: "Equality State, Equal-Grade Slabs",
+  DC: "The District, Draft Nights",
+}
+
+export function stateTagline(stateCode: string): string {
+  return (
+    STATE_TAGLINES[stateCode?.toUpperCase()] || "Local Card Shops, Local Pulls"
+  )
+}
+
+/**
+ * Templated state intro paragraph using the state name + top cities.
+ * Falls back gracefully when cities are unavailable.
+ */
+export function stateIntro(
+  stateCode: string,
+  topCities: string[] = []
+): string {
+  const name = stateName(stateCode)
+  const tagline = stateTagline(stateCode)
+  const cityList = topCities.slice(0, 3)
+  const cityPhrase =
+    cityList.length > 0
+      ? ` Major hubs include ${cityList.join(", ")}${
+          cityList.length === 1 ? "" : cityList.length === 2 ? " and" : ", and"
+        } their surrounding suburbs, each with its own mix of TCG specialty stores, sports card vaults, and comic shops.`
+      : ""
+  return `${name}'s trading card scene spans Pokémon leagues, Magic: The Gathering tournaments, Yu-Gi-Oh! events, and a deep sports card culture. ${tagline.replace(/,.*/, "")} collectors will find everything from the latest sealed product and singles to vintage wax, PSA grading drop-offs, and Japanese imports.${cityPhrase} Whether you're chasing a rookie rookie card, hunting alt-art Pokémon, or building your first Commander deck, ${name}'s card shops deliver knowledgeable staff, fair pricing, and a welcoming community for collectors at every level.`
 }
 
 export function cityDisplayName(citySlug: string): string {
