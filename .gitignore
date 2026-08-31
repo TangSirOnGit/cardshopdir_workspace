@@ -1,5 +1,5 @@
 # Secrets - never commit
-docs/
+key_files/
 .env
 .env.prod
 .env*.local
