@@ -12,12 +12,12 @@ import { SearchBox } from "@/components/search-box"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "CardShopDir — Find Trading Card Shops Near You",
+  title: "Card Shop Directory — Find Trading Card Shops Near You",
   description:
     "Browse 7,700+ trading card shops across all 50 US states. Find local game stores for Pokemon, Magic: The Gathering, Yu-Gi-Oh!, Flesh and Blood, and more.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "CardShopDir — Find Trading Card Shops Near You",
+    title: "Card Shop Directory — Find Trading Card Shops Near You",
     description:
       "Browse 7,700+ trading card shops across all 50 US states. Find local game stores for Pokemon, MTG, Yu-Gi-Oh!, and more.",
     url: SITE_URL,
@@ -96,7 +96,7 @@ export default async function Home() {
   const searchActionJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "CardShopDir",
+    name: "Card Shop Directory",
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",
@@ -116,7 +116,10 @@ export default async function Home() {
       />
       {/* ── Hero ─────────────────────────────────────── */}
       <header className="text-center">
-        <h1 className="font-serif text-3xl tracking-tight sm:text-4xl md:text-5xl">
+        <p className="text-[13px] font-medium tracking-[0.2em] text-muted-foreground uppercase">
+          Card Shop Directory
+        </p>
+        <h1 className="mt-3 font-serif text-3xl tracking-tight sm:text-4xl md:text-5xl">
           Find Trading Card Shops
           <br />
           <span className="text-muted-foreground">Near You</span>
