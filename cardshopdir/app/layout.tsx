@@ -260,7 +260,7 @@ export default async function RootLayout({
                   "@type": "Organization",
                   name: settings.siteName,
                   url: SITE_URL,
-                  logo: `${SITE_URL}/logo.webp`,
+                  logo: `${SITE_URL}/logo.png`,
                   contactPoint: {
                     "@type": "ContactPoint",
                     email: settings.contactEmail || undefined,

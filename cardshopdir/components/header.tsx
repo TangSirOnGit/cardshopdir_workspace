@@ -45,7 +45,18 @@ export function Header({ siteName }: HeaderProps) {
     <header>
       <div className="mx-auto max-w-6xl px-6 lg:px-12">
         <div className="flex items-center justify-between py-4">
-          <Link href="/" className="font-serif text-xl font-semibold">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-serif text-xl font-semibold"
+          >
+            <Image
+              src="/logo.png"
+              alt=""
+              width={28}
+              height={28}
+              className="rounded-md"
+              priority
+            />
             {siteName}
           </Link>
 

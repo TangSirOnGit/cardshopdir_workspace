@@ -79,9 +79,7 @@ let pgAttempts = 0
 const maxAttempts = 30
 while (pgAttempts < maxAttempts) {
   if (
-    check(
-      "docker compose exec -T db pg_isready -U cardshopdir -d cardshopdir"
-    )
+    check("docker compose exec -T db pg_isready -U cardshopdir -d cardshopdir")
   ) {
     break
   }
@@ -156,7 +154,7 @@ console.log(
   `    • Site name, pricing, fonts, etc. → ${cyan("/admin/settings")}`
 )
 console.log(
-  `    • Replace ${cyan("public/logo.webp")} and ${cyan("public/logo-dark.webp")} with your logo\n`
+  `    • Logo assets: ${cyan("public/logo.png")} and ${cyan("public/logo.svg")}\n`
 )
 
 console.log(`${yellow("④ Connect your services (fill in .env):")}\n`)
@@ -170,12 +168,10 @@ console.log(
   `    ${cyan("Redis")}        — rate limiting (already up via Docker)`
 )
 console.log(`    ${cyan("Turnstile")}    — CAPTCHA on auth pages`)
-console.log(`    ${cyan("Discord")}      — admin alerts on new signups + submissions`)
-console.log(`    ${cyan("Plausible")}    — privacy-first web analytics\n`)
 console.log(
-  dim(
-    `    Every variable is commented in .env.example.\n    \n`
-  )
+  `    ${cyan("Discord")}      — admin alerts on new signups + submissions`
 )
+console.log(`    ${cyan("Plausible")}    — privacy-first web analytics\n`)
+console.log(dim(`    Every variable is commented in .env.example.\n    \n`))
 
 console.log(`${"─".repeat(60)}\n`)
