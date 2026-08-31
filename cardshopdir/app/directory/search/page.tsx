@@ -7,7 +7,8 @@ export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Search Trading Card Shops — CardShopDir",
-  description: "Search for trading card shops by name, city, or state.",
+  description:
+    "Search for trading card shops by name, city, state, street, or zip code.",
   robots: { index: false, follow: true },
 }
 
@@ -29,7 +30,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         <p className="mt-2 text-[15px] text-muted-foreground">
           {query
             ? `${results.length} result${results.length !== 1 ? "s" : ""} found`
-            : "Enter a shop name, city, or state to search."}
+            : "Enter a shop name, city, state, street, or zip to search."}
         </p>
       </header>
 

@@ -184,12 +184,18 @@ export async function getShopsForStateGame(
     .limit(limit)
 }
 
-/** Search shops by query string */
+/** Search shops by query string (name, city, state, street, zip) */
 export async function searchShops(
   query: string,
   limit = 30
 ): Promise<ShopListItem[]> {
   const pattern = `%${query}%`
+
+  // If the query matches a full state name (e.g. "California"),
+  // also match the state code (e.g. "CA") stored in the database.
+  const stateCode = STATE_CODE_BY_NAME[query.toLowerCase()]
+  const statePattern = stateCode ? `%${stateCode}%` : pattern
+
   return db
     .select({
       id: shops.id,
@@ -208,7 +214,9 @@ export async function searchShops(
       or(
         ilike(shops.name, pattern),
         ilike(shops.city, pattern),
-        ilike(shops.state, pattern)
+        ilike(shops.state, statePattern),
+        ilike(shops.street, pattern),
+        ilike(shops.postalCode, pattern)
       )
     )
     .orderBy(desc(shops.shouldIndex), desc(shops.ratingValue))
@@ -248,61 +256,67 @@ export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
 
 // ── Display helpers ────────────────────────────────────────────
 
+const STATE_NAMES: Record<string, string> = {
+  AL: "Alabama",
+  AK: "Alaska",
+  AZ: "Arizona",
+  AR: "Arkansas",
+  CA: "California",
+  CO: "Colorado",
+  CT: "Connecticut",
+  DE: "Delaware",
+  FL: "Florida",
+  GA: "Georgia",
+  HI: "Hawaii",
+  ID: "Idaho",
+  IL: "Illinois",
+  IN: "Indiana",
+  IA: "Iowa",
+  KS: "Kansas",
+  KY: "Kentucky",
+  LA: "Louisiana",
+  ME: "Maine",
+  MD: "Maryland",
+  MA: "Massachusetts",
+  MI: "Michigan",
+  MN: "Minnesota",
+  MS: "Mississippi",
+  MO: "Missouri",
+  MT: "Montana",
+  NE: "Nebraska",
+  NV: "Nevada",
+  NH: "New Hampshire",
+  NJ: "New Jersey",
+  NM: "New Mexico",
+  NY: "New York",
+  NC: "North Carolina",
+  ND: "North Dakota",
+  OH: "Ohio",
+  OK: "Oklahoma",
+  OR: "Oregon",
+  PA: "Pennsylvania",
+  RI: "Rhode Island",
+  SC: "South Carolina",
+  SD: "South Dakota",
+  TN: "Tennessee",
+  TX: "Texas",
+  UT: "Utah",
+  VT: "Vermont",
+  VA: "Virginia",
+  WA: "Washington",
+  WV: "West Virginia",
+  WI: "Wisconsin",
+  WY: "Wyoming",
+  DC: "District of Columbia",
+}
+
+// Reverse lookup: full state name → code (e.g. "California" → "CA")
+const STATE_CODE_BY_NAME: Record<string, string> = Object.fromEntries(
+  Object.entries(STATE_NAMES).map(([code, name]) => [name.toLowerCase(), code])
+)
+
 export function stateName(stateCode: string): string {
-  const names: Record<string, string> = {
-    AL: "Alabama",
-    AK: "Alaska",
-    AZ: "Arizona",
-    AR: "Arkansas",
-    CA: "California",
-    CO: "Colorado",
-    CT: "Connecticut",
-    DE: "Delaware",
-    FL: "Florida",
-    GA: "Georgia",
-    HI: "Hawaii",
-    ID: "Idaho",
-    IL: "Illinois",
-    IN: "Indiana",
-    IA: "Iowa",
-    KS: "Kansas",
-    KY: "Kentucky",
-    LA: "Louisiana",
-    ME: "Maine",
-    MD: "Maryland",
-    MA: "Massachusetts",
-    MI: "Michigan",
-    MN: "Minnesota",
-    MS: "Mississippi",
-    MO: "Missouri",
-    MT: "Montana",
-    NE: "Nebraska",
-    NV: "Nevada",
-    NH: "New Hampshire",
-    NJ: "New Jersey",
-    NM: "New Mexico",
-    NY: "New York",
-    NC: "North Carolina",
-    ND: "North Dakota",
-    OH: "Ohio",
-    OK: "Oklahoma",
-    OR: "Oregon",
-    PA: "Pennsylvania",
-    RI: "Rhode Island",
-    SC: "South Carolina",
-    SD: "South Dakota",
-    TN: "Tennessee",
-    TX: "Texas",
-    UT: "Utah",
-    VT: "Vermont",
-    VA: "Virginia",
-    WA: "Washington",
-    WV: "West Virginia",
-    WI: "Wisconsin",
-    WY: "Wyoming",
-    DC: "District of Columbia",
-  }
-  return names[stateCode?.toUpperCase()] || stateCode
+  return STATE_NAMES[stateCode?.toUpperCase()] || stateCode
 }
 
 export function cityDisplayName(citySlug: string): string {

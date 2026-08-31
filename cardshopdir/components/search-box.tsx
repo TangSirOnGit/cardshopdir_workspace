@@ -11,7 +11,7 @@ import { trackEvent } from "@/lib/analytics"
  */
 export function SearchBox({
   action = "/directory/search",
-  placeholder = "Search by city, state, or shop name...",
+  placeholder = "Search by shop name, city, state, street, or zip...",
   className = "",
   initialValue = "",
 }: {
