@@ -10,13 +10,15 @@ import {
 } from "@/lib/directory"
 import { ShopGrid } from "@/components/shop-card"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 interface PageProps {
   params: Promise<{ game: string }>
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { game } = await params
   const games = await getGamesWithCounts()
   const displayName = gameDisplayName(game, games)
@@ -72,11 +74,17 @@ export default async function GameDirectoryPage({ params }: PageProps) {
       ))}
 
       <nav className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Home</Link>
+        <Link href="/" className="hover:text-foreground">
+          Home
+        </Link>
         <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">Directory</Link>
+        <Link href="/directory" className="hover:text-foreground">
+          Directory
+        </Link>
         <span>/</span>
-        <Link href="/directory/games" className="hover:text-foreground">Games</Link>
+        <Link href="/directory/games" className="hover:text-foreground">
+          Games
+        </Link>
         <span>/</span>
         <span className="text-foreground">{displayName}</span>
       </nav>
@@ -86,8 +94,8 @@ export default async function GameDirectoryPage({ params }: PageProps) {
           Shops selling {displayName}
         </h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
-          {shopsList.length} shops across the US carry {displayName}. Find a local
-          store near you.
+          {shopsList.length} shops across the US carry {displayName}. Find a
+          local store near you.
         </p>
       </header>
 

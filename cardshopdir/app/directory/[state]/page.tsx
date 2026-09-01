@@ -17,7 +17,7 @@ import {
 } from "@/lib/directory"
 import { ShopListWithFilters } from "@/components/shop-list-with-filters"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 interface PageProps {
   params: Promise<{ state: string }>

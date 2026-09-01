@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { getGamesWithCounts } from "@/lib/directory"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: "Browse Trading Card Shops by Game — CardShopDir",
@@ -31,9 +31,13 @@ export default async function GamesIndexPage() {
       />
 
       <nav className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Home</Link>
+        <Link href="/" className="hover:text-foreground">
+          Home
+        </Link>
         <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">Directory</Link>
+        <Link href="/directory" className="hover:text-foreground">
+          Directory
+        </Link>
         <span>/</span>
         <span className="text-foreground">Games</span>
       </nav>

@@ -11,13 +11,15 @@ import {
 } from "@/lib/directory"
 import { ShopGrid } from "@/components/shop-card"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 interface PageProps {
   params: Promise<{ state: string; game: string }>
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { state, game } = await params
   const stateCode = state.toUpperCase()
   const name = stateName(stateCode)
@@ -72,11 +74,17 @@ export default async function StateGamePage({ params }: PageProps) {
       ))}
 
       <nav className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Home</Link>
+        <Link href="/" className="hover:text-foreground">
+          Home
+        </Link>
         <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">Directory</Link>
+        <Link href="/directory" className="hover:text-foreground">
+          Directory
+        </Link>
         <span>/</span>
-        <Link href={`/directory/${state}`} className="hover:text-foreground">{name}</Link>
+        <Link href={`/directory/${state}`} className="hover:text-foreground">
+          {name}
+        </Link>
         <span>/</span>
         <span className="text-foreground">{gameName}</span>
       </nav>

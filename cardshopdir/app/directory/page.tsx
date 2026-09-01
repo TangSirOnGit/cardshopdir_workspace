@@ -7,7 +7,7 @@ import {
   stateName,
 } from "@/lib/directory"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: "Browse Trading Card Shops by State — CardShopDir",

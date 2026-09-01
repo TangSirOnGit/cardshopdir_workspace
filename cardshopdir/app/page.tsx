@@ -10,7 +10,7 @@ import { SearchBox } from "@/components/search-box"
 import { ShopCard } from "@/components/shop-card"
 import { getPopularCities, enrichShopsWithCardMeta } from "@/lib/directory"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: "Card Shop Directory — Find Trading Card Shops Near You",

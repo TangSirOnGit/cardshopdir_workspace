@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { getSettingsTyped } from "@/lib/settings"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: "Terms of Service — CardShopDir",

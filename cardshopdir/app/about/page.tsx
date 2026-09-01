@@ -11,7 +11,7 @@ import { shops, games } from "@/lib/db/schema"
 import { sql, count } from "drizzle-orm"
 import { getSettingsTyped } from "@/lib/settings"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 export default async function AboutPage() {
   const settings = await getSettingsTyped()
