@@ -12,47 +12,47 @@
 
 #### 1. Umami 流量（30h）
 
-| 指标 | 数值 |
-|---|---|
-| Visitors（UV） | 231 |
-| Visits | 245 |
-| Views（PV） | 453 |
-| Bounce rate | 75% |
+| 指标           | 数值   |
+| -------------- | ------ |
+| Visitors（UV） | 231    |
+| Visits         | 245    |
+| Views（PV）    | 453    |
+| Bounce rate    | 75%    |
 | Visit duration | 1m 10s |
-| PV / UV | 1.96 |
+| PV / UV        | 1.96   |
 
 #### 2. 流量来源（Referrer）
 
-| 来源 | Visitors | 占比 | 类型 |
-|---|---|---|---|
-| news.ycombinator.com | 43 | 64% | 社交外链（HN 帖子） |
-| github.com | 16 | 24% | 外链 |
-| google.com | 2 | 3% | 自然搜索 |
-| bing.com | 2 | 3% | 自然搜索 |
-| stackscope.dev | 1 | 1% | 外链 |
-| duckduckgo.com | 1 | 1% | 自然搜索 |
-| hacker-news.firebaseio.com | 1 | 1% | HN 相关 |
-| siteglass.io | 1 | 1% | 外链 |
+| 来源                       | Visitors | 占比 | 类型                |
+| -------------------------- | -------- | ---- | ------------------- |
+| news.ycombinator.com       | 43       | 64%  | 社交外链（HN 帖子） |
+| github.com                 | 16       | 24%  | 外链                |
+| google.com                 | 2        | 3%   | 自然搜索            |
+| bing.com                   | 2        | 3%   | 自然搜索            |
+| stackscope.dev             | 1        | 1%   | 外链                |
+| duckduckgo.com             | 1        | 1%   | 自然搜索            |
+| hacker-news.firebaseio.com | 1        | 1%   | HN 相关             |
+| siteglass.io               | 1        | 1%   | 外链                |
 
 > **流量结构分析**：88% 来自 HN + GitHub 外链爆发，属一次性事件流量。
 > 自然搜索仅 5 次（google 2 + bing 2 + duckduckgo 1），SEO 基线尚未建立。
 
 #### 3. 索引状态
 
-| 指标 | 数值 | 来源 |
-|---|---|---|
-| GSC 后台索引数 | 暂无数据 | GSC 索引报告有 2-7 天延迟 |
-| site: 估算索引数 | ~100 | `site:cardshopdir.com` 返回 6 页结果 |
-| GSC sitemap | 已提交，6,677 URLs | |
-| Bing Webmaster | 已提交 | 暂无数据 |
+| 指标             | 数值               | 来源                                 |
+| ---------------- | ------------------ | ------------------------------------ |
+| GSC 后台索引数   | 暂无数据           | GSC 索引报告有 2-7 天延迟            |
+| site: 估算索引数 | ~100               | `site:cardshopdir.com` 返回 6 页结果 |
+| GSC sitemap      | 已提交，6,677 URLs |                                      |
+| Bing Webmaster   | 已提交             | 暂无数据                             |
 
 #### 4. GSC 搜索表现（过去 24h）
 
-| 指标 | 数值 |
-|---|---|
-| 总点击 | 0 |
-| 总展示 | 10 |
-| CTR | 0% |
+| 指标   | 数值 |
+| ------ | ---- |
+| 总点击 | 0    |
+| 总展示 | 10   |
+| CTR    | 0%   |
 
 **关键词**：
 | 关键词 | 展示 | 排名 | 点击 |
@@ -76,12 +76,12 @@
 
 #### 5. 技术健康检查
 
-| 检查项 | 结果 | 备注 |
-|---|---|---|
-| 首页 HTTPS | 200 | ⚠️ 加载 3.4s，偏慢 |
-| HTTP → HTTPS 301 | ✅ | 重定向正常 |
-| sitemap.xml | 200 | 6,677 URLs，2.4s |
-| robots.txt | ✅ | 允许搜索爬虫，屏蔽 AI 训练，屏蔽 /admin /api |
+| 检查项           | 结果 | 备注                                         |
+| ---------------- | ---- | -------------------------------------------- |
+| 首页 HTTPS       | 200  | ⚠️ 加载 3.4s，偏慢                           |
+| HTTP → HTTPS 301 | ✅   | 重定向正常                                   |
+| sitemap.xml      | 200  | 6,677 URLs，2.4s                             |
+| robots.txt       | ✅   | 允许搜索爬虫，屏蔽 AI 训练，屏蔽 /admin /api |
 
 ---
 
@@ -178,16 +178,17 @@
 
 ### 四、与监控清单目标的对比
 
-| 第 1 周目标 | 当前（30h） | 状态 |
-|---|---|---|
-| GSC sitemap 成功 | 已提交 | ⏳ 待确认 |
-| GSC 已索引 > 0 | ~100 | ✅ 超预期 |
-| 无服务器错误 | 0 错误 | ✅ |
-| Bing 已索引 > 0 | 暂无数据 | ⏳ |
-| 首页 200 | 200 | ✅ |
-| sitemap 200 | 200 | ✅ |
+| 第 1 周目标      | 当前（30h） | 状态      |
+| ---------------- | ----------- | --------- |
+| GSC sitemap 成功 | 已提交      | ⏳ 待确认 |
+| GSC 已索引 > 0   | ~100        | ✅ 超预期 |
+| 无服务器错误     | 0 错误      | ✅        |
+| Bing 已索引 > 0  | 暂无数据    | ⏳        |
+| 首页 200         | 200         | ✅        |
+| sitemap 200      | 200         | ✅        |
 
 **第 4 周关键里程碑预警**：
+
 - 目标：索引 > 1,000（当前 ~100，需 10x 增长）
 - 30h ~100 页的速度 → 若保持，4 周可达 ~2,800 页，有望达标
 - 但索引速度通常会衰减，需持续观察
@@ -201,3 +202,49 @@
   - Queries.csv（关键词）
   - Pages.csv（页面）
   - Countries.csv / Devices.csv
+
+---
+
+## 2026-09-01 20:13 — 首页性能优化完成
+
+### 优化历程
+
+| 阶段         | Mobile Perf | Mobile LCP | Mobile FCP | Mobile SI | 关键改动                                     |
+| ------------ | ----------- | ---------- | ---------- | --------- | -------------------------------------------- |
+| 初始 PSI     | 79          | 3.9s       | 2.9s       | 5.0s      | -                                            |
+| +系统字体    | 83          | 3.7s       | 2.6s       | 4.7s      | 移除 21 个 next/font，消除 woff2 下载        |
+| +ISR+CF缓存  | **94**      | **2.9s**   | **1.7s**   | **1.7s**  | force-dynamic→revalidate=3600，CF Cache Rule |
+| Desktop 最终 | **100**     | **0.6s**   | **0.5s**   | **0.5s**  | -                                            |
+
+### 三项关键优化
+
+1. **系统字体替代 21 个 Google Fonts**
+   - 文件：`app/layout.tsx`、`app/globals.css`
+   - CSS 从 22.7KB → 16.9KB（消除 21 个 @font-face）
+   - 关键路径从 HTML→CSS→woff2(798ms) 缩短为 HTML→CSS(292ms)
+   - 消除 65KB woff2 字体下载
+
+2. **ISR 替代 force-dynamic**
+   - 文件：11 个内容页面 `export const revalidate = 3600`
+   - `cache-control` 从 `private, no-cache` → `s-maxage=3600, stale-while-revalidate`
+   - `x-nextjs-cache: HIT`（Next.js ISR 缓存生效）
+   - 州页 51 个 + 游戏页 15 个预渲染为静态 HTML
+
+3. **Cloudflare Cache Rule**
+   - 配置 HTML 页面 edge 缓存（排除 /api/ /admin /sign-in /sign-up）
+   - `cf-cache-status: HIT`（CF edge 缓存生效）
+   - TTFB 从 1-2.7s → ~250ms（PSI 测量）
+
+### 次要优化
+
+- Umami preconnect（350ms 连接预热）
+- ShopCard 图片 `sizes="84px"`（避免下载 256px 变体）
+- Shop 详情页图片 `sizes="160px"`（主图从 208KB → ~20KB）
+- 移除导航 Sign in 入口（暂不需要用户登录）
+
+### 剩余可优化项（非紧急）
+
+- **Unused JavaScript 57KB**：`0_9htn5wasi6n.js`(31.7KB) + `0l1_47-31-frg.js`(25.2KB)，含 polyfill（Array.prototype.at/flat/flatMap 等），可通过 browserslist 配置减少
+- **Legacy JavaScript 14KB**：同上 polyfill 问题
+- **图片压缩**：featured shop 图片仍有优化空间（PSI 报告 Est savings 46KB mobile / 5KB desktop）
+- **Render-blocking CSS**：16.9KB CSS 仍阻塞渲染，可考虑 critical CSS inlining
