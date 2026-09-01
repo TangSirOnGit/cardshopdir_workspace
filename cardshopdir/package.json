@@ -21,7 +21,8 @@
     "db:seed": "bun run lib/db/seed.ts",
     "email:dev": "email dev --dir emails",
     "setup": "bun run scripts/setup.ts",
-    "promote-admin": "bun run scripts/promote-admin.ts"
+    "promote-admin": "bun run scripts/promote-admin.ts",
+    "indexnow:submit": "bun run scripts/submit-indexnow.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1026.0",

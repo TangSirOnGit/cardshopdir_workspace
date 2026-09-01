@@ -10,6 +10,16 @@ const optionalUrl = z.preprocess(
   (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
   z.url().optional()
 )
+const optionalIndexNowKey = z.preprocess(
+  (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+  z
+    .string()
+    .regex(
+      /^[A-Za-z0-9-]{8,128}$/,
+      "must contain 8-128 letters, numbers, or dashes"
+    )
+    .optional()
+)
 
 const server = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
@@ -49,6 +59,11 @@ const server = z.object({
 
   // Cron (optional)
   CRON_SECRET: z.string().optional(),
+
+  // IndexNow (optional — URL submission disabled if missing)
+  INDEXNOW_KEY: optionalIndexNowKey,
+  INDEXNOW_ENDPOINT: optionalUrl,
+  INDEXNOW_SITEMAP_URL: optionalUrl,
 
   // Turnstile (optional — captcha disabled if missing)
   TURNSTILE_SECRET_KEY: z.string().optional(),

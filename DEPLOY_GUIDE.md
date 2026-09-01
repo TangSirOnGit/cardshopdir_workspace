@@ -86,6 +86,11 @@ grep -E "DATABASE_URL|BETTER_AUTH_URL|R2_PUBLIC_URL|NEXT_PUBLIC_UMAMI" .env
 # R2_PUBLIC_URL=https://assert.cardshopdir.com
 # NEXT_PUBLIC_UMAMI_WEBSITE_ID=f07e2a7b-21d8-42de-9f66-037fb2806852
 
+# IndexNow：生成一个 8-128 位字母/数字/短横线组成的 key，并加入 .env。
+# 该 key 会通过 https://cardshopdir.com/<key>.txt 提供给搜索引擎验证。
+# 例如：openssl rand -hex 32
+# INDEXNOW_KEY=<生成的 key>
+
 # 如果 DATABASE_URL 指向远程，改为 localhost：
 # sed -i 's/31.220.31.224/localhost/g' .env
 ```
@@ -148,7 +153,80 @@ bun run build
 
 ---
 
-## 8. 用 PM2 启动（端口 3030）
+## 8. 提交 IndexNow 页面
+
+> IndexNow 是 Bing/Yandex/Seznam 等搜索引擎支持的"URL 变更主动推送"协议。
+> 提交后这些搜索引擎会立即知道哪些页面需要重新抓取，无需等待自然爬取。
+
+### 8.1 生成并配置 IndexNow key
+
+key 是一个 8–128 位的字符串，只能包含字母、数字、短横线。在本地或 VPS 上生成：
+
+```bash
+openssl rand -hex 32
+# 输出示例：a1b2c3d4e5f6...（64 位十六进制）
+```
+
+把生成的 key 加入 VPS 上的 `.env`：
+
+```bash
+cd /root/websites/cardshopdir_workspace/cardshopdir
+# 编辑 .env，加入一行（替换为你的 key）
+echo "INDEXNOW_KEY=你生成的key" >> .env
+```
+
+> 该 key 会通过 `https://cardshopdir.com/<INDEXNOW_KEY>.txt` 暴露给搜索引擎验证所有权。
+> 路由由 `app/api/indexnow-key/[key]/route.ts` + `next.config.mjs` 的 rewrite 实现，
+> 无需在 `public/` 下放任何文件。错误 key 返回 404，正确 key 返回 200 + key 内容。
+
+### 8.2 重新构建并重启（让 key 验证路由上线）
+
+```bash
+cd /root/websites/cardshopdir_workspace/cardshopdir
+bun run build
+pm2 restart cardshopdir
+```
+
+### 8.3 验证 key 文件可访问
+
+```bash
+# 替换为你的真实 key
+curl -i https://cardshopdir.com/<INDEXNOW_KEY>.txt
+# 期望：HTTP 200，Content-Type: text/plain，body 即为 key 本身
+```
+
+### 8.4 提交 sitemap 中所有页面
+
+```bash
+cd /root/websites/cardshopdir_workspace/cardshopdir
+bun run indexnow:submit
+```
+
+脚本行为：
+
+- 读取 `https://cardshopdir.com/sitemap.xml`（即 `app/sitemap.ts` 生成的全部 URL）
+- 校验所有 URL 都属于 `cardshopdir.com`，防止误提交
+- 按 IndexNow 协议 POST 到 `https://api.indexnow.org/indexnow`
+- 每批最多 10,000 个 URL（协议上限），自动分批
+- 返回 200 或 202 即表示搜索引擎已收到通知
+
+可选环境变量（一般无需设置）：
+
+- `INDEXNOW_ENDPOINT`：自定义 IndexNow 端点，默认 `https://api.indexnow.org/indexnow`
+- `INDEXNOW_SITEMAP_URL`：自定义 sitemap 地址，默认 `<BETTER_AUTH_URL>/sitemap.xml`
+
+### 8.5 何时再次提交
+
+- 新增/更新/删除店铺后（`shouldIndex` 变化的页面）
+- 新增博客文章后
+- 大规模数据刷新后
+- **不要频繁提交未变更的 URL**（IndexNow 有反垃圾限制，429 Too Many Requests）
+
+建议每周或每次数据更新后执行一次 `bun run indexnow:submit` 即可。
+
+---
+
+## 9. 用 PM2 启动（端口 3030）
 
 ```bash
 # 启动
