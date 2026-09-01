@@ -218,6 +218,7 @@ export default async function ShopPage({ params }: PageProps) {
             alt={shop.name}
             width={200}
             height={200}
+            sizes="160px"
             className="h-40 w-40 shrink-0 rounded-lg object-cover ring-1 ring-border/40"
           />
         ) : (

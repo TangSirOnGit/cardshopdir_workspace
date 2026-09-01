@@ -1025,43 +1025,43 @@ Home > Directory > California > Fresno > 1 Stop Card Shop
 
 ### Phase 2: Schema + 数据导入（2-3 天）
 
-- [ ] 改造 `lib/db/schema.ts`（新增 shops/games/shopGames/shopHours/shopReviews）
-- [ ] 更新 `lib/db/relations.ts`
-- [ ] 运行 `drizzle-kit generate` + `drizzle-kit migrate`
-- [ ] 编写 `scripts/seed-games.ts`（预置 12 个游戏分类）
-- [ ] 编写 `scripts/seed-shops.ts`（导入 7,722 条店铺数据，从 `data/shops_final.jsonl`）
-- [ ] 验证数据完整性
+- [x] 改造 `lib/db/schema.ts`（新增 shops/games/shopGames/shopHours/shopReviews）
+- [x] 更新 `lib/db/relations.ts`
+- [x] 运行 `drizzle-kit generate` + `drizzle-kit migrate`
+- [x] 编写 `scripts/seed-games.ts`（预置 12 个游戏分类）
+- [x] 编写 `scripts/seed-shops.ts`（导入 7,722 条店铺数据，从 `data/shops_final.jsonl`）
+- [x] 验证数据完整性
 
 ### Phase 3: 路由 + 页面（5-7 天）
 
-- [ ] 改造首页 `app/page.tsx`（搜索 + 按州/游戏浏览）
-- [ ] 新增 `app/directory/states/page.tsx`（州索引页）
-- [ ] 新增 `app/directory/[state]/page.tsx`（州目录页，SSG）
-- [ ] 新增 `app/directory/[state]/[city]/page.tsx`（城市目录页，SSG）
-- [ ] 新增 `app/directory/games/page.tsx`（游戏索引页）
-- [ ] 新增 `app/directory/games/[game]/page.tsx`（游戏分类页，SSG）
-- [ ] 改造 `app/p/[slug]/page.tsx` → `app/shop/[slug]/page.tsx`（店铺详情页，ISR）
-- [ ] 实现 `generateStaticParams`（预生成所有静态路由）
-- [ ] 实现 `generateMetadata`（含 JSON-LD + index/noindex 逻辑）
+- [x] 改造首页 `app/page.tsx`（搜索 + 按州/游戏浏览）
+- [x] 新增 `app/directory/states/page.tsx`（州索引页）
+- [x] 新增 `app/directory/[state]/page.tsx`（州目录页，SSG）
+- [x] 新增 `app/directory/[state]/[city]/page.tsx`（城市目录页，SSG）
+- [x] 新增 `app/directory/games/page.tsx`（游戏索引页）
+- [x] 新增 `app/directory/games/[game]/page.tsx`（游戏分类页，SSG）
+- [x] 改造 `app/p/[slug]/page.tsx` → `app/shop/[slug]/page.tsx`（店铺详情页，ISR）
+- [x] 实现 `generateStaticParams`（预生成所有静态路由）
+- [x] 实现 `generateMetadata`（含 JSON-LD + index/noindex 逻辑）
 
 ### Phase 4: SEO 基础设施（1-2 天）
 
-- [ ] 实现 sitemap 生成（按类型拆分）
-- [ ] 配置 `robots.txt`
-- [ ] 配置 Plausible 分析
-- [ ] 配置 Open Graph / Twitter Card 元数据
-- [ ] 实现面包屑导航组件
+- [x] 实现 sitemap 生成（按类型拆分）
+- [x] 配置 `robots.txt`
+- [x] 配置 Plausible 分析
+- [x] 配置 Open Graph / Twitter Card 元数据
+- [x] 实现面包屑导航组件
 
 ### Phase 5: 部署 + 验证（1 天）
 
-- [ ] 注册域名 cardshopdir.com（Cloudflare）
-- [ ] 创建 Neon Postgres 数据库
-- [ ] 创建 Upstash Redis
-- [ ] 配置环境变量
-- [ ] 部署到 Vercel
-- [ ] 配置 Cloudflare DNS 指向 Vercel
-- [ ] 提交 sitemap 到 Google Search Console
-- [ ] 验证页面可访问 + JSON-LD 正确
+- [x] 注册域名 cardshopdir.com（Cloudflare）
+- [x] 创建 Neon Postgres 数据库
+- [x] 创建 Upstash Redis
+- [x] 配置环境变量
+- [x] 部署到 Vercel
+- [x] 配置 Cloudflare DNS 指向 Vercel
+- [x] 提交 sitemap 到 Google Search Console
+- [x] 验证页面可访问 + JSON-LD 正确
 
 **P0 预计总工期：10-15 个工作日**
 

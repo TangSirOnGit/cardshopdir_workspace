@@ -65,6 +65,7 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
             alt={shop.name}
             width={84}
             height={84}
+            sizes="84px"
             className="h-21 w-21 shrink-0 rounded-md object-cover ring-1 ring-border/40"
           />
         ) : (
