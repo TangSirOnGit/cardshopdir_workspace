@@ -137,14 +137,7 @@ function DesktopUserSlot({
     )
   }
   if (!user) {
-    return (
-      <Link
-        href="/sign-in"
-        className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-      >
-        Sign in
-      </Link>
-    )
+    return null
   }
   return (
     <Link href="/profile" aria-label="Profile">
@@ -183,15 +176,7 @@ function MobileUserSlot({
     )
   }
   if (!user) {
-    return (
-      <Link
-        href="/sign-in"
-        onClick={onNavigate}
-        className="rounded-md px-1 py-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-      >
-        Sign in
-      </Link>
-    )
+    return null
   }
   return (
     <Link
