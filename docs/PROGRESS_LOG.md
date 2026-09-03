@@ -420,8 +420,70 @@
 
 ### 九、下一步建议
 
-1. **观察 `game stores near me` 排名第 1 的页面** — 确认是哪个页面，分析为什么排名高，复制成功模式
-2. **检查 www 子域名重定向** — `www.cardshopdir.com` 应 301 到 `cardshopdir.com`
+1. ~~**观察 `game stores near me` 排名第 1 的页面**~~ — 已确认，见下方分析
+2. ~~**检查 www 子域名重定向**~~ — 已修复，见下方记录
 3. **继续每日记录索引增长** — 关注是否保持 ~67 页/天的速度
 4. **观察点击出现** — 预计 5-10 天后开始有首批点击
 5. **提交更多 URL 到 IndexNow** — 加速 Bing 索引
+
+---
+
+## 2026-09-03 — 两个问题修复
+
+### 1. www 子域名 301 重定向修复
+
+**问题**：`www.cardshopdir.com` 返回 200 而非 301 重定向到 `cardshopdir.com`，导致 Google 将 www 和 apex 视为两个独立网站，分散 SEO 权重。GSC 已出现 `www.cardshopdir.com/directory/mi/games/riftbound` 的展示。
+
+**修复**：在 Cloudflare Dashboard → Rules → Page Rules 添加规则：
+
+- URL 匹配：`www.cardshopdir.com/*`
+- 动作：Forward URL，301 重定向到 `https://cardshopdir.com/$1`
+
+**验证结果**（2026-09-03）：
+
+| 测试 URL                                                 | 状态码 | 重定向目标                             | 状态        |
+| -------------------------------------------------------- | ------ | -------------------------------------- | ----------- |
+| `www.cardshopdir.com`                                    | 301    | `https://cardshopdir.com/`             | ✅          |
+| `www.cardshopdir.com/directory/ca`                       | 301    | `https://cardshopdir.com/directory/ca` | ✅ 路径保留 |
+| `www.cardshopdir.com/shop/game-over-gaming-pensacola-fl` | 301    | `https://cardshopdir.com/shop/...`     | ✅ 路径保留 |
+
+Google 预计 1-2 周内将 www 版本的索引信号合并到 apex 域名。
+
+### 2. `game stores near me` 排名第 1 的页面分析
+
+**确认页面**：`https://cardshopdir.com/shop/game-over-gaming-pensacola-fl`
+
+通过 GSC 过滤器确认，该页面在查询 `game stores near me` 中排名第 1 位（1 次展示，0 点击）。
+
+**页面数据**（数据库查询）：
+
+| 字段     | 值                                 |
+| -------- | ---------------------------------- |
+| 店铺名   | Game over gaming                   |
+| ID       | 2642                               |
+| 城市     | Pensacola, FL                      |
+| 地址     | 1717 North T Street, 32505         |
+| 评分     | 4.9/5（40 条评论）                 |
+| 类型     | game_store                         |
+| 游戏     | Pokemon, MTG, Yu-Gi-Oh!, Riftbound |
+| 营业时间 | 周六/周日 08:00-15:30              |
+| 网站     | keepupcards.com                    |
+
+**排名因素分析**：
+
+1. **`shop_type = game_store`** — 页面 title 含 "Game over gaming"，meta description 含 "Trading card game shop"，与 "game stores" 语义高度匹配
+2. **JSON-LD 结构化数据完整** — `@type: Store` + 地址 + 评分 + 营业时间，Google 理解为实体店铺
+3. **描述内容质量** — AI 生成的 description 包含 "trading card enthusiasts"、"singles, sealed product, supplies"、"Pokémon, Magic: The Gathering" 等关键词
+4. **高评分 + 评论数** — 4.9 分 40 评论增加可信度
+5. **竞争环境** — Pensacola 中型市场，"game stores near me" 竞争可能不激烈
+
+**可复制机会**：
+
+| 指标                                    | 数值 |
+| --------------------------------------- | ---- |
+| 已索引的 game_store 类型店铺            | 594  |
+| 其中评分 ≥ 4.5 且评论 ≥ 20 的高质量店铺 | 456  |
+
+这 456 个高质量 game_store 页面都有潜力在各自城市获得 "game stores near {city}" 的排名。随着索引增长，预计会有更多类似的长尾词排名出现。
+
+**SEO 策略验证**：此案例证明店铺页的 SEO 策略方向正确 — `shop_type` 分类 + 城市名 + 结构化数据 + 高质量描述 = 匹配 "near me" 查询。
