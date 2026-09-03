@@ -487,3 +487,58 @@ Google 预计 1-2 周内将 www 版本的索引信号合并到 apex 域名。
 这 456 个高质量 game_store 页面都有潜力在各自城市获得 "game stores near {city}" 的排名。随着索引增长，预计会有更多类似的长尾词排名出现。
 
 **SEO 策略验证**：此案例证明店铺页的 SEO 策略方向正确 — `shop_type` 分类 + 城市名 + 结构化数据 + 高质量描述 = 匹配 "near me" 查询。
+
+### 3. 清除 keepupcards.com 数据投毒
+
+**问题发现**：在分析 `game stores near me` 排名第 1 的页面时，发现店铺 `game-over-gaming-pensacola-fl` 的 website 字段指向 `https://www.keepupcards.com/shop/game-over-gaming-pensacola-fl`。这不是店铺的真实官网，而是数据源平台 keepupcards.com 的页面 — 我们爬取了该网站的 JSON-LD schema 数据，其中 `website` 字段被填充为 keepupcards 自己的 URL，属于数据投毒。
+
+**影响范围**：
+
+| 指标                                | 数量  | 占比           |
+| ----------------------------------- | ----- | -------------- |
+| website 指向 keepupcards.com 的记录 | 1,785 | 23.1% of 7,722 |
+| 其中已索引的                        | 804   | 24.6% of 3,266 |
+
+**处理方式**：方案 A — 清空 website 字段
+
+```sql
+UPDATE shops SET website = NULL
+WHERE website ILIKE '%keepupcards.com%';
+-- 影响 1,785 行
+```
+
+**全字段排查**：清空后检查所有字段确认无残留：
+
+| 字段        | keepupcards 残留数 |
+| ----------- | ------------------ |
+| website     | 0 ✅               |
+| description | 0 ✅               |
+| name        | 0 ✅               |
+| slug        | 0 ✅               |
+| telephone   | 0 ✅               |
+| email       | 0 ✅               |
+| street      | 0 ✅               |
+
+**缓存更新**：PM2 重启 + Cloudflare Purge Everything，使 ISR 缓存和 CF edge 缓存立即刷新。
+
+**线上验证**（`/shop/game-over-gaming-pensacola-fl`）：
+
+| 检查项              | 结果             |
+| ------------------- | ---------------- |
+| keepupcards 引用    | 0 ✅             |
+| Visit Website 按钮  | 0 ✅（不再显示） |
+| Get Directions 按钮 | 1 ✅（正常保留） |
+| 电话按钮            | 2 ✅（正常保留） |
+
+**website 字段全量分布**（清理后）：
+
+| 域名           | 总数   | 已索引 | 性质            |
+| -------------- | ------ | ------ | --------------- |
+| NULL（无网站） | 1,785  | 804    | 已清理          |
+| facebook.com   | 952    | 111    | 社交媒体页面    |
+| instagram.com  | 81     | 34     | 社交媒体页面    |
+| ebay.com       | 33     | 16     | 电商平台        |
+| linktr.ee      | 35     | 20     | 链接聚合页      |
+| 其他真实官网   | ~4,836 | ~2,281 | ✅ 真实店铺网站 |
+
+> **备注**：facebook/instagram/ebay/linktree 等社交媒体链接暂保留，这些是店铺的社交媒体页面，对用户有一定参考价值。后续可评估是否需要处理。
