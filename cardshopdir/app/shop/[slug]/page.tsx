@@ -48,10 +48,11 @@ export async function generateMetadata({
   const shop = await db.query.shops.findFirst({ where: eq(shops.slug, slug) })
   if (!shop) return { title: "Shop not found — CardShopDir" }
 
-  const title = `${shop.name} — ${shop.city}, ${shop.state} | CardShopDir`
+  const locationLabel = [shop.city, shop.state].filter(Boolean).join(", ")
+  const title = `${shop.name} — ${locationLabel} | CardShopDir`
   const description =
     shop.metaDescription ||
-    `${shop.name} is a ${shopTypeLabel(shop.shopType)} in ${shop.city}, ${stateName(shop.state || "")}. ${shop.description?.slice(0, 140) || ""}`
+    `${shop.name} is a ${shopTypeLabel(shop.shopType)} in ${[shop.city, stateName(shop.state || "")].filter(Boolean).join(", ")}. ${shop.description?.slice(0, 140) || ""}`
 
   return {
     title,
@@ -150,16 +151,25 @@ export default async function ShopPage({ params }: PageProps) {
     })),
   }
 
-  const breadcrumbJsonLdData = breadcrumbJsonLd([
+  // Build breadcrumb items — skip state level when state is empty (international shops)
+  const breadcrumbItems: { name: string; url: string }[] = [
     { name: "Home", url: baseUrl },
     { name: "Directory", url: `${baseUrl}/directory` },
-    { name: stateFull, url: `${baseUrl}/directory/${stateCode.toLowerCase()}` },
-    {
+  ]
+  if (stateCode) {
+    breadcrumbItems.push({
+      name: stateFull,
+      url: `${baseUrl}/directory/${stateCode.toLowerCase()}`,
+    })
+  }
+  if (cityName && stateCode) {
+    breadcrumbItems.push({
       name: cityName,
       url: `${baseUrl}/directory/${stateCode.toLowerCase()}/${cityName.toLowerCase().replace(/\s+/g, "-")}`,
-    },
-    { name: shop.name, url: pageUrl },
-  ])
+    })
+  }
+  breadcrumbItems.push({ name: shop.name, url: pageUrl })
+  const breadcrumbJsonLdData = breadcrumbJsonLd(breadcrumbItems)
 
   const mapsUrl =
     shop.latitude && shop.longitude
@@ -188,14 +198,18 @@ export default async function ShopPage({ params }: PageProps) {
         <Link href="/directory" className="hover:text-foreground">
           Directory
         </Link>
-        <span>/</span>
-        <Link
-          href={`/directory/${stateCode.toLowerCase()}`}
-          className="hover:text-foreground"
-        >
-          {stateFull}
-        </Link>
-        {cityName && (
+        {stateCode && (
+          <>
+            <span>/</span>
+            <Link
+              href={`/directory/${stateCode.toLowerCase()}`}
+              className="hover:text-foreground"
+            >
+              {stateFull}
+            </Link>
+          </>
+        )}
+        {cityName && stateCode && (
           <>
             <span>/</span>
             <Link
@@ -258,7 +272,7 @@ export default async function ShopPage({ params }: PageProps) {
           <p className="flex items-center gap-1.5 text-[14px] text-muted-foreground">
             <MapPin className="h-4 w-4 shrink-0" />
             {shop.street && <span>{shop.street}, </span>}
-            {cityName}, {stateCode} {shop.postalCode}
+            {[cityName, stateCode].filter(Boolean).join(", ")} {shop.postalCode}
           </p>
 
           {/* Today's status */}
@@ -428,7 +442,8 @@ export default async function ShopPage({ params }: PageProps) {
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span>
                   {shop.street && <span>{shop.street}, </span>}
-                  {cityName}, {stateCode} {shop.postalCode}
+                  {[cityName, stateCode].filter(Boolean).join(", ")}{" "}
+                  {shop.postalCode}
                 </span>
               </div>
               <p className="mt-2 text-[12px] text-muted-foreground">
