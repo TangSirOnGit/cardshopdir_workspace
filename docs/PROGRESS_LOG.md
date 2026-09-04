@@ -542,3 +542,182 @@ WHERE website ILIKE '%keepupcards.com%';
 | 其他真实官网   | ~4,836 | ~2,281 | ✅ 真实店铺网站 |
 
 > **备注**：facebook/instagram/ebay/linktree 等社交媒体链接暂保留，这些是店铺的社交媒体页面，对用户有一定参考价值。后续可评估是否需要处理。
+
+---
+
+## 2026-09-04 17:00 — 上线第 4 天：首次 GSC 点击 + Bing 数据
+
+### 一、里程碑事件
+
+| 事件                   | 状态                                    |
+| ---------------------- | --------------------------------------- |
+| 🎉 GSC 首次点击        | 2 clicks（历史零的突破）                |
+| 📈 GSC 展示量翻倍      | 141 → 293（24h 环比 +108%）             |
+| 🔍 site: 索引数        | ~23 页（持续增长中）                    |
+| 📊 Bing Webmaster 数据 | 首次下载，已有 2 clicks / 113 imp       |
+| 🐛 GSC Breadcrumb 报错 | 已修复（Malta 国际店铺 state 为空导致） |
+
+### 二、GSC 数据（09-04 报告，过去 24h，与 09-03 部分重叠）
+
+#### 1. 总览对比
+
+| 指标        | 09-03 报告 | 09-04 报告 | 变化                   |
+| ----------- | ---------- | ---------- | ---------------------- |
+| Clicks      | 0          | **2**      | 🎉 +2                  |
+| Impressions | 141        | **293**    | +108%                  |
+| CTR         | 0%         | 0.68%      | —                      |
+| 平均排名    | 11.16      | 14.64      | 下降（更多长尾词进入） |
+
+#### 2. 首次点击详情
+
+| 页面                                  | Clicks | Imp | CTR | Position |
+| ------------------------------------- | ------ | --- | --- | -------- |
+| `/shop/game-over-gaming-pensacola-fl` | 1      | 4   | 25% | 46.5     |
+| `/directory/co/breckenridge`          | 1      | 2   | 50% | 9.5      |
+
+> **分析**：第一个点击来自 Pensacola 店铺页（排名 46.5，说明用户翻到了第 5 页）；第二个来自 Breckenridge 城市目录页（排名 9.5，接近第一页底部）。城市目录页的排名优势明显。
+
+#### 3. Top Queries（展示量 ≥ 5）
+
+| Query                      | Imp | Position | 类型     |
+| -------------------------- | --- | -------- | -------- |
+| card shops near me         | 15  | 12.93    | 泛搜索   |
+| rjbreaks reviews           | 11  | 8.27     | 品牌搜索 |
+| gameslab                   | 6   | 8.33     | 品牌搜索 |
+| gmt anime                  | 4   | 9.5      | 品牌搜索 |
+| fantasy game center        | 3   | 3.33     | 品牌搜索 |
+| trading card shops near me | 3   | 4.33     | 泛搜索   |
+| card shop near me          | 2   | 9        | 泛搜索   |
+
+> **观察**：品牌搜索（用户直接搜店铺名）占展示量主力，说明 Google 已开始将店铺名与我们的页面关联。泛搜索 "card shops near me" 排名 12.93，距离第一页还差 3 个位置。
+
+#### 4. Top Pages（展示量 ≥ 8）
+
+| Page                                        | Imp | Position | 页面类型 |
+| ------------------------------------------- | --- | -------- | -------- |
+| `/shop/games-lab-auckland-auckland`         | 14  | 13.71    | 店铺页   |
+| `/shop/rjbreaks-skokie-il`                  | 12  | 11.33    | 店铺页   |
+| `/directory/mo/kirksville`                  | 10  | 10.6     | 城市目录 |
+| `/shop/fantasy-game-center-presque-isle-me` | 9   | 5.89     | 店铺页   |
+| `/shop/battle-bunker-dickinson-nd`          | 9   | 28.56    | 店铺页   |
+| `/` (首页)                                  | 9   | 32.33    | 首页     |
+| `/directory/il`                             | 8   | 5.25     | 州目录   |
+| `/shop/hoover-house-salina-ks`              | 8   | 15.75    | 店铺页   |
+| `/shop/house-of-cards-el-paso-tx`           | 8   | 77.5     | 店铺页   |
+| `/directory/ca/chico`                       | 7   | 6.29     | 城市目录 |
+
+> **观察**：城市目录页排名普遍较好（5-10），店铺页排名分化大（3-77）。州目录 `/directory/il` 排名 5.25 表现优异。
+
+#### 5. 国家分布
+
+| 国家           | Clicks | Imp | Position |
+| -------------- | ------ | --- | -------- |
+| United States  | 2      | 266 | 14.64    |
+| New Zealand    | 0      | 11  | 7        |
+| China          | 0      | 3   | 1        |
+| Brazil         | 0      | 2   | 8        |
+| Canada         | 0      | 1   | 11       |
+| United Kingdom | 0      | 1   | 11       |
+
+> **观察**：新西兰 11 展示来自 Games Lab Auckland（新西兰店铺）。国际数据已开始被 Google 展示。
+
+#### 6. 设备分布
+
+| 设备    | Clicks | Imp | CTR   | Position |
+| ------- | ------ | --- | ----- | -------- |
+| Desktop | 2      | 134 | 1.49% | 21.01    |
+| Mobile  | 0      | 159 | 0%    | 9.25     |
+
+> **⚠️ 关键发现**：Mobile 展示量更高（159 vs 134）但 **0 点击**，而 Desktop 2 点击。Mobile 平均排名 9.25 优于 Desktop 21.01，但 CTR 为 0。可能原因：
+>
+> 1. Mobile SERP 竞争更激烈（本地 pack、地图等占据首屏）
+> 2. Mobile 标题/描述在搜索结果中截断更严重
+> 3. Mobile 用户更倾向于点击 Google Maps / Local Pack
+
+#### 7. Search Appearance
+
+**空** — 无 rich results 展示。Breadcrumb 修复后需等待重新索引。
+
+### 三、Bing Webmaster 数据（过去 7 天：9/1 - 9/2）
+
+#### 1. 总览
+
+| 日期     | Clicks | Impressions | CTR       |
+| -------- | ------ | ----------- | --------- |
+| 2026/9/1 | 2      | 77          | 2.6%      |
+| 2026/9/2 | 0      | 36          | 0%        |
+| **合计** | **2**  | **113**     | **1.77%** |
+
+#### 2. Top Keywords
+
+| Keyword                                               | Imp | Clicks | Avg Position |
+| ----------------------------------------------------- | --- | ------ | ------------ |
+| card shops near me                                    | 9   | 0      | **5.44**     |
+| baseball card shops near me                           | 3   | 0      | 9.33         |
+| trading card shop                                     | 2   | 0      | 7.5          |
+| where can i sell my xmen imperial cards in east texas | 2   | 0      | 4.5          |
+| https://www.cardsnearby.com/                          | 1   | 1      | 2            |
+| www.card shop                                         | 1   | 1      | 1            |
+
+> **关键发现**：Bing 上 "card shops near me" 排名 **5.44**，远优于 Google 的 12.93！Bing 竞争较小，是重要的早期流量来源。2 个点击均来自非常规查询（URL 搜索和模糊搜索）。
+
+### 四、Umami 流量（过去 24h，与 09-03 部分重叠）
+
+| 指标           | 数值   | 环比                |
+| -------------- | ------ | ------------------- |
+| Visitors       | 28     | -88%（HN 流量消退） |
+| Visits         | 33     | —                   |
+| Views          | 77     | —                   |
+| Bounce rate    | 67%    | 改善（从 75%）      |
+| Visit duration | 1m 30s | 改善（从 1m 10s）   |
+
+#### Referrer 分布
+
+| 来源              | Visitors | 占比 | 类型        |
+| ----------------- | -------- | ---- | ----------- |
+| google.com        | 5        | 50%  | 🎉 自然搜索 |
+| github.com        | 2        | 20%  | 外链        |
+| search.google.com | 2        | 20%  | Google 搜索 |
+| firsto.co         | 1        | 10%  | 外链        |
+
+> **里程碑**：Google 自然搜索首次成为 #1 流量来源（50%），HN/social 流量已完全消退。真实用户开始通过搜索发现网站。
+
+### 五、GSC Breadcrumb 报错修复
+
+#### 问题
+
+GSC 报告 `/shop/gamers-malta-santa-venera` 的 BreadcrumbList 错误：
+
+> Either "name" or "item.name" should be specified (in "itemListElement")
+
+#### 根因
+
+Malta 等国际店铺 `state` 字段为空，导致面包屑第 3 项：
+
+- `name` 为空字符串 `""`
+- URL 出现双斜杠 `/directory//santa-venera`
+
+#### 修复
+
+`app/shop/[slug]/page.tsx`：
+
+- 面包屑 JSON-LD：state 为空时跳过 state 和 city 层级
+- 可见 nav：同步跳过 state 链接
+- metadata title：`[city, state].filter(Boolean).join(", ")` 避免空逗号
+- 地址显示：同步处理空 state
+
+修复后面包屑：`Home > Directory > Gamers-Malta`（3 级，无空项）
+
+### 六、www 子域问题追踪
+
+GSC Pages 中出现 `www.cardshopdir.com` 的 URL（如 `/directory/mi/games/riftbound`、首页），说明 www 子域仍被 Google 索引。已设置的 301 Page Rule 需要时间生效，Google 重新索引后应合并到 apex 域。
+
+### 七、关键行动项
+
+| 优先级 | 行动                                                       | 状态                |
+| ------ | ---------------------------------------------------------- | ------------------- |
+| P0     | Breadcrumb 报错修复                                        | ✅ 已完成           |
+| P1     | 监控 Mobile CTR = 0 问题                                   | 🔍 持续观察         |
+| P1     | 等待 www 子域 URL 从索引消失                               | ⏳ 301 已设置       |
+| P2     | 等待 Breadcrumb rich results 出现                          | ⏳ 修复后需重新索引 |
+| P2     | 优化 "card shops near me" 排名（Google 12.93 → 目标 < 10） | 🔍 持续             |
