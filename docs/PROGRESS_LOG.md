@@ -723,3 +723,217 @@ GSC Pages 中出现 `www.cardshopdir.com` 的 URL（如 `/directory/mi/games/rif
 | P1     | 等待 www 子域 URL 从索引消失                               | ⏳ 301 已设置       |
 | P2     | 等待 Breadcrumb rich results 出现                          | ⏳ 修复后需重新索引 |
 | P2     | 优化 "card shops near me" 排名（Google 12.93 → 目标 < 10） | 🔍 持续             |
+
+---
+
+## 2026-09-07 — 上线一周总结
+
+### 一、索引状态（GSC Page Indexing 报告）
+
+| 指标         | 数值  | 占比  |
+| ------------ | ----- | ----- |
+| ✅ 已索引    | 339   | 5.1%  |
+| ❌ 未索引    | 6,411 | 94.9% |
+| Sitemap 总数 | 6,750 | —     |
+
+#### 未索引原因分解
+
+| 原因                                 | 数量  | 性质                       | 可操作性                |
+| ------------------------------------ | ----- | -------------------------- | ----------------------- |
+| Discovered - currently not indexed   | 6,300 | Google 已发现 URL 但未爬取 | ⏳ 等待 crawl budget    |
+| Crawled - currently not indexed      | 99    | 已爬取但未进索引           | ⚠️ 可能内容质量信号不足 |
+| Page with redirect                   | 5     | www → apex 301             | ✅ 正常（301 已生效）   |
+| Not found (404)                      | 2     | 不存在的 URL               | 🔍 需排查               |
+| Alternate page with proper canonical | 2     | canonical 正确指向主版本   | ✅ 正常                 |
+| Excluded by 'noindex' tag            | 1     | noindex 标记               | 🔍 需排查               |
+
+> **分析**：6,300 "Discovered - currently not indexed" 是新站正常状态。Google 已知道这些 URL 存在（通过 sitemap），但 crawl budget 有限，需要 2-8 周逐步爬取。99 "Crawled - currently not indexed" 需关注——这些页面被爬了但没进索引，可能是内容相似度太高或质量信号不足。
+
+### 二、GSC 搜索表现（上线 7 天累计）
+
+#### 1. 每日趋势
+
+| 日期     | Clicks | Impressions | CTR       | Avg Position |
+| -------- | ------ | ----------- | --------- | ------------ |
+| 08-29    | 0      | 0           | —         | —            |
+| 08-30    | 0      | 4           | 0%        | 3.5          |
+| 08-31    | 0      | 13          | 0%        | 22.5         |
+| 09-01    | 0      | 84          | 0%        | 12.2         |
+| 09-02    | 0      | 216         | 0%        | 10.0         |
+| 09-03    | 2      | 324         | 0.62%     | 15.4         |
+| 09-04    | 3      | 446         | 0.67%     | 12.6         |
+| **合计** | **5**  | **1,087**   | **0.46%** | **12.72**    |
+
+> 展示量从 0 → 446/天，7 天累计 1,087。增速明显，但 CTR 0.46% 偏低（行业平均 1-3%），主要因排名在第 2-3 页。
+
+#### 2. 有点击的页面（5 个）
+
+| Page                                         | Clicks | Imp | CTR   | Position |
+| -------------------------------------------- | ------ | --- | ----- | -------- |
+| `/shop/game-over-gaming-pensacola-fl`        | 1      | 10  | 10%   | 40.5     |
+| `/directory/co/breckenridge`                 | 1      | 7   | 14.3% | 7.71     |
+| `www.cardshopdir.com/` (www 首页)            | 1      | 4   | 25%   | 38       |
+| `/shop/midcoast-sports-exchange-rockland-me` | 1      | 4   | 25%   | 40       |
+| `/directory/co/montrose`                     | 1      | 2   | 50%   | 15       |
+
+> **注意**：5 个点击中有 1 个来自 `www.cardshopdir.com/` — www 子域仍在被 Google 展示和点击，301 合并尚未完成。
+
+#### 3. Top Queries（展示量 ≥ 10）
+
+| Query                      | Imp | Position | 类型     |
+| -------------------------- | --- | -------- | -------- |
+| card shops near me         | 43  | 12.91    | 泛搜索   |
+| rjbreaks reviews           | 36  | 7.50     | 品牌搜索 |
+| gmt anime                  | 33  | 9.85     | 品牌搜索 |
+| fantasy game center        | 13  | 5.08     | 品牌搜索 |
+| trading card shops near me | 10  | 6.20     | 泛搜索   |
+| battle bunker              | 10  | 8.50     | 品牌搜索 |
+| rain delay card co         | 10  | 10.60    | 品牌搜索 |
+
+> **品牌搜索占主导**：7 个高展示词中 5 个是品牌搜索（用户直接搜店铺名）。说明 Google 已将店铺名与我们的页面关联。泛搜索 "card shops near me" 排名 12.91，距第一页差 3 位。
+
+#### 4. 页面类型分布
+
+| 类型                 | 展示页面数 | 备注          |
+| -------------------- | ---------- | ------------- |
+| `/shop/` 店铺页      | 167        | 占比 71.7%    |
+| `/directory/` 目录页 | 63         | 占比 27.0%    |
+| `www.` 子域          | 7          | 需合并到 apex |
+
+#### 5. Top 目录页（展示量 ≥ 10）
+
+| Page                       | Imp | Position |
+| -------------------------- | --- | -------- |
+| `/directory/il`            | 46  | 7.30     |
+| `/directory/ak/fairbanks`  | 30  | 7.03     |
+| `/directory/pa/york`       | 26  | 8.96     |
+| `/directory/tn/cleveland`  | 25  | 9.08     |
+| `/directory/wi`            | 19  | 11.95    |
+| `/directory/mo/branson`    | 19  | 10.00    |
+| `/directory/mo/kirksville` | 17  | 10.29    |
+| `/directory/ca/chico`      | 17  | **4.47** |
+
+> **目录页排名优势明显**：州目录和城市目录普遍在 4-11 位，优于店铺页。`/directory/ca/chico` 排名 4.47 接近首屏顶部。
+
+#### 6. Top 店铺页（展示量 ≥ 15）
+
+| Page                                        | Imp | Position |
+| ------------------------------------------- | --- | -------- |
+| `/shop/rjbreaks-skokie-il`                  | 44  | 9.20     |
+| `/shop/gmt-anime-hickory-nc`                | 43  | 13.86    |
+| `/shop/fantasy-game-center-presque-isle-me` | 32  | 12.94    |
+| `/shop/rain-delay-card-co-arcata-ca`        | 27  | 17.22    |
+| `/shop/immortal-gaming-ellsworth-me`        | 24  | 16.46    |
+| `/shop/battle-bunker-dickinson-nd`          | 23  | 19.52    |
+| `/shop/games-lab-auckland-auckland`         | 21  | 21.52    |
+| `/shop/cardsmart-ny`                        | 16  | **5.75** |
+
+#### 7. 设备分布（7 天累计）
+
+| 设备    | Clicks | Imp | CTR   | Position |
+| ------- | ------ | --- | ----- | -------- |
+| Desktop | 3      | 428 | 0.70% | 18.47    |
+| Mobile  | 2      | 652 | 0.31% | 9.27     |
+| Tablet  | 0      | 7   | 0%    | 20       |
+
+> **Mobile CTR 改善**：从第 4 天的 0% 升到 0.31%（2 clicks），但仍是 Desktop 的不到一半。Mobile 展示量是 Desktop 的 1.5 倍，排名也更好（9.27 vs 18.47），但 CTR 更低。Mobile SERP 的 Local Pack 竞争是主因。
+
+#### 8. 国家分布
+
+| 国家          | Clicks | Imp   | Position |
+| ------------- | ------ | ----- | -------- |
+| United States | 4      | 1,011 | 12.72    |
+| Japan         | 1      | 2     | 32.5     |
+| China         | 0      | 23    | 10.61    |
+| New Zealand   | 0      | 16    | 6.69     |
+| France        | 0      | 7     | 42.14    |
+
+> 日本 1 个点击（来自 L'oeuf Cube Paris 等法国/日本相关店铺页面）。25 个国家有展示，国际化覆盖已开始。
+
+#### 9. Search Appearance
+
+**空** — 仍无 rich results 展示。Breadcrumb 修复后需等待重新索引。
+
+### 三、Bing Webmaster 数据（7 天累计）
+
+#### 1. Top Keywords
+
+| Keyword                      | Imp | Clicks | Avg Position | 对比 Google  |
+| ---------------------------- | --- | ------ | ------------ | ------------ |
+| card shops near me           | 31  | 0      | **7.06**     | Google 12.91 |
+| card shop                    | 7   | 0      | 5.57         | —            |
+| baseball card shops near me  | 3   | 0      | 9.33         | Google 11.00 |
+| trading card shops near me   | 3   | 0      | 9.67         | Google 6.20  |
+| card store                   | 2   | 0      | 5.00         | —            |
+| trading card shop            | 2   | 0      | 7.50         | —            |
+| card collector shops near me | 1   | 1      | 5.00         | —            |
+| www.card shop                | 1   | 1      | 1.00         | —            |
+
+> **Bing 优势**："card shops near me" 在 Bing 排名 7.06，比 Google（12.91）领先 6 个位置。Bing 竞争较小，是早期流量重要来源。3 个点击累计。
+
+### 四、Umami 流量
+
+#### 1. 过去 7 天
+
+| 指标           | 数值   |
+| -------------- | ------ |
+| Visitors       | 370    |
+| Visits         | 414    |
+| Views          | 863    |
+| Bounce rate    | 70%    |
+| Visit duration | 1m 15s |
+| PV / UV        | 2.33   |
+
+#### 2. 过去 24 小时
+
+| 指标           | 数值   | 环比 7 天日均         |
+| -------------- | ------ | --------------------- |
+| Visitors       | 29     | ~53（下降）           |
+| Visits         | 35     | —                     |
+| Views          | 110    | —                     |
+| Bounce rate    | 51%    | 改善（从 70%）        |
+| Visit duration | 2m 32s | 显著改善（从 1m 15s） |
+
+> **质量信号改善**：过去 24h 跳出率从 70% 降到 51%，停留时间从 1m15s 升到 2m32s。说明搜索流量比 HN/social 流量更精准——用户真的在找卡牌店。
+
+### 五、www 子域问题
+
+GSC Pages 中仍有 7 个 `www.cardshopdir.com` URL 在展示，其中 1 个甚至拿到了点击。301 Page Rule 已设置但 Google 尚未完全合并。
+
+| www URL                                                                      | Imp | Position |
+| ---------------------------------------------------------------------------- | --- | -------- |
+| `www.cardshopdir.com/`                                                       | 4   | 38       |
+| `www.cardshopdir.com/directory/mi/games/riftbound`                           | 10  | 24.9     |
+| `www.cardshopdir.com/directory/games/digimon`                                | 6   | 10.67    |
+| `www.cardshopdir.com/shop/gamescape-san-francisco-ca`                        | 4   | 36.25    |
+| `www.cardshopdir.com/shop/sactown-sports-cards-and-memorabilia-elk-grove-ca` | 4   | 162.25   |
+| `www.cardshopdir.com/shop/treasure-trove-coin-currency-petoskey-mi`          | 2   | 111      |
+| `www.cardshopdir.com/shop/jawbreakers-card-shop-utica-utica-mi`              | 1   | 3        |
+
+> **行动**：需确认 301 是否对所有 www URL 生效，特别是带路径的深层 URL。
+
+### 六、一周趋势总结
+
+| 指标                             | 第 1 天 | 第 4 天 | 第 7 天 | 趋势    |
+| -------------------------------- | ------- | ------- | ------- | ------- |
+| GSC 日展示                       | 84      | 446     | ~330\*  | 📈 增长 |
+| GSC 累计点击                     | 0       | 2       | 5       | 📈 增长 |
+| 已索引页面                       | ~100    | ~230    | 339     | 📈 增长 |
+| GSC 展示页面数                   | —       | 233     | 232     | ➡️ 稳定 |
+| Bing "card shops near me" 排名   | —       | 5.44    | 7.06    | ⬇️ 略降 |
+| Google "card shops near me" 排名 | —       | 12.93   | 12.91   | ➡️ 稳定 |
+| Umami 跳出率                     | 75%     | 67%     | 51%     | 📈 改善 |
+| Umami 停留时间                   | 1m10s   | 1m30s   | 2m32s   | 📈 改善 |
+
+\*第 7 天日展示为估算值，GSC 数据有 1-2 天延迟
+
+### 七、关键行动项
+
+| 优先级 | 行动                                           | 状态          |
+| ------ | ---------------------------------------------- | ------------- |
+| P0     | 排查 2 个 404 URL + 1 个 noindex URL           | 🔍 待处理     |
+| P1     | 确认 www 301 对深层路径 URL 生效               | 🔍 待验证     |
+| P1     | 监控 "Crawled - currently not indexed" 99 页   | 🔍 持续观察   |
+| P2     | 等待 rich results 出现（Breadcrumb 修复后）    | ⏳ 需重新索引 |
+| P2     | 优化 "card shops near me" 排名（12.91 → < 10） | 🔍 持续       |
+| P2     | Mobile CTR 改善（0.31% → 目标 1%+）            | 🔍 持续       |
