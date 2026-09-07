@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         "/admin/",
         "/api/",
+        "/cdn-cgi/",
         "/sign-in",
         "/sign-up",
         "/forgot-password",
