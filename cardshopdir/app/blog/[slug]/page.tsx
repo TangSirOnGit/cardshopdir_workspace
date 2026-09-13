@@ -108,14 +108,24 @@ export default async function BlogPostPage({ params }: Props) {
       col: ["span"],
     },
     transformTags: {
-      a: (tagName, attribs) => ({
-        tagName,
-        attribs: {
-          ...attribs,
-          rel: "noopener noreferrer nofollow",
-          target: "_blank",
-        },
-      }),
+      a: (tagName, attribs) => {
+        const href = attribs.href || ""
+        // Internal links (relative or same domain) should be dofollow
+        const isInternal =
+          href.startsWith("/") ||
+          href.startsWith(SITE_URL) ||
+          href.startsWith("https://cardshopdir.com")
+        return {
+          tagName,
+          attribs: isInternal
+            ? { ...attribs }
+            : {
+                ...attribs,
+                rel: "noopener noreferrer nofollow",
+                target: "_blank",
+              },
+        }
+      },
     },
   })
 

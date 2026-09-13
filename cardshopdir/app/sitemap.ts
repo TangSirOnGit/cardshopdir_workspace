@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 import { db } from "@/lib/db"
-import { shops, games } from "@/lib/db/schema"
+import { shops, games, posts } from "@/lib/db/schema"
 import { eq, sql } from "drizzle-orm"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -99,11 +99,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }))
 
+  // Blog posts (published only)
+  const blogPosts = await db
+    .select({ slug: posts.slug, updatedAt: posts.updatedAt })
+    .from(posts)
+    .where(eq(posts.status, "published"))
+
+  const blogPostPages: MetadataRoute.Sitemap = blogPosts.map((p) => ({
+    url: `${baseUrl}/blog/${p.slug}`,
+    lastModified: p.updatedAt,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }))
+
   return [
     ...staticPages,
     ...statePages,
     ...gamePages,
     ...cityPages,
     ...shopPages,
+    ...blogPostPages,
   ]
 }
