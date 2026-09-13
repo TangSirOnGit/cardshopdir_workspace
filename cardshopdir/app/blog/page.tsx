@@ -19,8 +19,9 @@ const blogParamsCache = createSearchParamsCache({
 export async function generateMetadata(): Promise<Metadata> {
   const siteName = await getSetting("site_name")
   return {
-    title: `Blog - ${siteName}`,
-    description: `Latest articles and updates from ${siteName}.`,
+    title: `Card Shop Guides & Collector Tips — ${siteName}`,
+    description:
+      "Expert guides on finding trading card shops near you, the best card shops by state, and collector tips for Pokémon, MTG, Yu-Gi-Oh!, and sports cards.",
     alternates: { canonical: "/blog" },
   }
 }
@@ -55,11 +56,11 @@ function FeaturedPostCard({ post }: { post: PostData }) {
           </div>
         )}
         <div className="flex flex-col justify-center">
-          <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground/60">
+          <div className="flex items-center gap-2 text-[11px] tracking-wider text-muted-foreground/60 uppercase">
             <span className="inline-flex size-1 rounded-full bg-foreground/60" />
             Featured
           </div>
-          <h2 className="mt-3 text-xl font-semibold leading-[1.2] tracking-tight text-balance transition-colors group-hover:text-muted-foreground sm:text-2xl">
+          <h2 className="mt-3 text-xl leading-[1.2] font-semibold tracking-tight text-balance transition-colors group-hover:text-muted-foreground sm:text-2xl">
             {post.title}
           </h2>
           {post.excerpt && (
@@ -67,7 +68,7 @@ function FeaturedPostCard({ post }: { post: PostData }) {
               {post.excerpt}
             </p>
           )}
-          <time className="mt-4 text-[11px] tabular-nums text-muted-foreground/60">
+          <time className="mt-4 text-[11px] text-muted-foreground/60 tabular-nums">
             {format(post.publishedAt ?? post.createdAt, "MMMM d, yyyy")}
           </time>
         </div>
@@ -96,10 +97,10 @@ function PostCard({ post }: { post: PostData }) {
         <div className="aspect-3/2 rounded-lg bg-muted/60 ring-1 ring-border/70" />
       )}
       <div className="mt-3.5">
-        <time className="text-[11px] tabular-nums text-muted-foreground/60">
+        <time className="text-[11px] text-muted-foreground/60 tabular-nums">
           {format(post.publishedAt ?? post.createdAt, "MMM d, yyyy")}
         </time>
-        <h2 className="mt-1 text-[15px] font-semibold leading-snug tracking-tight text-balance transition-colors group-hover:text-muted-foreground">
+        <h2 className="mt-1 text-[15px] leading-snug font-semibold tracking-tight text-balance transition-colors group-hover:text-muted-foreground">
           {post.title}
         </h2>
         {post.excerpt && (
@@ -142,9 +143,13 @@ export default async function BlogPage({
   return (
     <div className="space-y-10 pt-2 sm:pt-4">
       <header className="max-w-2xl">
-        <h1 className="font-serif text-2xl tracking-tight sm:text-3xl">Blog</h1>
+        <h1 className="font-serif text-2xl tracking-tight sm:text-3xl">
+          Card Shop Guides & Collector Tips
+        </h1>
         <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-          Latest articles, product updates, and behind-the-scenes notes.
+          Expert guides on finding trading card shops near you, the best card
+          shops by state, and collector tips for Pokémon, MTG, Yu-Gi-Oh!, and
+          sports cards.
         </p>
       </header>
 
