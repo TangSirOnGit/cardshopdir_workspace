@@ -1202,3 +1202,82 @@ Breadcrumb 修复已 9 天，但 Search Appearance 仍无数据。可能原因�
 | **P2** | 等待 "card shops near me" 排名从 9.73 继续提升                    | 突破 top 5 后 CTR 将显著提升                                           |
 | **P2** | 创建博客内容 targeting "card shops near me" 长尾变体              | 如 "best card shops in Michigan"、"pokemon card shops near me" 等      |
 | **P3** | assert 子域 robots.txt 修复                                       | 消除 1 个 404（低优先级）                                              |
+
+---
+
+## 2026-09-13 — P0+P1 SEO 优化执行
+
+### 一、P0：州目录页内容优化
+
+**问题诊断**：`/directory/mi`（175 imp, pos 11.9）、`/directory/il`（123 imp, pos 11.49）、`/directory/wi`（109 imp, pos 11.05）三个州目录页卡在 top 11-12，0 点击。
+
+**根因分析**：
+
+1. **stateIntro() 模板化** — 50 个州的 intro 段落几乎完全相同，只替换了州名、tagline 和 top 3 城市。Google 可能因内容相似度高将州目录页卡在 top 11-12。
+2. **首页锚文本为州代码** — "Browse by State" 板块显示 "MI"、"IL" 而非 "Michigan"、"Illinois"，锚文本缺乏语义价值。
+3. **无 FAQ 内容** — 州目录页缺少问答内容，无法触发 FAQ rich results。
+
+**改动**：
+
+| 改动                  | 文件                             | 说明                                                                                       |
+| --------------------- | -------------------------------- | ------------------------------------------------------------------------------------------ |
+| stateIntro 数据驱动   | `lib/directory.ts`               | 新版 stateIntro 接收 shopCount、cityCount、avgRating、totalReviews、topGames，生成独特内容 |
+| getTopGamesForState() | `lib/directory.ts`               | 新函数，返回州级游戏分布（非全局）                                                         |
+| FAQ 板块 + JSON-LD    | `app/directory/[state]/page.tsx` | 4 个 Q&A + FAQPage 结构化数据                                                              |
+| 首页完整州名          | `app/page.tsx`                   | "Browse by State" 锚文本从 "MI" → "Michigan"                                               |
+
+**验证**：
+
+- MI intro: "Our directory covers 244 listed shops, 111 cities, an average rating of 4.6 stars, 44,848+ collector reviews. The most popular games among Michigan's shops are Pokemon (110 shops), Magic: The Gathering (90 shops), Yu-Gi-Oh! (78 shops)..."
+- IL intro: "Our directory covers 276 listed shops, 139 cities, an average rating of 4.6 stars, 43,441+ collector reviews. The most popular games among Illinois's shops are Pokemon (134 shops), Magic: The Gathering (113 shops), Yu-Gi-Oh! (88 shops)..."
+- 每个州 intro 内容完全不同 ✅
+- FAQ 部分存在 ✅
+- FAQPage JSON-LD 存在 ✅
+- 首页链接锚文本显示完整州名 ✅
+
+**Commit**: `e6a77ad`
+
+### 二、P1：博客内容创建
+
+**目标**：扩大泛搜索覆盖，通过博客文章内链到州/城市目录页提升排名。
+
+**代码改动**：
+
+| 改动              | 文件                       | 说明                                                                             |
+| ----------------- | -------------------------- | -------------------------------------------------------------------------------- |
+| 修复内链 nofollow | `app/blog/[slug]/page.tsx` | 内链（相对路径/同域）保持 dofollow，外链仍 nofollow。之前所有链接被强制 nofollow |
+| sitemap 包含博客  | `app/sitemap.ts`           | 已发布博客文章自动加入 sitemap                                                   |
+| 博客首页 SEO      | `app/blog/page.tsx`        | H1 从 "Blog" → "Card Shop Guides & Collector Tips"，meta description 优化        |
+
+**3 篇博客文章**（`scripts/seed-blog-posts.sql`）：
+
+| 文章                                        | Target 关键词                                         | 内链目标                                                                  |
+| ------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------- |
+| Best Card Shops in Michigan                 | "best card shops in michigan", "card shops michigan"  | `/directory/mi`, `/directory/mi/grand-rapids`, `/directory/mi/lansing` 等 |
+| Pokemon Card Shops Near Me: Complete Guide  | "pokemon card shops near me", "pokemon cards near me" | `/directory/games/pokemon`, 各州 pokemon 页面                             |
+| How to Find Trading Card Shops in Your Area | "trading card shops near me", "card shops near me"    | `/directory`, top 10 州目录, 游戏目录                                     |
+
+每篇文章 800-1500 字，包含 H2/H3 结构、dofollow 内链到州/城市/游戏目录页。
+
+**线上验证**：
+
+- 3 篇博客文章 HTTP 200 ✅
+- 博客列表页显示 3 篇 ✅
+- 内链 dofollow（0 个 nofollow） ✅
+- BlogPosting JSON-LD ✅
+- Sitemap 包含博客（ISR 1 小时内更新） ✅
+
+**Commits**: `c141a2c`, `a297c44`
+
+### 三、待执行
+
+| 优先级 | 行动                                                               | 状态                 |
+| ------ | ------------------------------------------------------------------ | -------------------- |
+| **P0** | 部署州目录页改动到线上                                             | ✅ 已部署            |
+| **P1** | 部署博客文章 + 代码改动                                            | ✅ 已部署            |
+| **P1** | GSC 手动请求索引 `/directory/mi`、`/directory/il`、`/directory/wi` | ⏳ 待用户操作        |
+| **P1** | GSC 手动请求索引 3 篇博客文章                                      | ⏳ 待用户操作        |
+| **P2** | 等待 www 子域 301 合并                                             | ⏳ 2-4 周            |
+| **P2** | 等待 Rich Results 出现                                             | ⏳ 需重新索引        |
+| **P2** | "card shops near me" 排名提升                                      | ⏳ 9.73 → 目标 top 5 |
+| **P3** | assert 子域 robots.txt                                             | ⏳ 低优先级          |
