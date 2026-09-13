@@ -7,6 +7,7 @@ import {
   getCitiesForState,
   getShopsForState,
   getGamesWithCounts,
+  getTopGamesForState,
   getStateStats,
   enrichShopsWithCardMeta,
   stateName,
@@ -70,13 +71,15 @@ export default async function StateDirectoryPage({ params }: PageProps) {
     notFound()
   }
 
-  const [cities, shopsRaw, games, stats, allStates] = await Promise.all([
-    getCitiesForState(stateCode),
-    getShopsForState(stateCode, 60),
-    getGamesWithCounts(),
-    getStateStats(stateCode),
-    getStatesWithCounts(),
-  ])
+  const [cities, shopsRaw, games, stats, allStates, topGamesForState] =
+    await Promise.all([
+      getCitiesForState(stateCode),
+      getShopsForState(stateCode, 60),
+      getGamesWithCounts(),
+      getStateStats(stateCode),
+      getStatesWithCounts(),
+      getTopGamesForState(stateCode, 5),
+    ])
 
   if (shopsRaw.length === 0) {
     notFound()
@@ -103,6 +106,58 @@ export default async function StateDirectoryPage({ params }: PageProps) {
   const baseUrl = process.env.BETTER_AUTH_URL || "https://cardshopdir.com"
   const pageUrl = `${baseUrl}/directory/${state}`
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `How many card shops are in ${name}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `${name} has ${stats.shopCount} trading card shops listed in our directory across ${stats.cityCount} cities${stats.avgRating ? `, with an average rating of ${stats.avgRating} stars` : ""}.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `What types of card shops are in ${name}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `${name}'s card shops carry a wide range of TCG and sports card products${
+            topGamesForState.length > 0
+              ? `, with the most popular being ${topGamesForState
+                  .slice(0, 3)
+                  .map((g) => g.displayName)
+                  .join(", ")}`
+              : ""
+          }. You'll find stores specializing in Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `Which cities in ${name} have the most card shops?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text:
+            cities.length > 0
+              ? `The cities with the most card shops in ${name} are ${cities
+                  .slice(0, 3)
+                  .map((c) => `${c.city} (${c.shopCount})`)
+                  .join(", ")}.`
+              : `Card shops in ${name} are spread across ${stats.cityCount} cities.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `How do I find card shops near me in ${name}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `Browse our directory by city above, or use the search bar to find card shops in your area. Each listing includes store hours, ratings, directions, and the games they carry.`,
+        },
+      },
+    ],
+  }
+
   const jsonLd = [
     collectionPageJsonLd({
       name: `Trading Card Shops in ${name}`,
@@ -115,6 +170,7 @@ export default async function StateDirectoryPage({ params }: PageProps) {
       { name: "Directory", url: `${baseUrl}/directory` },
       { name, url: pageUrl },
     ]),
+    faqJsonLd,
   ]
 
   const otherStates = allStates.filter((s) => s.state !== stateCode)
@@ -172,7 +228,16 @@ export default async function StateDirectoryPage({ params }: PageProps) {
       {/* State intro */}
       <section className="prose prose-sm max-w-none">
         <p className="text-[14px] leading-relaxed text-muted-foreground">
-          {stateIntro(stateCode, cities.map((c) => c.city!).filter(Boolean))}
+          {stateIntro(stateCode, cities.map((c) => c.city!).filter(Boolean), {
+            shopCount: stats.shopCount,
+            cityCount: stats.cityCount,
+            avgRating: stats.avgRating,
+            totalReviews: stats.totalReviews,
+            topGames: topGamesForState.map((g) => ({
+              displayName: g.displayName,
+              shopCount: g.shopCount,
+            })),
+          })}
         </p>
       </section>
 
@@ -258,6 +323,45 @@ export default async function StateDirectoryPage({ params }: PageProps) {
           </div>
         </section>
       )}
+
+      {/* FAQ */}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold">
+          Frequently Asked Questions
+        </h2>
+        <div className="space-y-3">
+          <FaqItem
+            question={`How many card shops are in ${name}?`}
+            answer={`${name} has ${stats.shopCount} trading card shops listed in our directory across ${stats.cityCount} cities${stats.avgRating ? `, with an average rating of ${stats.avgRating} stars` : ""}.`}
+          />
+          <FaqItem
+            question={`What types of card shops are in ${name}?`}
+            answer={`${name}'s card shops carry a wide range of TCG and sports card products${
+              topGamesForState.length > 0
+                ? `, with the most popular being ${topGamesForState
+                    .slice(0, 3)
+                    .map((g) => g.displayName)
+                    .join(", ")}`
+                : ""
+            }. You'll find stores specializing in Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more.`}
+          />
+          <FaqItem
+            question={`Which cities in ${name} have the most card shops?`}
+            answer={
+              cities.length > 0
+                ? `The cities with the most card shops in ${name} are ${cities
+                    .slice(0, 3)
+                    .map((c) => `${c.city} (${c.shopCount})`)
+                    .join(", ")}.`
+                : `Card shops in ${name} are spread across ${stats.cityCount} cities.`
+            }
+          />
+          <FaqItem
+            question={`How do I find card shops near me in ${name}?`}
+            answer={`Browse our directory by city above, or use the search bar to find card shops in your area. Each listing includes store hours, ratings, directions, and the games they carry.`}
+          />
+        </div>
+      </section>
     </div>
   )
 }
@@ -268,5 +372,23 @@ function Stat({ label, value }: { label: string; value: string | number }) {
       <p className="text-xl font-semibold tabular-nums">{value}</p>
       <p className="mt-0.5 text-[11px] text-muted-foreground">{label}</p>
     </div>
+  )
+}
+
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  return (
+    <details className="group rounded-lg border border-border/50 bg-muted/30">
+      <summary className="cursor-pointer list-none px-4 py-3 text-[14px] font-medium transition-colors hover:bg-muted/50">
+        <span className="inline-block">
+          <span className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90">
+            ›
+          </span>
+          {question}
+        </span>
+      </summary>
+      <p className="px-4 pb-3 text-[13px] leading-relaxed text-muted-foreground">
+        {answer}
+      </p>
+    </details>
   )
 }

@@ -142,6 +142,23 @@ export async function getGamesWithCounts() {
     )
 }
 
+/** Get top games for a specific state with shop counts */
+export async function getTopGamesForState(stateCode: string, limit = 5) {
+  return db
+    .select({
+      slug: games.slug,
+      displayName: games.displayName,
+      shopCount: sql<number>`count(${shopGames.shopId})::int`,
+    })
+    .from(games)
+    .innerJoin(shopGames, eq(games.id, shopGames.gameId))
+    .innerJoin(shops, eq(shopGames.shopId, shops.id))
+    .where(eq(shops.state, stateCode.toUpperCase()))
+    .groupBy(games.id, games.slug, games.displayName)
+    .orderBy(desc(sql`count(${shopGames.shopId})`))
+    .limit(limit)
+}
+
 /** Get shops for a specific game */
 export async function getShopsForGame(
   gameSlug: string,
@@ -600,15 +617,30 @@ export function stateTagline(stateCode: string): string {
 }
 
 /**
- * Templated state intro paragraph using the state name + top cities.
- * Falls back gracefully when cities are unavailable.
+ * Data-driven state intro paragraph.
+ * Incorporates actual shop counts, top cities, and top games to make
+ * each state's intro unique and informative for SEO.
  */
 export function stateIntro(
   stateCode: string,
-  topCities: string[] = []
+  topCities: string[] = [],
+  opts?: {
+    shopCount?: number
+    cityCount?: number
+    avgRating?: number | null
+    totalReviews?: number
+    topGames?: { displayName: string; shopCount: number }[]
+  }
 ): string {
   const name = stateName(stateCode)
   const tagline = stateTagline(stateCode)
+  const shopCount = opts?.shopCount
+  const cityCount = opts?.cityCount
+  const avgRating = opts?.avgRating
+  const totalReviews = opts?.totalReviews
+  const topGames = opts?.topGames ?? []
+
+  // Build city phrase with shop counts if available
   const cityList = topCities.slice(0, 3)
   const cityPhrase =
     cityList.length > 0
@@ -616,7 +648,34 @@ export function stateIntro(
           cityList.length === 1 ? "" : cityList.length === 2 ? " and" : ", and"
         } their surrounding suburbs, each with its own mix of TCG specialty stores, sports card vaults, and comic shops.`
       : ""
-  return `${name}'s trading card scene spans Pokémon leagues, Magic: The Gathering tournaments, Yu-Gi-Oh! events, and a deep sports card culture. ${tagline.replace(/,.*/, "")} collectors will find everything from the latest sealed product and singles to vintage wax, PSA grading drop-offs, and Japanese imports.${cityPhrase} Whether you're chasing a rookie rookie card, hunting alt-art Pokémon, or building your first Commander deck, ${name}'s card shops deliver knowledgeable staff, fair pricing, and a welcoming community for collectors at every level.`
+
+  // Build data phrase with actual stats
+  const dataParts: string[] = []
+  if (shopCount) {
+    dataParts.push(`${shopCount.toLocaleString()} listed shops`)
+  }
+  if (cityCount) {
+    dataParts.push(`${cityCount} cities`)
+  }
+  if (avgRating) {
+    dataParts.push(`an average rating of ${avgRating} stars`)
+  }
+  if (totalReviews && totalReviews > 0) {
+    dataParts.push(`${totalReviews.toLocaleString()}+ collector reviews`)
+  }
+  const dataPhrase =
+    dataParts.length > 0 ? ` Our directory covers ${dataParts.join(", ")}.` : ""
+
+  // Build games phrase with actual top games
+  const gamesPhrase =
+    topGames.length > 0
+      ? ` The most popular games among ${name}'s shops are ${topGames
+          .slice(0, 3)
+          .map((g) => `${g.displayName} (${g.shopCount} shops)`)
+          .join(", ")}, reflecting the state's diverse collector community.`
+      : ""
+
+  return `${name}'s trading card scene spans Pokémon leagues, Magic: The Gathering tournaments, Yu-Gi-Oh! events, and a deep sports card culture. ${tagline.replace(/,.*/, "")} collectors will find everything from the latest sealed product and singles to vintage wax, PSA grading drop-offs, and Japanese imports.${dataPhrase}${gamesPhrase}${cityPhrase} Whether you're chasing a rookie card, hunting alt-art Pokémon, or building your first Commander deck, ${name}'s card shops deliver knowledgeable staff, fair pricing, and a welcoming community for collectors at every level.`
 }
 
 export function cityDisplayName(citySlug: string): string {

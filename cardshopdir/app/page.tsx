@@ -8,7 +8,11 @@ import { getSettingsTyped } from "@/lib/settings"
 import { SITE_URL } from "@/config"
 import { SearchBox } from "@/components/search-box"
 import { ShopCard } from "@/components/shop-card"
-import { getPopularCities, enrichShopsWithCardMeta } from "@/lib/directory"
+import {
+  getPopularCities,
+  enrichShopsWithCardMeta,
+  stateName,
+} from "@/lib/directory"
 
 export const revalidate = 3600
 
@@ -217,7 +221,7 @@ export default async function Home() {
               href={`/directory/${s.state?.toLowerCase()}`}
               className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[13px] transition-colors hover:bg-muted/60"
             >
-              <span className="font-medium">{s.state}</span>
+              <span className="font-medium">{stateName(s.state || "")}</span>
               <span className="text-[11px] text-muted-foreground tabular-nums">
                 {s.shopCount}
               </span>
