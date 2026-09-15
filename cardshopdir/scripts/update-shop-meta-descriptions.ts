@@ -13,8 +13,9 @@
  * Safe to re-run: only updates shops whose metaDescription is NULL or
  * differs from the target value. Prints a summary before applying.
  */
-import { db } from "@/lib/db"
-import { shops, shopGames, games } from "@/lib/db/schema"
+/// <reference types="node" />
+import { db } from "../lib/db"
+import { shops } from "../lib/db/schema"
 import { eq, inArray } from "drizzle-orm"
 
 // ── High-value shop slugs (from SEMrush top-20 brand keywords) ──────────────
@@ -133,7 +134,11 @@ async function main() {
 
   // Fetch current state
   const existing = await db
-    .select({ slug: shops.slug, name: shops.name, metaDescription: shops.metaDescription })
+    .select({
+      slug: shops.slug,
+      name: shops.name,
+      metaDescription: shops.metaDescription,
+    })
     .from(shops)
     .where(inArray(shops.slug, slugs))
 
@@ -164,10 +169,14 @@ async function main() {
     toUpdate++
   }
 
-  console.log(`\nSummary: ${toUpdate} to update, ${skipped} skipped, ${notFound} not found`)
+  console.log(
+    `\nSummary: ${toUpdate} to update, ${skipped} skipped, ${notFound} not found`
+  )
 
   if (!apply) {
-    console.log("\nDry run — no changes made. Run with --apply to write to database.")
+    console.log(
+      "\nDry run — no changes made. Run with --apply to write to database."
+    )
     return
   }
 
