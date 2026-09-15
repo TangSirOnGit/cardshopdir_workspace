@@ -50,9 +50,7 @@ export async function generateMetadata({
 
   const locationLabel = [shop.city, shop.state].filter(Boolean).join(", ")
   const title = `${shop.name} — ${locationLabel} | CardShopDir`
-  const description =
-    shop.metaDescription ||
-    `${shop.name} is a ${shopTypeLabel(shop.shopType)} in ${[shop.city, stateName(shop.state || "")].filter(Boolean).join(", ")}. ${shop.description?.slice(0, 140) || ""}`
+  const description = shop.metaDescription || (await buildShopDescription(shop))
 
   return {
     title,
@@ -64,6 +62,53 @@ export async function generateMetadata({
       images: shop.imageUrl ? [{ url: shop.imageUrl }] : undefined,
     },
   }
+}
+
+/**
+ * Build a rich, SEO-friendly meta description for a shop when no
+ * hand-written metaDescription is stored in the database.
+ *
+ * Template: "{Name} is a {type} in {city}, {state} carrying {games}.
+ *            Find store hours, ratings, directions, and the games they carry."
+ *
+ * Falls back gracefully when games/city/state are missing.
+ */
+async function buildShopDescription(shop: {
+  name: string
+  shopType: string
+  city: string | null
+  state: string | null
+  description: string | null
+  id: number
+}): Promise<string> {
+  const typeLabel = shopTypeLabel(shop.shopType).toLowerCase()
+  const cityState = [shop.city, stateName(shop.state || "")]
+    .filter(Boolean)
+    .join(", ")
+
+  // Fetch games for this shop to enrich the description
+  const gameRows = await db
+    .select({ displayName: games.displayName })
+    .from(games)
+    .innerJoin(shopGames, eq(games.id, shopGames.gameId))
+    .where(eq(shopGames.shopId, shop.id))
+    .orderBy(games.sortOrder)
+    .limit(4)
+
+  const gamesPhrase =
+    gameRows.length > 0
+      ? ` carrying ${gameRows.map((g) => g.displayName).join(", ")}`
+      : ""
+
+  const base = `${shop.name} is a ${typeLabel} in ${cityState}${gamesPhrase}. Find store hours, ratings, directions, and the games they carry.`
+
+  // If still under ~150 chars, append a snippet of the shop's own description
+  if (base.length < 150 && shop.description) {
+    const snippet = shop.description.slice(0, 160 - base.length - 1).trim()
+    if (snippet) return `${base} ${snippet}`
+  }
+
+  return base
 }
 
 export default async function ShopPage({ params }: PageProps) {
