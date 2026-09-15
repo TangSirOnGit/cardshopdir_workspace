@@ -124,6 +124,29 @@ export async function getShopsForCity(
     .limit(limit)
 }
 
+/** Get top games for a specific city + state with shop counts */
+export async function getTopGamesForCity(
+  stateCode: string,
+  cityName: string,
+  limit = 5
+) {
+  return db
+    .select({
+      slug: games.slug,
+      displayName: games.displayName,
+      shopCount: sql<number>`count(${shopGames.shopId})::int`,
+    })
+    .from(games)
+    .innerJoin(shopGames, eq(games.id, shopGames.gameId))
+    .innerJoin(shops, eq(shopGames.shopId, shops.id))
+    .where(
+      and(eq(shops.state, stateCode.toUpperCase()), ilike(shops.city, cityName))
+    )
+    .groupBy(games.id, games.slug, games.displayName)
+    .orderBy(desc(sql`count(${shopGames.shopId})`))
+    .limit(limit)
+}
+
 /** Get all games with shop counts */
 export async function getGamesWithCounts() {
   return db
@@ -690,4 +713,31 @@ export function gameDisplayName(
   games: { slug: string; displayName: string }[]
 ): string {
   return games.find((g) => g.slug === slug)?.displayName || slug
+}
+
+/**
+ * Data-driven city intro paragraph for SEO.
+ * Incorporates shop count, state, and top games to make each city page unique.
+ */
+export function cityIntro(
+  cityName: string,
+  stateCode: string,
+  opts?: {
+    shopCount?: number
+    topGames?: { displayName: string; shopCount: number }[]
+  }
+): string {
+  const stateNameFull = stateName(stateCode)
+  const shopCount = opts?.shopCount ?? 0
+  const topGames = opts?.topGames ?? []
+
+  const gamesPhrase =
+    topGames.length > 0
+      ? ` The most popular games among ${cityName}'s shops are ${topGames
+          .slice(0, 3)
+          .map((g) => `${g.displayName} (${g.shopCount} shops)`)
+          .join(", ")}.`
+      : ""
+
+  return `${cityName}, ${stateNameFull} (${stateCode}) is home to ${shopCount} trading card shops listed in our directory, ranging from dedicated TCG specialists to comic and game stores that carry a wide range of collectible products.${gamesPhrase} Use our directory to find local card stores near you in ${cityName}, with hours, ratings, directions, and the games they carry — including Pokémon, Magic: The Gathering, Yu-Gi-Oh!, and sports cards.`
 }

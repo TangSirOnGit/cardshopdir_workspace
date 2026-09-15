@@ -164,6 +164,18 @@ export default async function Home() {
             ))}
           </div>
         )}
+
+        {/* Near-me CTA */}
+        <div className="mt-6">
+          <Link
+            href="/near-me"
+            className="inline-flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-4 py-2 text-[14px] font-medium transition-colors hover:bg-muted/60"
+          >
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+            Card Shops Near Me
+            <ArrowRight className="h-3.5 w-3.5 opacity-70" />
+          </Link>
+        </div>
       </header>
 
       {/* ── Stats ────────────────────────────────────── */}
