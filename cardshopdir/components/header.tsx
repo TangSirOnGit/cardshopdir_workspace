@@ -12,6 +12,7 @@ interface HeaderProps {
 
 const staticNavLinks = [
   { href: "/directory", label: "Directory" },
+  { href: "/near-me", label: "Near Me" },
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
 ]
