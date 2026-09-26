@@ -1438,6 +1438,7 @@ Google 已经成为绝对主流来源，SEO 流量已取代早期外链流量。
 
 - 游戏目录页增加了指向 `/near-me` 的上下文链接：`Browse all card shops near you`。
 - 州目录页增加了指向 `/near-me` 的上下文链接：`Find card shops near you`。
+- Pokémon、Union Arena、Riftbound 游戏页的 metadata 和首屏 intro 增加了更明确的 `card shops near me` 搜索意图；Pokemon 同时覆盖无重音的常见拼写。
 - 这样 `/near-me` 同时获得全站导航、首页 CTA、州目录和游戏目录的内部链接，不再只依赖导航入口。
 
 ### 七、下一阶段行动

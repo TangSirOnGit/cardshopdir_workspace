@@ -24,9 +24,10 @@ export async function generateMetadata({
   const { game } = await params
   const games = await getGamesWithCounts()
   const displayName = gameDisplayName(game, games)
+  const seoName = game === "pokemon" ? "Pokemon" : displayName
   return {
-    title: `${displayName} Card Shops Near Me & Across the US — CardShopDir`,
-    description: `Find ${displayName} card shops near you. Browse local game stores across the US that sell ${displayName} products, with hours, ratings, and directions.`,
+    title: `${seoName} Card Shops Near Me & Across the US — CardShopDir`,
+    description: `Find ${seoName} card shops near me and across the US. Browse local stores with ${displayName} products, hours, ratings, directions, and nearby locations.`,
     alternates: { canonical: `/directory/games/${game}` },
   }
 }
@@ -53,6 +54,15 @@ const GAME_LOWER: Record<string, string> = {
   "cardfight-vanguard": "Cardfight!! Vanguard",
   "union-arena": "Union Arena",
   riftbound: "Riftbound",
+}
+
+const GAME_INTRO: Record<string, string> = {
+  pokemon:
+    "Find Pokemon card shops near me for booster packs, singles, sealed products, trading, and local events.",
+  "union-arena":
+    "Find Union Arena card shops near me for boosters, singles, tournament play, and local trading card events.",
+  riftbound:
+    "Find Riftbound card shops near me for packs, singles, league play, and local game stores carrying the new trading card game.",
 }
 
 export default async function GameDirectoryPage({ params }: PageProps) {
@@ -163,10 +173,10 @@ export default async function GameDirectoryPage({ params }: PageProps) {
           {displayName} Card Shops Near Me
         </h1>
         <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-          Find {gameLower} card shops near you. CardShopDir lists{" "}
-          {shopsList.length} stores across the US that carry {displayName} —
-          from sealed product and singles to grading drop-offs and play events.
-          Search by city or zip, or browse by state below.
+          {GAME_INTRO[game] ?? `Find ${gameLower} card shops near you.`}{" "}
+          CardShopDir lists {shopsList.length} stores across the US that carry{" "}
+          {displayName} — from sealed product and singles to grading drop-offs
+          and play events. Search by city or zip, or browse by state below.
         </p>
         <SearchBox className="max-w-md" />
         <p className="text-[13px] text-muted-foreground">
