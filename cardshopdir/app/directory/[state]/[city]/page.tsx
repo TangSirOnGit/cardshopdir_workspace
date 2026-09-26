@@ -28,6 +28,31 @@ const CITY_METADATA: Record<string, { title: string; description: string }> = {
     description:
       "Find card shops in Los Angeles, CA for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more. Browse local stores with hours, ratings, games, and directions.",
   },
+  "MI/TRAVERSE-CITY": {
+    title: "Card Shops in Traverse City, MI — Pokémon, MTG & More",
+    description:
+      "Find card shops in Traverse City, MI for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
+  },
+  "FL/BRADENTON": {
+    title: "Card Shops in Bradenton, FL — Pokémon, MTG & More",
+    description:
+      "Find card shops in Bradenton, FL for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
+  },
+  "CA/SAN-JOSE": {
+    title: "Card Shops in San Jose, CA — Pokémon, MTG & Sports Cards",
+    description:
+      "Find card shops in San Jose, CA for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
+  },
+  "NC/RALEIGH": {
+    title: "Card Shops in Raleigh, NC — Pokémon, MTG & Sports Cards",
+    description:
+      "Find card shops in Raleigh, NC for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
+  },
+  "IN/LAFAYETTE": {
+    title: "Card Shops in Lafayette, IN — Pokémon, MTG & More",
+    description:
+      "Find card shops in Lafayette, IN for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
+  },
 }
 
 export async function generateMetadata({

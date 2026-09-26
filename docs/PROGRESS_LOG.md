@@ -1482,3 +1482,18 @@ GSC 导出目录名虽然包含 `filter_out_iimpression_click`，但 `Filters.cs
 - `scripts/update-seo-first-batch.ts`：第一批 7 个店铺的可重复更新脚本。
 
 > 部署前必须把迁移文件、店铺 metadata 更新脚本和页面代码一起提交。生产 VPS 部署时执行 `./deploy.sh --migrate`，然后执行 `bun run scripts/update-seo-first-batch.ts --apply`，再清理 Cloudflare HTML 缓存。
+
+### 十、第二批目录页优化执行记录
+
+第二批页面按搜索表现分为两类：
+
+- **CTR 优先**：West Virginia、Bradenton、Raleigh、Lafayette、San Jose，平均排名约 6.8–9.0，重点优化 title/description 的点击吸引力。
+- **排名优先**：North Carolina、Tennessee、California、Traverse City、Yu-Gi-Oh!，平均排名约 10–27，除 metadata 外需要依靠独特 intro、FAQ、城市/州/游戏内链提升相关性。
+
+已加入页面级 metadata override：
+
+- 州页：NC、WV、TN、CA
+- 城市页：Traverse City、Bradenton、San Jose、Raleigh、Lafayette
+- 游戏页：Yu-Gi-Oh!
+
+Yu-Gi-Oh! 页面新增更明确的搜索意图：singles、sealed products、tournaments、local trading card events；不新增 URL，不修改 canonical，不新增重复页面。

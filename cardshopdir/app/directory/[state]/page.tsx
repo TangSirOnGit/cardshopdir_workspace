@@ -31,6 +31,28 @@ const STATE_METADATA: Record<string, { title: string; description: string }> = {
     description:
       "Find card shops in Wisconsin for Pokémon, Magic: The Gathering, sports cards, and more. Browse local stores by city with ratings, hours, games, and directions.",
   },
+  NC: {
+    title: "Card Shops in North Carolina — Pokémon, MTG & More | CardShopDir",
+    description:
+      "Find card shops in North Carolina for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more. Browse local stores by city with hours, ratings, and directions.",
+  },
+  WV: {
+    title: "Card Shops in West Virginia — Pokémon, MTG & More | CardShopDir",
+    description:
+      "Find card shops in West Virginia for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more. Browse local stores by city with hours, ratings, and directions.",
+  },
+  TN: {
+    title:
+      "Card Shops in Tennessee — Pokémon, MTG & Sports Cards | CardShopDir",
+    description:
+      "Find card shops in Tennessee for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more. Browse local stores by city with hours, ratings, and directions.",
+  },
+  CA: {
+    title:
+      "Card Shops in California — Pokémon, MTG & Sports Cards | CardShopDir",
+    description:
+      "Find card shops in California for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more. Browse local stores by city with hours, ratings, and directions.",
+  },
 }
 
 export async function generateMetadata({

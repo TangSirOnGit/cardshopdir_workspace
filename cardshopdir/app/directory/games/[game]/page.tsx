@@ -24,6 +24,11 @@ const GAME_METADATA: Record<string, { title: string; description: string }> = {
     description:
       "Find Disney Lorcana card shops near me for booster packs, singles, local events, and trading card stores across the US.",
   },
+  "yu-gi-oh": {
+    title: "Yu-Gi-Oh! Card Shops Near Me | Find Local Stores | CardShopDir",
+    description:
+      "Find Yu-Gi-Oh! card shops near me for singles, sealed products, tournaments, and local trading card stores across the US.",
+  },
 }
 
 export async function generateMetadata({
@@ -74,6 +79,8 @@ const GAME_INTRO: Record<string, string> = {
     "Find Pokemon card shops near me for booster packs, singles, sealed products, trading, and local events.",
   "union-arena":
     "Find Union Arena card shops near me for boosters, singles, tournament play, and local trading card events.",
+  "yu-gi-oh":
+    "Find Yu-Gi-Oh! card shops near me for singles, sealed products, tournaments, and local trading card events.",
   riftbound:
     "Find Riftbound card shops near me for packs, singles, league play, and local game stores carrying the new trading card game.",
 }
