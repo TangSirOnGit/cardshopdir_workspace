@@ -49,7 +49,8 @@ export async function generateMetadata({
   if (!shop) return { title: "Shop not found — CardShopDir" }
 
   const locationLabel = [shop.city, shop.state].filter(Boolean).join(", ")
-  const title = `${shop.name} — ${locationLabel} | CardShopDir`
+  const title =
+    shop.metaTitle || `${shop.name} — ${locationLabel} | CardShopDir`
   const description = shop.metaDescription || (await buildShopDescription(shop))
 
   return {

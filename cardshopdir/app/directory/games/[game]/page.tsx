@@ -18,6 +18,14 @@ interface PageProps {
   params: Promise<{ game: string }>
 }
 
+const GAME_METADATA: Record<string, { title: string; description: string }> = {
+  lorcana: {
+    title: "Disney Lorcana Card Shops Near Me | CardShopDir",
+    description:
+      "Find Disney Lorcana card shops near me for booster packs, singles, local events, and trading card stores across the US.",
+  },
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -25,9 +33,14 @@ export async function generateMetadata({
   const games = await getGamesWithCounts()
   const displayName = gameDisplayName(game, games)
   const seoName = game === "pokemon" ? "Pokemon" : displayName
+  const override = GAME_METADATA[game]
   return {
-    title: `${seoName} Card Shops Near Me & Across the US — CardShopDir`,
-    description: `Find ${seoName} card shops near me and across the US. Browse local stores with ${displayName} products, hours, ratings, directions, and nearby locations.`,
+    title:
+      override?.title ??
+      `${seoName} Card Shops Near Me & Across the US — CardShopDir`,
+    description:
+      override?.description ??
+      `Find ${seoName} card shops near me and across the US. Browse local stores with ${displayName} products, hours, ratings, directions, and nearby locations.`,
     alternates: { canonical: `/directory/games/${game}` },
   }
 }

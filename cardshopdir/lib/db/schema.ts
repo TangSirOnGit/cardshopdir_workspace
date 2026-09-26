@@ -143,8 +143,11 @@ export const shops = pgTable(
     slug: varchar("slug", { length: 200 }).notNull().unique(),
     name: varchar("name", { length: 200 }).notNull(),
     description: text("description"),
+    metaTitle: text("meta_title"),
     metaDescription: text("meta_description"),
-    descriptionSource: varchar("description_source", { length: 30 }).default("original"),
+    descriptionSource: varchar("description_source", { length: 30 }).default(
+      "original"
+    ),
 
     // Location
     street: text("street"),
@@ -175,7 +178,9 @@ export const shops = pgTable(
     shouldIndex: boolean("should_index").notNull().default(false),
 
     // Claim status (shop owner can claim their shop)
-    claimedBy: text("claimed_by").references(() => user.id, { onDelete: "set null" }),
+    claimedBy: text("claimed_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
     claimedAt: timestamp("claimed_at"),
 
     // Sponsor (paid placement)
@@ -281,7 +286,9 @@ export const shopClaims = pgTable(
     proofUrl: text("proof_url"), // link to shop's website/social media
     notes: text("notes"),
     reviewedAt: timestamp("reviewed_at"),
-    reviewedBy: text("reviewed_by").references(() => user.id, { onDelete: "set null" }),
+    reviewedBy: text("reviewed_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (t) => [

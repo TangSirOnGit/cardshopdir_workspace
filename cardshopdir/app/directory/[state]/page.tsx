@@ -24,15 +24,29 @@ interface PageProps {
   params: Promise<{ state: string }>
 }
 
+const STATE_METADATA: Record<string, { title: string; description: string }> = {
+  WI: {
+    title:
+      "Card Shops in Wisconsin — Pokémon, MTG & Sports Cards | CardShopDir",
+    description:
+      "Find card shops in Wisconsin for Pokémon, Magic: The Gathering, sports cards, and more. Browse local stores by city with ratings, hours, games, and directions.",
+  },
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { state } = await params
   const stateCode = state.toUpperCase()
   const name = stateName(stateCode)
+  const override = STATE_METADATA[stateCode]
   return {
-    title: `Trading Card Shops in ${name} (${stateCode}) — CardShopDir`,
-    description: `Find trading card and game shops in ${name}. Browse our directory of local stores for Pokemon, Magic: The Gathering, Yu-Gi-Oh!, and more in ${stateCode}.`,
+    title:
+      override?.title ??
+      `Trading Card Shops in ${name} (${stateCode}) — CardShopDir`,
+    description:
+      override?.description ??
+      `Find trading card and game shops in ${name}. Browse our directory of local stores for Pokemon, Magic: The Gathering, Yu-Gi-Oh!, and more in ${stateCode}.`,
     alternates: { canonical: `/directory/${state}` },
   }
 }

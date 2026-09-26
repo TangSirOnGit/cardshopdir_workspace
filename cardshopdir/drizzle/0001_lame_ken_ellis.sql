@@ -1,0 +1,1 @@
+ALTER TABLE "shops" ADD COLUMN "meta_title" text;

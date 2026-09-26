@@ -21,7 +21,54 @@ import { eq, inArray } from "drizzle-orm"
 // ── High-value shop slugs (from SEMrush top-20 brand keywords) ──────────────
 // Each entry includes the slug and a hand-tuned meta description (~150-160 chars).
 // Descriptions target the actual keywords these shops rank for.
-const HIGH_VALUE_SHOPS: { slug: string; metaDescription: string }[] = [
+const HIGH_VALUE_SHOPS: {
+  slug: string
+  metaTitle?: string
+  metaDescription: string
+}[] = [
+  {
+    slug: "king-street-cards-malvern-pa",
+    metaTitle: "King Street Cards — Card Shop in Malvern, PA | CardShopDir",
+    metaDescription:
+      "King Street Cards is a card shop in Malvern, PA. Find trading cards, store hours, ratings, reviews, directions, and contact details near Philadelphia.",
+  },
+  {
+    slug: "kantopia-bradley-il",
+    metaTitle: "Kantopia — Trading Card Shop in Bradley, IL | CardShopDir",
+    metaDescription:
+      "Kantopia is a trading card shop in Bradley, IL. Find card games, store hours, ratings, reviews, directions, and contact details.",
+  },
+  {
+    slug: "piece-of-the-game-white-plains-ny",
+    metaTitle:
+      "Piece of the Game — Card Shop in White Plains, NY | CardShopDir",
+    metaDescription:
+      "Piece of the Game is a card shop in White Plains, NY. Find trading cards, store hours, ratings, reviews, directions, and contact details.",
+  },
+  {
+    slug: "games-lab-auckland-auckland",
+    metaTitle: "Games Lab — Card Shop in Auckland | CardShopDir",
+    metaDescription:
+      "Games Lab is a trading card and game shop in Auckland. Find card games, store hours, ratings, reviews, directions, and contact details.",
+  },
+  {
+    slug: "motos-tcg-northbrook-il",
+    metaTitle: "Motos TCG — Trading Card Shop in Northbrook, IL | CardShopDir",
+    metaDescription:
+      "Motos TCG is a trading card shop in Northbrook, IL. Find TCG products, store hours, ratings, reviews, directions, and contact details.",
+  },
+  {
+    slug: "2-guys-sports-cards-chatham-il",
+    metaTitle: "2 Guys Sports Cards — Card Shop in Chatham, IL | CardShopDir",
+    metaDescription:
+      "2 Guys Sports Cards is a sports card shop in Chatham, IL. Find sports cards, store hours, ratings, reviews, directions, and contact details.",
+  },
+  {
+    slug: "cards-next-door-ephrata-pa",
+    metaTitle: "Cards Next Door — Card Shop in Ephrata, PA | CardShopDir",
+    metaDescription:
+      "Cards Next Door is a card shop in Ephrata, PA. Find trading cards, store hours, ratings, reviews, directions, and contact details.",
+  },
   {
     slug: "bleecker-trading-new-york-ny",
     metaDescription:
@@ -137,6 +184,7 @@ async function main() {
     .select({
       slug: shops.slug,
       name: shops.name,
+      metaTitle: shops.metaTitle,
       metaDescription: shops.metaDescription,
     })
     .from(shops)
@@ -156,16 +204,23 @@ async function main() {
       continue
     }
 
-    const current = row.metaDescription
-    if (current === target.metaDescription) {
+    const titleChanged = target.metaTitle && row.metaTitle !== target.metaTitle
+    const descriptionChanged = row.metaDescription !== target.metaDescription
+    if (!titleChanged && !descriptionChanged) {
       console.log(`  = SKIP (already set): ${row.name}`)
       skipped++
       continue
     }
 
     console.log(`  ~ UPDATE: ${row.name}`)
-    console.log(`    OLD: ${current || "(null)"}`)
-    console.log(`    NEW: ${target.metaDescription}`)
+    if (titleChanged) {
+      console.log(`    OLD TITLE: ${row.metaTitle || "(null)"}`)
+      console.log(`    NEW TITLE: ${target.metaTitle}`)
+    }
+    if (descriptionChanged) {
+      console.log(`    OLD DESCRIPTION: ${row.metaDescription || "(null)"}`)
+      console.log(`    NEW DESCRIPTION: ${target.metaDescription}`)
+    }
     toUpdate++
   }
 
@@ -188,11 +243,20 @@ async function main() {
   // Apply updates
   for (const target of HIGH_VALUE_SHOPS) {
     const row = existingMap.get(target.slug)
-    if (!row || row.metaDescription === target.metaDescription) continue
+    if (
+      !row ||
+      (row.metaTitle === target.metaTitle &&
+        row.metaDescription === target.metaDescription)
+    ) {
+      continue
+    }
 
     await db
       .update(shops)
-      .set({ metaDescription: target.metaDescription })
+      .set({
+        ...(target.metaTitle ? { metaTitle: target.metaTitle } : {}),
+        metaDescription: target.metaDescription,
+      })
       .where(eq(shops.slug, target.slug))
     console.log(`  ✓ Updated: ${row.name}`)
   }

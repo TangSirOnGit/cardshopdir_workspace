@@ -1455,3 +1455,30 @@ Google 已经成为绝对主流来源，SEO 流量已取代早期外链流量。
 ### 八、当前判断
 
 CardShopDir 已经进入稳定的自然搜索增长阶段：索引快速接近 sitemap 总量的 70%，near-me 核心词进入 Google 第一页，Google 占 Umami 来源约 90%。接下来应从“扩大收录”切换到“页面级排名收获”，优先处理 near-me、Union Arena、Riftbound 以及高展示零点击页面。
+
+### 九、第一批高展示零点击页面执行记录
+
+#### 数据定义检查
+
+GSC 导出目录名虽然包含 `filter_out_iimpression_click`，但 `Filters.csv` 实际只记录了 Search type=Web 和 Last 3 months，未保存展示量/点击量筛选条件。重新按 `Impressions > 50`、`Clicks = 0` 过滤后得到 115 个页面。
+
+#### 数据库定义检查
+
+- `shops.meta_description` 已存在，可直接保存店铺自定义 description。
+- 原数据库没有 `shops.meta_title`，因此新增 `shops.meta_title` 字段。
+- 州页、城市页、游戏页是动态目录页面，不单独写入 shops 表；使用页面级 metadata override，避免为三个聚合页引入不必要的独立表。
+
+#### 已执行
+
+- 为第一批 7 个店铺写入自定义 `meta_title` 和 `meta_description`：King Street Cards、Kantopia、Piece of the Game、Games Lab、Motos TCG、2 Guys Sports Cards、Cards Next Door。
+- 为 Wisconsin 州页、Los Angeles 城市页、Lorcana 游戏页加入页面级 title/description override。
+- 店铺详情页已改为优先使用 `shops.meta_title`，没有自定义值时继续使用原有 fallback title。
+- 数据库迁移已应用到当前 `cardshopdir_dev` 数据库；7 个目标店铺记录已更新。
+
+#### 代码与迁移文件
+
+- `lib/db/schema.ts`：新增 `metaTitle`。
+- `drizzle/0001_lame_ken_ellis.sql`：新增 `meta_title` 迁移。
+- `scripts/update-seo-first-batch.ts`：第一批 7 个店铺的可重复更新脚本。
+
+> 部署前必须把迁移文件、店铺 metadata 更新脚本和页面代码一起提交。生产 VPS 部署时执行 `./deploy.sh --migrate`，然后执行 `bun run scripts/update-seo-first-batch.ts --apply`，再清理 Cloudflare HTML 缓存。
