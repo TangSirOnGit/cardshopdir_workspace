@@ -169,6 +169,15 @@ export default async function GameDirectoryPage({ params }: PageProps) {
           Search by city or zip, or browse by state below.
         </p>
         <SearchBox className="max-w-md" />
+        <p className="text-[13px] text-muted-foreground">
+          Looking for other local options?{" "}
+          <Link
+            href="/near-me"
+            className="font-medium underline underline-offset-4 hover:text-foreground"
+          >
+            Browse all card shops near you
+          </Link>
+        </p>
       </header>
 
       {/* Browse by state for this game */}
@@ -216,10 +225,10 @@ export default async function GameDirectoryPage({ params }: PageProps) {
           <p>
             Looking for {gameLower} shops near you? CardShopDir connects
             collectors with {shopsList.length} local stores across the United
-            States that carry {displayName}. Whether you're after the latest
-            booster boxes, singles for a competitive deck, or a local spot to
-            play in tournaments, our directory helps you find a nearby store
-            with hours, ratings, and directions.
+            States that carry {displayName}. Whether you&apos;re after the
+            latest booster boxes, singles for a competitive deck, or a local
+            spot to play in tournaments, our directory helps you find a nearby
+            store with hours, ratings, and directions.
           </p>
           <p>
             <strong>Search by location.</strong> Use the search bar above with

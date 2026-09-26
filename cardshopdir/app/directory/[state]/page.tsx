@@ -241,6 +241,17 @@ export default async function StateDirectoryPage({ params }: PageProps) {
         </p>
       </section>
 
+      <p className="text-[13px] text-muted-foreground">
+        Need a card shop in another area?{" "}
+        <Link
+          href="/near-me"
+          className="font-medium underline underline-offset-4 hover:text-foreground"
+        >
+          Find card shops near you
+        </Link>
+        .
+      </p>
+
       {/* Cities with jump-to anchors */}
       {cities.length > 0 && (
         <section id="cities">
