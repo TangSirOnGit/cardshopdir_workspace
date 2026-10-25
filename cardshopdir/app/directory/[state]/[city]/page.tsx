@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { SectionTitle } from "@/components/section-title"
 import { notFound } from "next/navigation"
-import { MapPin } from "lucide-react"
 import {
   getShopsForCity,
   getGamesWithCounts,
@@ -154,7 +154,7 @@ export default async function CityDirectoryPage({ params }: PageProps) {
     .slice(0, 12)
 
   return (
-    <div className="space-y-8 pt-4">
+    <div className="space-y-14">
       {jsonLd.map((ld, i) => (
         <script
           key={i}
@@ -164,33 +164,44 @@ export default async function CityDirectoryPage({ params }: PageProps) {
       ))}
 
       {/* Breadcrumb */}
-      <nav className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Home
-        </Link>
-        <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">
-          Directory
-        </Link>
-        <span>/</span>
-        <Link href={`/directory/${state}`} className="hover:text-foreground">
-          {name}
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">{cityName}</span>
-      </nav>
+      <div className="bleed band-paper -mt-1 space-y-8 border-b-2 border-ink pt-8 pb-10 sm:pb-14">
+        <nav className="label-mono flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case [--muted-foreground:var(--ink-muted)] [--primary:var(--vermilion)]">
+          <Link
+            href="/"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Home
+          </Link>
+          <span>/</span>
+          <Link
+            href="/directory"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Directory
+          </Link>
+          <span>/</span>
+          <Link
+            href={`/directory/${state}`}
+            className="link-draw transition-colors hover:text-primary"
+          >
+            {name}
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{cityName}</span>
+        </nav>
 
-      <header className="space-y-3">
-        <h1 className="font-serif text-3xl tracking-tight sm:text-4xl">
-          Trading Card Shops in {cityName}, {stateCode}
-        </h1>
-        <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-          {shopsList.length} shops listed in {cityName}, {name}. Find local game
-          stores for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and
-          more — with hours, ratings, and directions.
-        </p>
-        <SearchBox className="max-w-md" />
-      </header>
+        <header className="space-y-5">
+          <h1 className="display text-[clamp(2.2rem,5vw,3.6rem)]">
+            Trading Card Shops in {cityName}, {stateCode}
+          </h1>
+          <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+            {shopsList.length} shops listed in {cityName}, {name}. Find local
+            game stores for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports
+            cards, and more — with hours, ratings, and directions.
+          </p>
+          <SearchBox className="max-w-md" />
+        </header>
+      </div>
 
       {/* SEO intro */}
       <section className="prose prose-sm max-w-none">
@@ -207,27 +218,31 @@ export default async function CityDirectoryPage({ params }: PageProps) {
 
       {/* Shops */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">All Shops in {cityName}</h2>
-          <span className="text-[12px] text-muted-foreground tabular-nums">
-            {shopsList.length} shops
-          </span>
-        </div>
+        <SectionTitle
+          index="01 / Shops"
+          title={`All Shops in ${cityName}`}
+          aside={
+            <span className="text-[12px] text-muted-foreground tabular-nums">
+              {shopsList.length} shops
+            </span>
+          }
+        />
         <ShopGrid shops={shopsList} />
       </section>
 
       {/* Cross-links to games */}
       {games.length > 0 && (
         <section>
-          <h2 className="mb-4 text-lg font-semibold">
-            Browse by Game in {cityName}
-          </h2>
+          <SectionTitle
+            index="03 / Games"
+            title={`Browse by Game in ${cityName}`}
+          />
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             {games.slice(0, 8).map((g) => (
               <Link
                 key={g.slug}
                 href={`/directory/${state}/games/${g.slug}`}
-                className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[13px] transition-colors hover:bg-muted/60"
+                className="vault-card group flex items-center justify-between rounded-sm border-2 border-ink bg-card px-3.5 py-3 text-[13px]"
               >
                 <span className="font-medium">{g.displayName}</span>
               </Link>
@@ -239,18 +254,16 @@ export default async function CityDirectoryPage({ params }: PageProps) {
       {/* Nearby cities */}
       {nearbyCities.length > 0 && (
         <section>
-          <div className="mb-4 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">
-              Card Shops in Nearby Cities
-            </h2>
-          </div>
+          <SectionTitle
+            index="02 / Cities"
+            title="Card Shops in Nearby Cities"
+          />
           <div className="flex flex-wrap gap-2">
             {nearbyCities.map((c) => (
               <Link
                 key={c.city}
                 href={`/directory/${state}/${c.city!.toLowerCase().replace(/\s+/g, "-")}`}
-                className="group flex items-center gap-1.5 rounded-full border border-border/50 bg-muted/30 px-3 py-1.5 text-[13px] transition-colors hover:bg-muted/60"
+                className="vault-card group flex items-center gap-1.5 rounded-sm border-2 border-ink bg-card px-3 py-1.5 text-[13px]"
               >
                 <span className="font-medium">{c.city}</span>
                 <span className="text-[11px] text-muted-foreground tabular-nums">
@@ -264,9 +277,7 @@ export default async function CityDirectoryPage({ params }: PageProps) {
 
       {/* FAQ */}
       <section>
-        <h2 className="mb-4 text-lg font-semibold">
-          Frequently Asked Questions
-        </h2>
+        <SectionTitle index="04 / Q&A" title="Frequently Asked Questions" />
         <div className="space-y-3">
           <FaqItem
             question={`How many card shops are in ${cityName}, ${stateCode}?`}
@@ -295,8 +306,8 @@ export default async function CityDirectoryPage({ params }: PageProps) {
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
-    <details className="group rounded-lg border border-border/50 bg-muted/30">
-      <summary className="cursor-pointer list-none px-4 py-3 text-[14px] font-medium transition-colors hover:bg-muted/50">
+    <details className="group border-2 border-ink bg-card">
+      <summary className="cursor-pointer list-none px-5 py-4 text-[15px] font-medium transition-colors hover:text-primary">
         <span className="inline-block">
           <span className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90">
             ›
@@ -304,7 +315,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
           {question}
         </span>
       </summary>
-      <p className="px-4 pb-3 text-[13px] leading-relaxed text-muted-foreground">
+      <p className="px-5 pb-4 pl-10 text-[14px] leading-relaxed text-muted-foreground">
         {answer}
       </p>
     </details>

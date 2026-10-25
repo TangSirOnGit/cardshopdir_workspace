@@ -48,14 +48,14 @@ export function Header({ siteName }: HeaderProps) {
         <div className="flex items-center justify-between py-4">
           <Link
             href="/"
-            className="flex items-center gap-2 font-serif text-xl font-semibold"
+            className="flex items-center gap-2 font-serif text-xl font-bold tracking-tight"
           >
             <Image
               src="/logo.png"
               alt=""
               width={28}
               height={28}
-              className="rounded-md"
+              className="rounded-sm"
               priority
             />
             {siteName}
@@ -66,7 +66,7 @@ export function Header({ siteName }: HeaderProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+                className="link-draw text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {link.label}
               </Link>

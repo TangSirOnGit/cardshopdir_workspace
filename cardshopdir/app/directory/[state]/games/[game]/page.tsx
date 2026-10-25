@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { SectionTitle } from "@/components/section-title"
 import { notFound } from "next/navigation"
 import {
   getShopsForStateGame,
@@ -64,7 +65,7 @@ export default async function StateGamePage({ params }: PageProps) {
   ]
 
   return (
-    <div className="space-y-8 pt-4">
+    <div className="space-y-14">
       {jsonLd.map((ld, i) => (
         <script
           key={i}
@@ -73,38 +74,52 @@ export default async function StateGamePage({ params }: PageProps) {
         />
       ))}
 
-      <nav className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Home
-        </Link>
-        <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">
-          Directory
-        </Link>
-        <span>/</span>
-        <Link href={`/directory/${state}`} className="hover:text-foreground">
-          {name}
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">{gameName}</span>
-      </nav>
+      <div className="bleed band-paper -mt-1 space-y-8 border-b-2 border-ink pt-8 pb-10 sm:pb-14">
+        <nav className="label-mono flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case [--muted-foreground:var(--ink-muted)] [--primary:var(--vermilion)]">
+          <Link
+            href="/"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Home
+          </Link>
+          <span>/</span>
+          <Link
+            href="/directory"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Directory
+          </Link>
+          <span>/</span>
+          <Link
+            href={`/directory/${state}`}
+            className="link-draw transition-colors hover:text-primary"
+          >
+            {name}
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{gameName}</span>
+        </nav>
 
-      <header>
-        <h1 className="font-serif text-3xl tracking-tight sm:text-4xl">
-          {gameName} Shops in {name}
-        </h1>
-        <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
-          {shopsList.length} shops in {name} ({stateCode}) carry {gameName}.
-        </p>
-      </header>
+        <header className="space-y-4">
+          <h1 className="display text-[clamp(2.2rem,5vw,3.6rem)]">
+            {gameName} Shops in {name}
+          </h1>
+          <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
+            {shopsList.length} shops in {name} ({stateCode}) carry {gameName}.
+          </p>
+        </header>
+      </div>
 
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">All Shops</h2>
-          <span className="text-[12px] text-muted-foreground tabular-nums">
-            {shopsList.length} shops
-          </span>
-        </div>
+        <SectionTitle
+          index="01 / Shops"
+          title="All Shops"
+          aside={
+            <span className="text-[12px] text-muted-foreground tabular-nums">
+              {shopsList.length} shops
+            </span>
+          }
+        />
         <ShopGrid shops={shopsList} />
       </section>
     </div>

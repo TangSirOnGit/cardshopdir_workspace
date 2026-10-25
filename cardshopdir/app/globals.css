@@ -9,6 +9,20 @@
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
   --color-chart-5: var(--chart-5);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-felt: var(--felt);
+  --color-felt-deep: var(--felt-deep);
+  --color-vermilion: var(--vermilion);
+  --color-marigold: var(--marigold);
+  --color-gold: var(--gold);
+  --color-open: var(--open);
+  --color-holo-from: var(--holo-from);
+  --color-holo-mid: var(--holo-mid);
+  --color-holo-to: var(--holo-to);
+  --font-mono: var(--font-mono);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
@@ -40,37 +54,57 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Felt & Card Stock — bold felt green table, cream card stock, flat inks. */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --ink: #14110c;
+  --ink-muted: #5c5342;
+  --paper: #f2e8cf;
+  --paper-deep: #e4d8b8;
+  --felt: #0c3a2c;
+  --felt-deep: #082a20;
+  --felt-light: #124a39;
+  --vermilion: #c8381a;
+  --marigold: #f5b82e;
+
+  --background: #ece0c2;
+  --foreground: #14110c;
+  --card: #f7efd8;
+  --card-foreground: #14110c;
+  --popover: #f7efd8;
+  --popover-foreground: #14110c;
+  --primary: #c8381a;
+  --primary-foreground: #fff6e4;
+  --secondary: #e2d5b2;
+  --secondary-foreground: #14110c;
+  --muted: #e2d5b2;
+  --muted-foreground: #5c5342;
+  --accent: #e8d9aa;
+  --accent-foreground: #14110c;
+  --destructive: oklch(0.55 0.22 27);
+  --border: #cbbd96;
+  --input: #cbbd96;
+  --ring: #c8381a;
+  --chart-1: #c8381a;
+  --chart-2: #0c3a2c;
+  --chart-3: #f5b82e;
+  --chart-4: #5c5342;
+  --chart-5: #8a3b12;
+  --radius: 0.25rem;
+
+  --holo-from: #f5b82e;
+  --holo-mid: #f5b82e;
+  --holo-to: #c8381a;
+  --gold: #c97a0e;
+  --open: #0f7a45;
 
   /* System font stacks — zero font download, instant render */
   --font-sans:
-    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif:
+    var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono:
+    var(--font-mono-label), ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Prose / code surfaces — shared by blog, tiptap, and shiki wrapper */
   --prose-code-bg: oklch(0.97 0 0);
@@ -81,36 +115,41 @@
   --prose-code-lang: oklch(0.5 0 0);
 }
 
-.dark {
-  --background: oklch(0.178 0 0);
-  --foreground: oklch(0.93 0 0);
-  --card: oklch(0.21 0 0);
-  --card-foreground: oklch(0.93 0 0);
-  --popover: oklch(0.195 0 0);
-  --popover-foreground: oklch(0.93 0 0);
-  --primary: oklch(0.93 0 0);
-  --primary-foreground: oklch(0.178 0 0);
-  --secondary: oklch(0.245 0 0);
-  --secondary-foreground: oklch(0.93 0 0);
-  --muted: oklch(0.245 0 0);
-  --muted-foreground: oklch(0.62 0 0);
-  --accent: oklch(0.245 0 0);
-  --accent-foreground: oklch(0.93 0 0);
-  --destructive: oklch(0.45 0.15 27);
-  --border: oklch(0.32 0 0);
-  --input: oklch(0.32 0 0);
-  --ring: oklch(0.48 0 0);
-  --chart-1: oklch(0.3 0 0);
-  --chart-2: oklch(0.4 0 0);
-  --chart-3: oklch(0.48 0 0);
-  --chart-4: oklch(0.6 0 0);
-  --chart-5: oklch(0.85 0 0);
+.dark,
+.band-felt,
+.band-deep {
+  --background: #0c3a2c;
+  --foreground: #f2e9d2;
+  --card: #f2e8cf;
+  --card-foreground: #14110c;
+  --popover: #0a3125;
+  --popover-foreground: #f2e9d2;
+  --primary: #f5b82e;
+  --primary-foreground: #14110c;
+  --secondary: #124a39;
+  --secondary-foreground: #f2e9d2;
+  --muted: #114535;
+  --muted-foreground: #a8c0b0;
+  --accent: #18584a;
+  --accent-foreground: #f2e9d2;
+  --destructive: oklch(0.62 0.2 27);
+  --border: #2c6652;
+  --input: #2c6652;
+  --ring: #f5b82e;
+  --chart-1: #f5b82e;
+  --chart-2: #e8532f;
+  --chart-3: #6ee7a1;
+  --chart-4: #f2e9d2;
+  --chart-5: #e0869a;
 
-  --prose-code-bg: oklch(0.21 0 0);
-  --prose-code-inline-bg: oklch(0.245 0 0);
-  --prose-code-fg: oklch(0.82 0 0);
-  --prose-code-border: oklch(0.32 0 0);
-  --prose-code-header-bg: oklch(0.21 0 0);
+  --gold: #f5b82e;
+  --open: #6ee7a1;
+
+  --prose-code-bg: #082a20;
+  --prose-code-inline-bg: #114535;
+  --prose-code-fg: #d9e4da;
+  --prose-code-border: #2c6652;
+  --prose-code-header-bg: #0a3125;
   --prose-code-lang: oklch(0.55 0 0);
 }
 
@@ -651,5 +690,194 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Felt & Card Stock utilities
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Felt texture: fine noise over the flat green */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@layer components {
+  /* Anything on card stock gets ink-on-paper tokens, whatever the theme. */
+  .bg-card {
+    --foreground: var(--ink);
+    --card-foreground: var(--ink);
+    --muted-foreground: var(--ink-muted);
+    --muted: var(--paper-deep);
+    --background: var(--paper);
+    --border: #cbbd96;
+    --primary: var(--vermilion);
+    --primary-foreground: #fff6e4;
+    --gold: #c97a0e;
+    --open: #0f7a45;
+    color: var(--ink);
+  }
+
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .display {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    text-wrap: balance;
+    font-variation-settings: "SOFT" 0, "WONK" 1, "opsz" 144;
+  }
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+/* Full-bleed band inside the max-width main container */
+.bleed {
+  margin-inline: calc(50% - 50vw);
+  padding-inline: calc(50vw - 50%);
+}
+.band-paper {
+  background: var(--paper);
+  color: var(--ink);
+  --foreground: var(--ink);
+  --muted-foreground: var(--ink-muted);
+  --muted: var(--paper-deep);
+  --background: var(--paper);
+  --border: #14110c;
+  --primary: var(--vermilion);
+  --primary-foreground: #fff6e4;
+  --gold: #c97a0e;
+}
+.band-deep {
+  background: var(--felt-deep);
+  color: var(--foreground);
+}
+.band-felt {
+  background: var(--felt);
+  color: var(--foreground);
+}
+
+/* Flat accent text/fills (replace the old gradient helpers) */
+.holo-text {
+  color: var(--primary);
+}
+.holo-bg,
+.foil {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Highlighter-marker underline */
+.marker {
+  background-image: linear-gradient(var(--primary), var(--primary));
+  background-repeat: no-repeat;
+  background-size: 100% 0.14em;
+  background-position: 0 92%;
+}
+
+/* Hard offset shadow: the card lifts off the felt */
+.vault-card {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  box-shadow: 0 0 0 0 var(--ink);
+}
+.vault-card:hover,
+.vault-card:focus-visible {
+  transform: translate(-3px, -3px);
+  box-shadow: 5px 5px 0 0 #04150f;
+}
+.vault-card:active {
+  transform: translate(0, 0);
+  box-shadow: 0 0 0 0 transparent;
+}
+
+.glow-ring {
+  transition: box-shadow 0.18s ease;
+}
+.glow-ring:focus-within {
+  border-color: var(--primary);
+  box-shadow: 4px 4px 0 0 var(--primary);
+}
+
+.link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.25s ease;
+}
+.link-draw:hover {
+  background-size: 100% 1px;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Motion ─────────────────────────────────────────────────────────────── */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes deal {
+  from {
+    opacity: 0;
+    transform: translate(-60px, 30px) rotate(-14deg);
+  }
+}
+
+.rise {
+  animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--d, 0) * 80ms);
+}
+
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 30%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .reveal {
+    animation: none;
+  }
+  .vault-card {
+    transition: none;
+  }
+  .vault-card:hover,
+  .vault-card:focus-visible {
+    transform: none;
   }
 }

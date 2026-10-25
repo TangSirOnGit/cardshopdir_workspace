@@ -13,27 +13,11 @@ import {
   getNearbyShopsInCity,
   getMoreShopsInState,
 } from "@/lib/directory"
-import { ShopActions } from "@/components/shop-actions"
+import { ShopActions, ShopStickyBar } from "@/components/shop-actions"
 import { ShopGrid } from "@/components/shop-card"
-import { formatTodaySummary } from "@/lib/shop-hours"
-
-const CARRY_ICONS: Record<string, string> = {
-  pokemon: "⚡",
-  "magic-the-gathering": "🪄",
-  "yu-gi-oh": "🎴",
-  "flesh-and-blood": "⚔️",
-  sports: "⚾",
-  lorcana: "✨",
-  "dragon-ball-super": "🐉",
-  "star-wars-unlimited": "🚀",
-  "one-piece": "🏴‍☠️",
-  "union-arena": "🥊",
-  digimon: "🤖",
-  "final-fantasy": "🗡️",
-  "weiss-schwarz": "🌸",
-  "cardfight-vanguard": "🛡️",
-  riftbound: "🌀",
-}
+import { formatTodaySummary, currentWeekday } from "@/lib/shop-hours"
+import { GAME_THEMES, gameTheme } from "@/lib/game-theme"
+import { isTopRated } from "@/lib/shop-types"
 
 export const revalidate = 3600
 
@@ -222,8 +206,15 @@ export default async function ShopPage({ params }: PageProps) {
       ? `https://www.google.com/maps/dir/?api=1&destination=${shop.latitude},${shop.longitude}`
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${shop.name} ${shop.street || ""} ${cityName} ${stateCode}`)}`
 
+  const heroHue = GAME_THEMES[shopGameRows[0]?.slug ?? ""]?.hue ?? 75
+  const todayName = currentWeekday()
+  const panel = "border-t-2 border-foreground pt-4"
+  const h2Side = "font-serif text-xl font-bold tracking-tight"
+  const h2Main =
+    "mb-6 border-t-2 border-foreground pt-4 font-serif text-3xl font-bold tracking-tight"
+
   return (
-    <div className="space-y-8 pt-4">
+    <div className="space-y-12 pt-6 pb-24 sm:pt-10 sm:pb-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd) }}
@@ -236,12 +227,18 @@ export default async function ShopPage({ params }: PageProps) {
       />
 
       {/* Breadcrumb */}
-      <nav className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
+      <nav className="label-mono -mb-6 flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case">
+        <Link
+          href="/"
+          className="link-draw transition-colors hover:text-primary"
+        >
           Home
         </Link>
         <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">
+        <Link
+          href="/directory"
+          className="link-draw transition-colors hover:text-primary"
+        >
           Directory
         </Link>
         {stateCode && (
@@ -249,7 +246,7 @@ export default async function ShopPage({ params }: PageProps) {
             <span>/</span>
             <Link
               href={`/directory/${stateCode.toLowerCase()}`}
-              className="hover:text-foreground"
+              className="link-draw transition-colors hover:text-primary"
             >
               {stateFull}
             </Link>
@@ -260,7 +257,7 @@ export default async function ShopPage({ params }: PageProps) {
             <span>/</span>
             <Link
               href={`/directory/${stateCode.toLowerCase()}/${cityName.toLowerCase().replace(/\s+/g, "-")}`}
-              className="hover:text-foreground"
+              className="link-draw transition-colors hover:text-primary"
             >
               {cityName}
             </Link>
@@ -271,265 +268,324 @@ export default async function ShopPage({ params }: PageProps) {
       </nav>
 
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-        {shop.imageUrl ? (
-          <Image
-            src={shop.imageUrl}
-            alt={shop.name}
-            width={200}
-            height={200}
-            sizes="160px"
-            className="h-40 w-40 shrink-0 rounded-lg object-cover ring-1 ring-border/40"
-          />
-        ) : (
-          <div className="flex h-40 w-40 shrink-0 items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground">
-            No image
-          </div>
-        )}
-
-        <div className="min-w-0 flex-1 space-y-2">
-          <h1 className="font-serif text-2xl tracking-tight sm:text-3xl">
-            {shop.name}
-          </h1>
-          <p className="text-[13px] text-muted-foreground">
+      <header className="grid items-stretch gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
+        <div className="min-w-0 space-y-5 lg:py-2">
+          <p className="label-mono flex items-center gap-2.5 text-foreground">
+            <span className="h-2.5 w-2.5 bg-primary" />
             {shopTypeLabel(shop.shopType)}
           </p>
-          {shop.ratingValue && (
-            <div className="flex items-center gap-2 text-[14px]">
-              <div className="flex items-center gap-0.5">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <Star
-                    key={n}
-                    className={`h-4 w-4 ${
-                      shop.ratingValue &&
-                      n <= Math.round(parseFloat(shop.ratingValue))
-                        ? "fill-amber-500 text-amber-500"
-                        : "text-muted-foreground/30"
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="font-semibold">{shop.ratingValue}</span>
-              <span className="text-muted-foreground">
-                ({shop.reviewCount} reviews)
-              </span>
-            </div>
-          )}
-          <p className="flex items-center gap-1.5 text-[14px] text-muted-foreground">
-            <MapPin className="h-4 w-4 shrink-0" />
-            {shop.street && <span>{shop.street}, </span>}
-            {[cityName, stateCode].filter(Boolean).join(", ")} {shop.postalCode}
-          </p>
+          <h1 className="display text-[clamp(2.4rem,5.4vw,4.75rem)]">
+            {shop.name}
+          </h1>
 
-          {/* Today's status */}
-          {hoursRows.length > 0 && (
-            <p className="flex items-center gap-2 text-[13px]">
-              <span
-                className={`flex items-center gap-1.5 font-medium ${
-                  todaySummary.open
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-muted-foreground"
-                }`}
-              >
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    todaySummary.open
-                      ? "bg-emerald-500"
-                      : "bg-muted-foreground/40"
-                  }`}
-                />
-                {todaySummary.status}
-              </span>
-              <span className="text-muted-foreground">
-                {todaySummary.hours}
-              </span>
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Action buttons */}
-      <ShopActions
-        slug={shop.slug}
-        website={shop.website}
-        telephone={shop.telephone}
-        mapsUrl={mapsUrl}
-      />
-
-      {/* Description */}
-      {shop.description && (
-        <section className="prose prose-sm max-w-none">
-          <h2 className="text-lg font-semibold">About {shop.name}</h2>
-          <p className="text-[15px] leading-relaxed whitespace-pre-line text-muted-foreground">
-            {shop.description}
-          </p>
-        </section>
-      )}
-
-      {/* What They Carry — icon grid */}
-      {shopGameRows.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-lg font-semibold">What They Carry</h2>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {shopGameRows.map((g) => (
-              <Link
-                key={g.slug}
-                href={`/directory/games/${g.slug}`}
-                className="flex flex-col items-center gap-1.5 rounded-lg border border-border/50 bg-muted/30 px-3 py-3 text-center transition-colors hover:bg-muted/60"
-              >
-                <span className="text-2xl">{CARRY_ICONS[g.slug] ?? "🃏"}</span>
-                <span className="text-[12px] font-medium">{g.displayName}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <div className="grid gap-6 sm:grid-cols-2">
-        {/* Opening Hours */}
-        {hoursRows.length > 0 && (
-          <section>
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-              <Clock className="h-5 w-5 text-muted-foreground" />
-              Opening Hours
-            </h2>
-            <div className="space-y-2 rounded-lg border border-border/50 p-4">
-              {hoursRows.map((h, i) => (
-                <div key={i} className="flex justify-between text-[13px]">
-                  <span className="text-muted-foreground">
-                    {(h.days as string[]).join(", ")}
-                  </span>
-                  <span className="font-medium">
-                    {h.opens && h.closes
-                      ? `${h.opens} - ${h.closes}`
-                      : "Closed"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Games */}
-        {shopGameRows.length > 0 && (
-          <section>
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-              <Gamepad2 className="h-5 w-5 text-muted-foreground" />
-              Games & Products
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {shopGameRows.map((g) => (
-                <Link
-                  key={g.slug}
-                  href={`/directory/games/${g.slug}`}
-                  className="rounded-full border border-border/50 bg-muted/30 px-3 py-1.5 text-[12px] font-medium transition-colors hover:bg-muted/60"
-                >
-                  {g.displayName}
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Contact */}
-        {(shop.email || shop.telephone || shop.website) && (
-          <section>
-            <h2 className="mb-3 text-lg font-semibold">Contact</h2>
-            <div className="space-y-2 rounded-lg border border-border/50 p-4 text-[13px]">
-              {shop.telephone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <a
-                    href={`tel:${shop.telephone.replace(/[^0-9+]/g, "")}`}
-                    className="hover:underline"
-                  >
-                    {shop.telephone}
-                  </a>
-                </div>
-              )}
-              {shop.email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <a href={`mailto:${shop.email}`} className="hover:underline">
-                    {shop.email}
-                  </a>
-                </div>
-              )}
-              {shop.website && (
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <a
-                    href={shop.website}
-                    target="_blank"
-                    rel="noopener nofollow"
-                    className="truncate hover:underline"
-                  >
-                    {shop.website
-                      .replace(/^https?:\/\//, "")
-                      .replace(/\/$/, "")}
-                  </a>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Map link */}
-        {shop.latitude && shop.longitude && (
-          <section>
-            <h2 className="mb-3 text-lg font-semibold">Location</h2>
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noopener"
-              className="block rounded-lg border border-border/50 p-4 text-[13px] transition-colors hover:bg-muted/30"
-            >
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px]">
+            {shop.ratingValue && (
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>
-                  {shop.street && <span>{shop.street}, </span>}
-                  {[cityName, stateCode].filter(Boolean).join(", ")}{" "}
-                  {shop.postalCode}
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Star
+                      key={n}
+                      className={`h-4 w-4 ${
+                        shop.ratingValue &&
+                        n <= Math.round(parseFloat(shop.ratingValue))
+                          ? "fill-gold text-gold"
+                          : "text-muted-foreground/40"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="font-bold">{shop.ratingValue}</span>
+                <span className="text-muted-foreground">
+                  ({shop.reviewCount} reviews)
                 </span>
               </div>
-              <p className="mt-2 text-[12px] text-muted-foreground">
-                {shop.latitude}, {shop.longitude}
+            )}
+            {hoursRows.length > 0 && (
+              <p className="flex items-center gap-2 text-[13px]">
+                <span
+                  className={`label-mono px-2 py-1 ${
+                    todaySummary.open
+                      ? "bg-open text-ink"
+                      : "border border-border text-muted-foreground"
+                  }`}
+                >
+                  {todaySummary.status}
+                </span>
+                <span className="text-muted-foreground tabular-nums">
+                  {todaySummary.hours}
+                </span>
               </p>
-              <p className="mt-2 text-[12px] font-medium text-foreground">
-                Open in Google Maps →
+            )}
+          </div>
+
+          <p className="flex items-start gap-1.5 text-[15px] text-muted-foreground">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <span>
+              {shop.street && <span>{shop.street}, </span>}
+              {[cityName, stateCode].filter(Boolean).join(", ")}{" "}
+              {shop.postalCode}
+            </span>
+          </p>
+
+          <ShopActions
+            slug={shop.slug}
+            website={shop.website}
+            telephone={shop.telephone}
+            mapsUrl={mapsUrl}
+          />
+        </div>
+
+        <div
+          className="relative min-h-64 overflow-hidden border-2 border-ink bg-muted shadow-[8px_8px_0_0_#04150f] lg:min-h-96"
+          style={
+            shop.imageUrl
+              ? undefined
+              : { backgroundColor: `oklch(0.84 0.115 ${heroHue})` }
+          }
+        >
+          {shop.imageUrl ? (
+            <Image
+              src={shop.imageUrl}
+              alt={shop.name}
+              fill
+              priority
+              sizes="(min-width: 1024px) 520px, 100vw"
+              className="object-cover"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="flex h-full w-full items-end justify-between p-5"
+            >
+              <span className="font-serif text-[11rem] leading-[0.75] font-bold text-ink/80">
+                {shop.name.trim().charAt(0).toUpperCase()}
+              </span>
+              <span className="label-mono text-ink">
+                {shopGameRows[0]?.displayName ?? "Card shop"}
+              </span>
+            </div>
+          )}
+          {isTopRated(shop) && (
+            <span className="label-mono absolute top-0 right-0 bg-ink px-3 py-2 text-marigold">
+              ★ Top Rated
+            </span>
+          )}
+        </div>
+      </header>
+
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
+        {/* Main column */}
+        <div className="min-w-0 space-y-12">
+          {shop.description && (
+            <section>
+              <h2 className={h2Main}>About {shop.name}</h2>
+              <p className="max-w-[68ch] text-[16px] leading-[1.8] whitespace-pre-line text-muted-foreground">
+                {shop.description}
               </p>
-            </a>
-          </section>
-        )}
+            </section>
+          )}
+
+          {shopGameRows.length > 0 && (
+            <section>
+              <h2 className={h2Main}>What They Carry</h2>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {shopGameRows.map((g) => {
+                  const t = gameTheme(g.slug, g.displayName)
+                  return (
+                    <Link
+                      key={g.slug}
+                      href={`/directory/games/${g.slug}`}
+                      className="vault-card flex aspect-4/3 flex-col justify-end rounded-sm border-2 border-ink p-3.5 text-ink"
+                      style={{ backgroundColor: `oklch(0.84 0.115 ${t.hue})` }}
+                    >
+                      <span className="font-serif text-[20px] leading-tight font-bold tracking-tight">
+                        {g.displayName}
+                      </span>
+                    </Link>
+                  )
+                })}
+              </div>
+            </section>
+          )}
+
+          {hoursRows.length > 0 && (
+            <section>
+              <h2 className={`${h2Main} flex items-center gap-2`}>
+                <Clock className="h-5 w-5 text-primary" />
+                Opening Hours
+              </h2>
+              <div className="divide-y divide-border border-y border-border">
+                {hoursRows.map((h, i) => {
+                  const isToday = (h.days as string[]).includes(todayName)
+                  return (
+                    <div
+                      key={i}
+                      className={`flex items-center justify-between gap-4 px-3 py-3.5 text-[14px] ${
+                        isToday ? "bg-primary text-primary-foreground" : ""
+                      }`}
+                    >
+                      <span
+                        className={`flex items-center gap-2 ${
+                          isToday ? "font-bold" : "text-muted-foreground"
+                        }`}
+                      >
+                        {isToday && (
+                          <span className="h-1.5 w-1.5 bg-primary-foreground" />
+                        )}
+                        {(h.days as string[]).join(", ")}
+                      </span>
+                      <span className="font-medium tabular-nums">
+                        {h.opens && h.closes
+                          ? `${h.opens} - ${h.closes}`
+                          : "Closed"}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <aside className="min-w-0 space-y-5 lg:sticky lg:top-24 lg:self-start">
+          {(shop.email || shop.telephone || shop.website) && (
+            <section className={panel}>
+              <h2 className={`${h2Side} mb-4`}>Contact</h2>
+              <div className="space-y-3 text-[14px]">
+                {shop.telephone && (
+                  <div className="flex items-center gap-3">
+                    <Phone className="h-4 w-4 shrink-0 text-primary" />
+                    <a
+                      href={`tel:${shop.telephone.replace(/[^0-9+]/g, "")}`}
+                      className="link-draw"
+                    >
+                      {shop.telephone}
+                    </a>
+                  </div>
+                )}
+                {shop.email && (
+                  <div className="flex items-center gap-3">
+                    <Mail className="h-4 w-4 shrink-0 text-primary" />
+                    <a
+                      href={`mailto:${shop.email}`}
+                      className="link-draw truncate"
+                    >
+                      {shop.email}
+                    </a>
+                  </div>
+                )}
+                {shop.website && (
+                  <div className="flex items-center gap-3">
+                    <Globe className="h-4 w-4 shrink-0 text-primary" />
+                    <a
+                      href={shop.website}
+                      target="_blank"
+                      rel="noopener nofollow"
+                      className="link-draw truncate"
+                    >
+                      {shop.website
+                        .replace(/^https?:\/\//, "")
+                        .replace(/\/$/, "")}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {shop.latitude && shop.longitude && (
+            <section className={panel}>
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener"
+                className="group block text-[14px]"
+              >
+                <h2 className={`${h2Side} mb-3`}>Location</h2>
+                <p className="flex items-start gap-2">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <span>
+                    {shop.street && <span>{shop.street}, </span>}
+                    {[cityName, stateCode].filter(Boolean).join(", ")}{" "}
+                    {shop.postalCode}
+                  </span>
+                </p>
+                <p className="label-mono mt-2 tracking-normal">
+                  {shop.latitude}, {shop.longitude}
+                </p>
+                <p className="mt-3 text-[13px] font-bold tracking-wide text-primary uppercase">
+                  <span className="link-draw">Open in Google Maps</span> →
+                </p>
+              </a>
+            </section>
+          )}
+
+          {shopGameRows.length > 0 && (
+            <section className={panel}>
+              <h2 className={`${h2Side} mb-4 flex items-center gap-2`}>
+                <Gamepad2 className="h-5 w-5 text-primary" />
+                Games & Products
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {shopGameRows.map((g) => {
+                  const t = gameTheme(g.slug, g.displayName)
+                  return (
+                    <Link
+                      key={g.slug}
+                      href={`/directory/games/${g.slug}`}
+                      className="rounded-sm border px-3 py-1.5 text-[12px] font-medium transition-transform hover:-translate-y-0.5 active:scale-95"
+                      style={{
+                        color: `oklch(0.82 0.12 ${t.hue})`,
+                        backgroundColor: `oklch(0.6 0.15 ${t.hue} / 0.14)`,
+                        borderColor: `oklch(0.6 0.15 ${t.hue} / 0.3)`,
+                      }}
+                    >
+                      {g.displayName}
+                    </Link>
+                  )
+                })}
+              </div>
+            </section>
+          )}
+        </aside>
       </div>
 
       {/* Nearby shops in the same city */}
       {nearbyShops.length > 0 && (
-        <section>
-          <h2 className="mb-4 text-lg font-semibold">
-            More Card Shops in {cityName}
-          </h2>
+        <section className="reveal">
+          <h2 className={h2Main}>More Card Shops in {cityName}</h2>
           <ShopGrid shops={nearbyShops} />
         </section>
       )}
 
       {/* More shops in the same state */}
       {moreInState.length > 0 && (
-        <section>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">
+        <section className="reveal">
+          <div className="mb-5 flex items-end justify-between gap-4 border-b border-border pb-3">
+            <h2 className="font-serif text-2xl font-semibold tracking-tight">
               More Card Shops in {stateFull}
             </h2>
             <Link
               href={`/directory/${stateCode.toLowerCase()}`}
-              className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+              className="group flex shrink-0 items-center gap-1.5 pb-1 text-[13px] font-medium text-primary"
             >
-              View all →
+              <span className="link-draw">View all</span>
+              <span className="transition-transform group-hover:translate-x-1">
+                →
+              </span>
             </Link>
           </div>
           <ShopGrid shops={moreInState} />
         </section>
       )}
+
+      <ShopStickyBar
+        slug={shop.slug}
+        website={shop.website}
+        telephone={shop.telephone}
+        mapsUrl={mapsUrl}
+      />
     </div>
   )
 }

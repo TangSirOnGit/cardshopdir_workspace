@@ -1,12 +1,31 @@
 import type { Metadata } from "next"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { ThemeProvider } from "next-themes"
+import { Fraunces, Inter, JetBrains_Mono } from "next/font/google"
 
 import "./globals.css"
 import { SiteChrome } from "@/components/site-chrome"
 import { Toaster } from "sileo"
 import { SITE_URL } from "@/config"
 import { getSettingsTyped } from "@/lib/settings"
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  axes: ["SOFT", "WONK", "opsz"],
+  display: "swap",
+})
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono-label",
+  weight: ["500"],
+  display: "swap",
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettingsTyped()
@@ -38,7 +57,11 @@ export default async function RootLayout({
   const settings = await getSettingsTyped()
 
   return (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${fraunces.variable} ${mono.variable} antialiased`}
+      suppressHydrationWarning
+    >
       <head>
         {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID &&
         process.env.NODE_ENV === "production" ? (
@@ -54,7 +77,7 @@ export default async function RootLayout({
           </>
         ) : null}
       </head>
-      <body className="flex min-h-svh flex-col bg-background font-sans text-foreground">
+      <body className="flex min-h-svh flex-col overflow-x-clip bg-background font-sans text-foreground">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -88,7 +111,7 @@ export default async function RootLayout({
         />
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
@@ -103,7 +126,7 @@ export default async function RootLayout({
             <Toaster
               position="top-center"
               options={{
-                fill: "#171717",
+                fill: "#082a20",
                 styles: { title: "text-white!", description: "text-white/75!" },
               }}
             />

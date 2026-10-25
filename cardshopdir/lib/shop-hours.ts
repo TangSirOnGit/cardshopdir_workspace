@@ -29,7 +29,7 @@ const WEEKDAYS = [
 ] as const;
 
 /** Current weekday name in server local time, e.g. "Monday". */
-function currentWeekday(d = new Date()): string {
+export function currentWeekday(d = new Date()): string {
   return WEEKDAYS[d.getDay()];
 }
 

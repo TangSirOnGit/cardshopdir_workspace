@@ -13,8 +13,8 @@ const LINKS = [
 export function Footer({ siteName }: { siteName: string }) {
   const year = new Date().getFullYear()
   return (
-    <footer className="mx-auto w-full max-w-6xl px-6 lg:px-12">
-      <div className="space-y-6 border-t border-border/50 py-8 sm:py-10">
+    <footer className="band-felt mt-24 border-t-2 border-ink bg-felt-deep">
+      <div className="mx-auto w-full max-w-6xl space-y-6 px-6 py-10 sm:py-12 lg:px-12">
         {/* Nav + theme control */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-2">

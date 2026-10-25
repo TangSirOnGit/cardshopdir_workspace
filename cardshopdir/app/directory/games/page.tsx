@@ -24,40 +24,48 @@ export default async function GamesIndexPage() {
   }
 
   return (
-    <div className="space-y-8 pt-4">
+    <div className="space-y-14">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <nav className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Home
-        </Link>
-        <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">
-          Directory
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">Games</span>
-      </nav>
+      <div className="bleed band-paper -mt-1 space-y-8 border-b-2 border-ink pt-8 pb-10 sm:pb-14">
+        <nav className="label-mono flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case [--muted-foreground:var(--ink-muted)] [--primary:var(--vermilion)]">
+          <Link
+            href="/"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Home
+          </Link>
+          <span>/</span>
+          <Link
+            href="/directory"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Directory
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">Games</span>
+        </nav>
 
-      <header>
-        <h1 className="font-serif text-3xl tracking-tight sm:text-4xl">
-          Browse by Game
-        </h1>
-        <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
-          Find shops that carry your favorite trading card games. Browse by game
-          category below.
-        </p>
-      </header>
+        <header className="space-y-4">
+          <h1 className="display text-[clamp(2.2rem,5vw,3.6rem)]">
+            Browse by Game
+          </h1>
+          <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
+            Find shops that carry your favorite trading card games. Browse by
+            game category below.
+          </p>
+        </header>
+      </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {games.map((g) => (
           <Link
             key={g.slug}
             href={`/directory/games/${g.slug}`}
-            className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-4 py-3.5 transition-colors hover:bg-muted/60"
+            className="vault-card group flex items-center justify-between rounded-sm border-2 border-ink bg-card px-4 py-3.5"
           >
             <div>
               <p className="text-[14px] font-semibold">{g.displayName}</p>

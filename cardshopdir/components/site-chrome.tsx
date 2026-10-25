@@ -28,12 +28,12 @@ export function SiteChrome({ children, siteName }: Props) {
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-background">
+      <div className="band-felt sticky top-0 z-50 border-b-2 border-ink bg-felt-deep">
         <Header siteName={siteName} />
       </div>
       <main
         id="main-content"
-        className="mx-auto flex w-full max-w-6xl flex-1 flex-col overflow-x-clip px-6 pt-1 pb-6 lg:px-12"
+        className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 pt-1 pb-6 lg:px-12"
       >
         {children}
       </main>

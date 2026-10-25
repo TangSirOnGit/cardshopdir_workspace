@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { SectionTitle } from "@/components/section-title"
+import { Collapsible } from "@/components/collapsible"
 import { notFound } from "next/navigation"
-import { MapPin, ArrowRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import {
   getStatesWithCounts,
   getCitiesForState,
@@ -212,7 +214,7 @@ export default async function StateDirectoryPage({ params }: PageProps) {
   const otherStates = allStates.filter((s) => s.state !== stateCode)
 
   return (
-    <div className="space-y-8 pt-4">
+    <div className="space-y-14">
       {jsonLd.map((ld, i) => (
         <script
           key={i}
@@ -222,48 +224,56 @@ export default async function StateDirectoryPage({ params }: PageProps) {
       ))}
 
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Home
-        </Link>
-        <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">
-          Directory
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">{name}</span>
-      </nav>
+      <div className="bleed band-paper -mt-1 space-y-8 border-b-2 border-ink pt-8 pb-10 sm:pb-14">
+        <nav className="label-mono flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case [--muted-foreground:var(--ink-muted)] [--primary:var(--vermilion)]">
+          <Link
+            href="/"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Home
+          </Link>
+          <span>/</span>
+          <Link
+            href="/directory"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Directory
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{name}</span>
+        </nav>
 
-      {/* Header with tagline */}
-      <header className="space-y-3">
-        <p className="text-[12px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
-          {stateCode} Card Shop Directory
-        </p>
-        <h1 className="font-serif text-3xl tracking-tight sm:text-4xl">
-          Card Shops in {name}
-        </h1>
-        <p className="text-[14px] font-medium text-muted-foreground">
-          {stateTagline(stateCode)}
-        </p>
+        {/* Header with tagline */}
+        <header className="space-y-5">
+          <p className="label-mono text-primary">
+            {stateCode} Card Shop Directory
+          </p>
+          <h1 className="display text-[clamp(2.2rem,5vw,3.6rem)]">
+            Card Shops in {name}
+          </h1>
+          <p className="text-[14px] font-medium text-muted-foreground">
+            {stateTagline(stateCode)}
+          </p>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label="Shops Listed" value={stats.shopCount} />
-          <Stat label="Cities" value={stats.cityCount} />
-          <Stat
-            label="Avg Rating"
-            value={stats.avgRating ? `${stats.avgRating}★` : "—"}
-          />
-          <Stat
-            label="Total Reviews"
-            value={stats.totalReviews.toLocaleString()}
-          />
-        </div>
-      </header>
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-0.5 border-2 border-ink bg-ink sm:grid-cols-4">
+            <Stat label="Shops Listed" value={stats.shopCount} />
+            <Stat label="Cities" value={stats.cityCount} />
+            <Stat
+              label="Avg Rating"
+              value={stats.avgRating ? `${stats.avgRating}★` : "—"}
+            />
+            <Stat
+              label="Total Reviews"
+              value={stats.totalReviews.toLocaleString()}
+            />
+          </div>
+        </header>
+      </div>
 
       {/* State intro */}
-      <section className="prose prose-sm max-w-none">
-        <p className="text-[14px] leading-relaxed text-muted-foreground">
+      <section className="max-w-3xl">
+        <p className="text-[15px] leading-[1.8] text-muted-foreground">
           {stateIntro(stateCode, cities.map((c) => c.city!).filter(Boolean), {
             shopCount: stats.shopCount,
             cityCount: stats.cityCount,
@@ -291,37 +301,40 @@ export default async function StateDirectoryPage({ params }: PageProps) {
       {/* Cities with jump-to anchors */}
       {cities.length > 0 && (
         <section id="cities">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <MapPin className="h-5 w-5 text-muted-foreground" />
-              Cities in {name}
-            </h2>
-            <span className="text-[12px] text-muted-foreground tabular-nums">
-              {cities.length} cities
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {cities.map((c) => (
-              <Link
-                key={c.city}
-                href={`/directory/${state}/${c.city!.toLowerCase().replace(/\s+/g, "-")}`}
-                className="group flex items-center gap-1.5 rounded-full border border-border/50 bg-muted/30 px-3 py-1.5 text-[13px] transition-colors hover:bg-muted/60"
-              >
-                <span className="font-medium">{c.city}</span>
-                <span className="text-[11px] text-muted-foreground tabular-nums">
-                  {c.shopCount}
-                </span>
-              </Link>
-            ))}
-          </div>
+          <SectionTitle
+            index="01 / Cities"
+            title={`Cities in ${name}`}
+            aside={
+              <span className="label-mono tabular-nums">
+                {cities.length} cities
+              </span>
+            }
+          />
+          <Collapsible
+            collapsedClass="max-h-40"
+            label={`Show all ${cities.length} cities`}
+          >
+            <div className="flex flex-wrap gap-2 pb-1">
+              {cities.map((c) => (
+                <Link
+                  key={c.city}
+                  href={`/directory/${state}/${c.city!.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="vault-card group flex items-center gap-1.5 rounded-sm border-2 border-ink bg-card px-3 py-1.5 text-[13px]"
+                >
+                  <span className="font-medium">{c.city}</span>
+                  <span className="label-mono tracking-normal tabular-nums">
+                    {c.shopCount}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </Collapsible>
         </section>
       )}
 
       {/* All shops in state with filters */}
       <section id="all-shops">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">All Shops in {name}</h2>
-        </div>
+        <SectionTitle index="02 / Shops" title={`All Shops in ${name}`} />
         <ShopListWithFilters
           shops={shopsList}
           specialties={specialties}
@@ -332,15 +345,16 @@ export default async function StateDirectoryPage({ params }: PageProps) {
       {/* Cross-links to games */}
       {games.length > 0 && (
         <section>
-          <h2 className="mb-4 text-lg font-semibold">
-            Browse by Game in {name}
-          </h2>
+          <SectionTitle
+            index="03 / Games"
+            title={`Browse by Game in ${name}`}
+          />
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             {games.slice(0, 8).map((g) => (
               <Link
                 key={g.slug}
                 href={`/directory/${state}/games/${g.slug}`}
-                className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[13px] transition-colors hover:bg-muted/60"
+                className="vault-card group flex items-center justify-between rounded-sm border-2 border-ink bg-card px-3.5 py-3 text-[13px]"
               >
                 <span className="font-medium">{g.displayName}</span>
                 <ArrowRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -353,13 +367,13 @@ export default async function StateDirectoryPage({ params }: PageProps) {
       {/* Other states cross-links */}
       {otherStates.length > 0 && (
         <section>
-          <h2 className="mb-4 text-lg font-semibold">Other States</h2>
+          <SectionTitle index="04 / Places" title="Other States" />
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
             {otherStates.map((s) => (
               <Link
                 key={s.state}
                 href={`/directory/${s.state!.toLowerCase()}`}
-                className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-2.5 py-2 text-[12px] transition-colors hover:bg-muted/60"
+                className="vault-card group flex items-center justify-between rounded-sm border-2 border-ink bg-card px-2.5 py-2 text-[12px]"
               >
                 <span className="font-medium">{s.state}</span>
                 <span className="text-[10px] text-muted-foreground tabular-nums">
@@ -373,9 +387,7 @@ export default async function StateDirectoryPage({ params }: PageProps) {
 
       {/* FAQ */}
       <section>
-        <h2 className="mb-4 text-lg font-semibold">
-          Frequently Asked Questions
-        </h2>
+        <SectionTitle index="05 / Q&A" title="Frequently Asked Questions" />
         <div className="space-y-3">
           <FaqItem
             question={`How many card shops are in ${name}?`}
@@ -415,17 +427,19 @@ export default async function StateDirectoryPage({ params }: PageProps) {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5">
-      <p className="text-xl font-semibold tabular-nums">{value}</p>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">{label}</p>
+    <div className="bg-card px-4 py-4 sm:px-5 sm:py-5">
+      <p className="holo-text font-serif text-3xl font-semibold tracking-tight tabular-nums">
+        {value}
+      </p>
+      <p className="label-mono mt-1.5">{label}</p>
     </div>
   )
 }
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
-    <details className="group rounded-lg border border-border/50 bg-muted/30">
-      <summary className="cursor-pointer list-none px-4 py-3 text-[14px] font-medium transition-colors hover:bg-muted/50">
+    <details className="group border-2 border-ink bg-card">
+      <summary className="cursor-pointer list-none px-5 py-4 text-[15px] font-medium transition-colors hover:text-primary">
         <span className="inline-block">
           <span className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90">
             ›
@@ -433,7 +447,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
           {question}
         </span>
       </summary>
-      <p className="px-4 pb-3 text-[13px] leading-relaxed text-muted-foreground">
+      <p className="px-5 pb-4 pl-10 text-[14px] leading-relaxed text-muted-foreground">
         {answer}
       </p>
     </details>

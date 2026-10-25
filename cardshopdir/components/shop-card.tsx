@@ -10,28 +10,12 @@ import {
 } from "@/lib/shop-types"
 import { trackEvent } from "@/lib/analytics"
 import { formatHoursRange } from "@/lib/shop-hours"
+import { gameTheme, type GameTheme } from "@/lib/game-theme"
 
-// Emoji + short label per game slug, for specialty chips.
-const GAME_CHIPS: Record<string, { emoji: string; label: string }> = {
-  pokemon: { emoji: "⚡", label: "Pokémon" },
-  "magic-the-gathering": { emoji: "🪄", label: "MTG" },
-  "yu-gi-oh": { emoji: "🎴", label: "Yu-Gi-Oh!" },
-  "flesh-and-blood": { emoji: "⚔️", label: "Flesh & Blood" },
-  sports: { emoji: "⚾", label: "Sports" },
-  lorcana: { emoji: "✨", label: "Lorcana" },
-  "dragon-ball-super": { emoji: "🐉", label: "DBS" },
-  "star-wars-unlimited": { emoji: "🚀", label: "Star Wars" },
-  "one-piece": { emoji: "🏴‍☠️", label: "One Piece" },
-  "union-arena": { emoji: "🥊", label: "Union Arena" },
-  digimon: { emoji: "🤖", label: "Digimon" },
-  "final-fantasy": { emoji: "🗡️", label: "Final Fantasy" },
-  "weiss-schwarz": { emoji: "🌸", label: "Weiss Schwarz" },
-  "cardfight-vanguard": { emoji: "🛡️", label: "Vanguard" },
-  riftbound: { emoji: "🌀", label: "Riftbound" },
-}
+type Chip = GameTheme
 
-function gameChip(g: ShopGameTag): { emoji: string; label: string } {
-  return GAME_CHIPS[g.slug] || { emoji: "🃏", label: g.displayName }
+function gameChip(g: ShopGameTag): Chip {
+  return gameTheme(g.slug, g.displayName)
 }
 
 function truncate(s: string, n: number): string {
@@ -44,11 +28,12 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
   const top = isTopRated(shop)
   const hoursLabel = shop.todayHours ? formatHoursRange(shop.todayHours) : null
   const open = shop.isOpenNow
+  const hue = chips[0]?.hue ?? 85
 
   return (
     <Link
       href={`/shop/${shop.slug}`}
-      className="group flex flex-col rounded-lg border border-border/50 bg-card p-4 transition-colors hover:border-border hover:bg-muted/30"
+      className="vault-card group flex flex-col overflow-hidden rounded-sm border-2 border-ink bg-card"
       onClick={() =>
         trackEvent("shop_click", {
           slug: shop.slug,
@@ -57,112 +42,105 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
         })
       }
     >
-      {/* Top row: image + name/rating/address */}
-      <div className="flex gap-3">
+      <div className="relative aspect-16/10 w-full overflow-hidden border-b-2 border-ink bg-muted">
         {shop.imageUrl ? (
           <Image
             src={shop.imageUrl}
             alt={shop.name}
-            width={84}
-            height={84}
-            sizes="84px"
-            className="h-21 w-21 shrink-0 rounded-md object-cover ring-1 ring-border/40"
+            fill
+            sizes="(min-width: 1024px) 340px, (min-width: 640px) 45vw, 100vw"
+            className="object-cover"
           />
         ) : (
-          <div className="flex h-21 w-21 shrink-0 items-center justify-center rounded-md bg-muted text-[11px] text-muted-foreground">
-            No image
+          <div
+            aria-hidden="true"
+            className="flex h-full w-full items-end justify-between p-3"
+            style={{ backgroundColor: `oklch(0.8 0.13 ${hue})` }}
+          >
+            <span className="font-serif text-[5.5rem] leading-[0.8] font-bold text-ink/80">
+              {shop.name.trim().charAt(0).toUpperCase()}
+            </span>
+            <span className="label-mono text-ink!">
+              {chips[0]?.label ?? "Card shop"}
+            </span>
           </div>
         )}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <p className="truncate text-[14px] leading-tight font-semibold transition-colors group-hover:text-muted-foreground">
-              {shop.name}
-            </p>
-            {top && (
-              <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
-                Top Rated
+        {top && (
+          <span className="label-mono absolute top-0 right-0 bg-ink px-2.5 py-1.5 text-[10px] tracking-wider text-marigold!">
+            ★ Top Rated
+          </span>
+        )}
+        {hoursLabel && (
+          <span
+            className={`label-mono absolute bottom-0 left-0 flex items-center gap-1.5 border-t-2 border-r-2 border-ink px-2.5 py-1.5 text-[10px] ${
+              open ? "bg-open text-ink!" : "bg-paper text-ink-muted!"
+            }`}
+          >
+            {open ? "Open now" : "Closed"}
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-4">
+        <p className="font-serif text-[18px] leading-tight font-bold tracking-tight group-hover:text-primary">
+          {shop.name}
+        </p>
+
+        {shop.ratingValue && (
+          <p className="mt-2 flex items-center gap-1 text-[12px]">
+            <Star className="h-3.5 w-3.5 fill-gold text-gold" />
+            <span className="font-semibold text-foreground">
+              {shop.ratingValue}
+            </span>
+            <span className="text-muted-foreground">
+              ({shop.reviewCount ?? 0} reviews)
+            </span>
+          </p>
+        )}
+
+        <p className="mt-1 flex items-start gap-1 text-[12px] text-muted-foreground">
+          <MapPin className="mt-0.5 h-3 w-3 shrink-0" />
+          <span className="truncate">
+            {shop.street ? `${shop.street}, ` : ""}
+            {shop.city}, {shop.state}
+          </span>
+        </p>
+
+        {chips.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {chips.map((c, i) => (
+              <span
+                key={i}
+                className="rounded-sm border border-ink/70 px-1.5 py-0.5 text-[11px] font-semibold text-ink"
+                style={{ backgroundColor: `oklch(0.86 0.1 ${c.hue})` }}
+              >
+                {c.label}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {shop.description && (
+          <p className="mt-3 line-clamp-2 text-[12.5px] leading-relaxed text-muted-foreground">
+            {truncate(shop.description, 120)}
+          </p>
+        )}
+
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-ink/25 pt-3">
+          <div className="flex min-w-0 items-center gap-2 text-[11px] text-muted-foreground">
+            {hoursLabel && <span className="tabular-nums">{hoursLabel}</span>}
+            {shop.telephone && !hoursLabel && (
+              <span className="flex items-center gap-1">
+                <Phone className="h-3 w-3" />
+                {shop.telephone}
               </span>
             )}
           </div>
-
-          {/* Rating */}
-          {shop.ratingValue && (
-            <p className="mt-1 flex items-center gap-1 text-[12px]">
-              <Star className="h-3 w-3 fill-current text-amber-500" />
-              <span className="font-semibold text-foreground">
-                {shop.ratingValue}
-              </span>
-              <span className="text-muted-foreground">
-                ({shop.reviewCount ?? 0} reviews)
-              </span>
-            </p>
-          )}
-
-          {/* Address */}
-          <p className="mt-1 flex items-start gap-1 text-[12px] text-muted-foreground">
-            <MapPin className="mt-0.5 h-3 w-3 shrink-0" />
-            <span className="truncate">
-              {shop.street ? `${shop.street}, ` : ""}
-              {shop.city}, {shop.state}
-            </span>
-          </p>
+          <span className="flex shrink-0 items-center gap-1 text-[12px] font-bold text-primary">
+            View
+            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+          </span>
         </div>
-      </div>
-
-      {/* Specialty chips */}
-      {chips.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {chips.map((c, i) => (
-            <span
-              key={i}
-              className="rounded-full border border-border/50 bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground"
-            >
-              {c.emoji} {c.label}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Description snippet */}
-      {shop.description && (
-        <p className="mt-2.5 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground/80">
-          {truncate(shop.description, 120)}
-        </p>
-      )}
-
-      {/* Footer: hours + status + CTA */}
-      <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/40 pt-2.5">
-        <div className="flex min-w-0 items-center gap-2 text-[11px]">
-          {hoursLabel && (
-            <span className="text-muted-foreground">{hoursLabel}</span>
-          )}
-          {hoursLabel && (
-            <span
-              className={`flex items-center gap-1 font-medium ${
-                open
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  open ? "bg-emerald-500" : "bg-muted-foreground/40"
-                }`}
-              />
-              {open ? "Open" : "Closed"}
-            </span>
-          )}
-          {shop.telephone && !hoursLabel && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Phone className="h-3 w-3" />
-              {shop.telephone}
-            </span>
-          )}
-        </div>
-        <span className="flex shrink-0 items-center gap-0.5 text-[12px] font-medium text-foreground opacity-70 transition-opacity group-hover:opacity-100">
-          View
-          <ArrowRight className="h-3 w-3" />
-        </span>
       </div>
     </Link>
   )
@@ -179,7 +157,7 @@ export function ShopGrid({ shops }: { shops: ShopListItem[] }) {
     )
   }
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {shops.map((shop) => (
         <ShopCard key={shop.id} shop={shop} />
       ))}

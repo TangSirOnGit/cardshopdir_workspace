@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { MapPin, Gamepad2, ArrowRight } from "lucide-react"
+import { SectionTitle } from "@/components/section-title"
 import { db } from "@/lib/db"
 import { shops, games, shopGames } from "@/lib/db/schema"
 import { eq, desc, sql, count } from "drizzle-orm"
@@ -18,7 +18,8 @@ import { SITE_URL } from "@/config"
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: "Card Shops Near Me — Find Trading Card Stores in Your Area | CardShopDir",
+  title:
+    "Card Shops Near Me — Find Trading Card Stores in Your Area | CardShopDir",
   description:
     "Looking for card stores near you? CardShopDir lists 7,700+ local trading card shops across all 50 US states. Find Pokémon, MTG, Yu-Gi-Oh!, sports card, and TCG stores near you with hours, ratings, and directions.",
   alternates: { canonical: "/near-me" },
@@ -40,7 +41,10 @@ export default async function NearMePage() {
     popularStates,
     popularCities,
   ] = await Promise.all([
-    db.select({ count: count() }).from(shops).then((r) => r[0].count),
+    db
+      .select({ count: count() })
+      .from(shops)
+      .then((r) => r[0].count),
     db
       .select({ count: sql<number>`count(distinct ${shops.state})::int` })
       .from(shops)
@@ -123,7 +127,7 @@ export default async function NearMePage() {
   ]
 
   return (
-    <div className="space-y-10 pt-4 sm:pt-6">
+    <div className="space-y-14">
       {jsonLd.map((ld, i) => (
         <script
           key={i}
@@ -133,52 +137,55 @@ export default async function NearMePage() {
       ))}
 
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Home
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">Card Shops Near Me</span>
-      </nav>
+      <div className="bleed band-paper -mt-1 space-y-8 border-b-2 border-ink pt-8 pb-10 sm:pb-14">
+        <nav className="label-mono flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case [--muted-foreground:var(--ink-muted)] [--primary:var(--vermilion)]">
+          <Link
+            href="/"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">Card Shops Near Me</span>
+        </nav>
 
-      {/* Hero */}
-      <header className="space-y-4 text-center">
-        <p className="text-[12px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
-          Local Card Shop Directory
-        </p>
-        <h1 className="font-serif text-3xl tracking-tight sm:text-4xl md:text-5xl">
-          Card Shops Near Me
-        </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-          Find local trading card stores in your area. CardShopDir lists{" "}
-          {totalShops.toLocaleString()} card shops across {totalStates} states
-          and {totalCities.toLocaleString()} cities — including Pokémon, Magic:
-          The Gathering, Yu-Gi-Oh!, sports cards, and more. Search by city,
-          state, or zip to find card stores near you with hours, ratings, and
-          directions.
-        </p>
+        {/* Hero */}
+        <header className="space-y-4 text-center">
+          <p className="label-mono text-primary">Local Card Shop Directory</p>
+          <h1 className="display text-[clamp(2.3rem,5.5vw,4rem)]">
+            Card Shops Near Me
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+            Find local trading card stores in your area. CardShopDir lists{" "}
+            {totalShops.toLocaleString()} card shops across {totalStates} states
+            and {totalCities.toLocaleString()} cities — including Pokémon,
+            Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more. Search by
+            city, state, or zip to find card stores near you with hours,
+            ratings, and directions.
+          </p>
 
-        <SearchBox className="mx-auto mt-5 max-w-md" />
+          <SearchBox className="mx-auto mt-5 max-w-md" />
 
-        {/* Popular city quick links */}
-        {popularCities.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[13px]">
-            <span className="text-muted-foreground">Popular cities:</span>
-            {popularCities.map((c) => (
-              <Link
-                key={`${c.city}-${c.state}`}
-                href={`/directory/${c.state!.toLowerCase()}/${c.city!.toLowerCase().replace(/\s+/g, "-")}`}
-                className="rounded-full border border-border/50 bg-muted/30 px-3 py-1 font-medium transition-colors hover:bg-muted/60"
-              >
-                {c.city}
-              </Link>
-            ))}
-          </div>
-        )}
-      </header>
+          {/* Popular city quick links */}
+          {popularCities.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[13px]">
+              <span className="text-muted-foreground">Popular cities:</span>
+              {popularCities.map((c) => (
+                <Link
+                  key={`${c.city}-${c.state}`}
+                  href={`/directory/${c.state!.toLowerCase()}/${c.city!.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="rounded-sm border-2 border-ink bg-card px-3 py-1.5 font-semibold transition-colors hover:bg-ink hover:text-paper"
+                >
+                  {c.city}
+                </Link>
+              ))}
+            </div>
+          )}
+        </header>
+      </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-0.5 border-2 border-ink bg-ink sm:grid-cols-4">
         <Stat label="Card Shops" value={totalShops.toLocaleString()} />
         <Stat label="States" value={totalStates} />
         <Stat label="Cities" value={totalCities.toLocaleString()} />
@@ -187,25 +194,18 @@ export default async function NearMePage() {
 
       {/* Browse by State */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <MapPin className="h-5 w-5 text-muted-foreground" />
-            Find Card Shops by State
-          </h2>
-          <Link
-            href="/directory"
-            className="group flex items-center gap-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            All states
-            <ArrowRight className="h-3 w-3 -translate-x-0.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
-          </Link>
-        </div>
+        <SectionTitle
+          index="01 / Places"
+          title="Find Card Shops by State"
+          href="/directory"
+          cta="All states"
+        />
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {popularStates.slice(0, 24).map((s) => (
             <Link
               key={s.state}
               href={`/directory/${s.state?.toLowerCase()}`}
-              className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[13px] transition-colors hover:bg-muted/60"
+              className="vault-card group flex items-center justify-between rounded-sm border-2 border-ink bg-card px-3.5 py-3 text-[13px]"
             >
               <span className="font-medium">{stateName(s.state || "")}</span>
               <span className="text-[11px] text-muted-foreground tabular-nums">
@@ -218,25 +218,18 @@ export default async function NearMePage() {
 
       {/* Browse by Game */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <Gamepad2 className="h-5 w-5 text-muted-foreground" />
-            Find Card Shops by Game
-          </h2>
-          <Link
-            href="/directory/games"
-            className="group flex items-center gap-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            All games
-            <ArrowRight className="h-3 w-3 -translate-x-0.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
-          </Link>
-        </div>
+        <SectionTitle
+          index="02 / Games"
+          title="Find Card Shops by Game"
+          href="/directory/games"
+          cta="All games"
+        />
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
           {topGames.map((g) => (
             <Link
               key={g.slug}
               href={`/directory/games/${g.slug}`}
-              className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[13px] transition-colors hover:bg-muted/60"
+              className="vault-card group flex items-center justify-between rounded-sm border-2 border-ink bg-card px-3.5 py-3 text-[13px]"
             >
               <span className="font-medium">{g.displayName}</span>
               <span className="text-[11px] text-muted-foreground tabular-nums">
@@ -249,17 +242,17 @@ export default async function NearMePage() {
 
       {/* SEO content */}
       <section className="prose prose-sm max-w-none">
-        <h2 className="text-lg font-semibold">
-          How to Find Local Card Shops Near You
-        </h2>
+        <SectionTitle
+          index="03 / Shops"
+          title="How to Find Local Card Shops Near You"
+        />
         <div className="space-y-3 text-[14px] leading-relaxed text-muted-foreground">
           <p>
-            Whether you're hunting for the latest Pokémon set, building a
-            Magic: The Gathering Commander deck, or chasing vintage sports
-            cards, CardShopDir makes it easy to find local card stores near
-            you. Our directory covers {totalShops.toLocaleString()} shops
-            across all 50 US states, from major metro hubs to small-town
-            hidden gems.
+            Whether you're hunting for the latest Pokémon set, building a Magic:
+            The Gathering Commander deck, or chasing vintage sports cards,
+            CardShopDir makes it easy to find local card stores near you. Our
+            directory covers {totalShops.toLocaleString()} shops across all 50
+            US states, from major metro hubs to small-town hidden gems.
           </p>
           <p>
             <strong>Search by location.</strong> Use the search bar above with
@@ -275,19 +268,17 @@ export default async function NearMePage() {
             product line.
           </p>
           <p>
-            <strong>Browse by state.</strong> Prefer to explore? Start with
-            your state above to see all listed card shops, then drill down to
-            your city. State pages include shop counts, top cities, and the
-            most popular games among local collectors.
+            <strong>Browse by state.</strong> Prefer to explore? Start with your
+            state above to see all listed card shops, then drill down to your
+            city. State pages include shop counts, top cities, and the most
+            popular games among local collectors.
           </p>
         </div>
       </section>
 
       {/* FAQ */}
       <section>
-        <h2 className="mb-4 text-lg font-semibold">
-          Frequently Asked Questions
-        </h2>
+        <SectionTitle index="04 / Q&A" title="Frequently Asked Questions" />
         <div className="space-y-3">
           <FaqItem
             question="How do I find card shops near me?"
@@ -313,17 +304,19 @@ export default async function NearMePage() {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg border border-border/50 bg-muted/30 p-4 text-center">
-      <p className="text-2xl font-semibold tabular-nums">{value}</p>
-      <p className="mt-1 text-[12px] text-muted-foreground">{label}</p>
+    <div className="bg-card p-5 text-left">
+      <p className="holo-text font-serif text-3xl font-semibold tracking-tight tabular-nums">
+        {value}
+      </p>
+      <p className="label-mono mt-1.5">{label}</p>
     </div>
   )
 }
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
-    <details className="group rounded-lg border border-border/50 bg-muted/30">
-      <summary className="cursor-pointer list-none px-4 py-3 text-[14px] font-medium transition-colors hover:bg-muted/50">
+    <details className="group border-2 border-ink bg-card">
+      <summary className="cursor-pointer list-none px-5 py-4 text-[15px] font-medium transition-colors hover:text-primary">
         <span className="inline-block">
           <span className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90">
             ›
@@ -331,7 +324,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
           {question}
         </span>
       </summary>
-      <p className="px-4 pb-3 text-[13px] leading-relaxed text-muted-foreground">
+      <p className="px-5 pb-4 pl-10 text-[14px] leading-relaxed text-muted-foreground">
         {answer}
       </p>
     </details>

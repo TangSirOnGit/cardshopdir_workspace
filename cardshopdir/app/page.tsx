@@ -3,11 +3,13 @@ import { db } from "@/lib/db"
 import { shops, games, shopGames } from "@/lib/db/schema"
 import { eq, desc, sql, count } from "drizzle-orm"
 import Link from "next/link"
-import { ArrowRight, MapPin, Gamepad2, Star } from "lucide-react"
+import { ArrowRight, MapPin, Star } from "lucide-react"
 import { getSettingsTyped } from "@/lib/settings"
 import { SITE_URL } from "@/config"
 import { SearchBox } from "@/components/search-box"
 import { ShopCard } from "@/components/shop-card"
+import { gameTheme } from "@/lib/game-theme"
+import { HeroCardFan } from "@/components/hero-card-fan"
 import {
   getPopularCities,
   enrichShopsWithCardMeta,
@@ -126,229 +128,286 @@ export default async function Home() {
   }
 
   return (
-    <div className="space-y-12 pt-4 sm:pt-6">
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(searchActionJsonLd) }}
       />
       {/* ── Hero ─────────────────────────────────────── */}
-      <header className="text-center">
-        <p className="text-[13px] font-medium tracking-[0.2em] text-muted-foreground uppercase">
-          Card Shop Directory
-        </p>
-        <h1 className="mt-3 font-serif text-3xl tracking-tight sm:text-4xl md:text-5xl">
-          Find Trading Card Shops
-          <br />
-          <span className="text-muted-foreground">Near You</span>
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          {settings.siteDescription} Browse {totalShops.toLocaleString()} shops
-          across {totalStates} states.
-        </p>
-
-        {/* Search bar */}
-        <SearchBox className="mx-auto mt-6 max-w-md" />
-
-        {/* Popular city quick links */}
-        {popularCities.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[13px]">
-            <span className="text-muted-foreground">Popular:</span>
-            {popularCities.map((c) => (
-              <Link
-                key={`${c.city}-${c.state}`}
-                href={`/directory/${c.state!.toLowerCase()}/${c.city!.toLowerCase().replace(/\s+/g, "-")}`}
-                className="rounded-full border border-border/50 bg-muted/30 px-3 py-1 font-medium transition-colors hover:bg-muted/60"
-              >
-                {c.city}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* Near-me CTA */}
-        <div className="mt-6">
-          <Link
-            href="/near-me"
-            className="inline-flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-4 py-2 text-[14px] font-medium transition-colors hover:bg-muted/60"
+      <header className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 pt-10 pb-16 sm:pt-16 sm:pb-24 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
+        <div className="min-w-0">
+          <p
+            className="rise label-mono flex items-center gap-2.5 text-foreground"
+            style={{ "--d": 0 } as React.CSSProperties}
           >
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            Card Shops Near Me
-            <ArrowRight className="h-3.5 w-3.5 opacity-70" />
-          </Link>
+            <span className="h-2.5 w-2.5 bg-primary" />
+            Card Shop Directory
+          </p>
+          <h1
+            className="rise display mt-6 text-[clamp(3rem,8.4vw,7.25rem)]"
+            style={{ "--d": 1 } as React.CSSProperties}
+          >
+            Find Trading Card Shops{" "}
+            <span className="marker text-primary italic">Near You</span>
+          </h1>
+          <p
+            className="rise mt-7 max-w-xl text-[17px] leading-relaxed text-muted-foreground"
+            style={{ "--d": 2 } as React.CSSProperties}
+          >
+            {settings.siteDescription} Browse {totalShops.toLocaleString()}{" "}
+            shops across {totalStates} states.
+          </p>
+
+          <div className="rise" style={{ "--d": 3 } as React.CSSProperties}>
+            <SearchBox large className="mt-10 max-w-2xl" />
+          </div>
+
+          <div
+            className="rise -mx-6 mt-6 flex [scrollbar-width:none] items-center gap-2 overflow-x-auto px-6 pb-1 text-[13px] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden"
+            style={{ "--d": 4 } as React.CSSProperties}
+          >
+            <Link
+              href="/near-me"
+              className="inline-flex shrink-0 items-center gap-1.5 border-2 border-ink bg-primary px-3.5 py-1.5 text-[12px] font-bold tracking-wide text-primary-foreground uppercase shadow-[3px_3px_0_0_#04150f] transition-transform hover:translate-x-px hover:translate-y-px hover:shadow-none"
+            >
+              <MapPin className="h-3.5 w-3.5" />
+              Card Shops Near Me
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+            {popularCities.length > 0 && (
+              <>
+                <span className="label-mono ml-2 shrink-0">Popular</span>
+                {popularCities.map((c) => (
+                  <Link
+                    key={`${c.city}-${c.state}`}
+                    href={`/directory/${c.state!.toLowerCase()}/${c.city!.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="shrink-0 border border-foreground/40 px-3 py-1.5 font-medium transition-colors hover:bg-foreground hover:text-background"
+                  >
+                    {c.city}
+                  </Link>
+                ))}
+              </>
+            )}
+          </div>
         </div>
+
+        <HeroCardFan
+          totalShops={totalShops}
+          totalStates={totalStates}
+          avgRating={avgRating}
+        />
       </header>
 
-      {/* ── Stats ────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg border border-border/50 bg-muted/30 p-4 text-center">
-          <p className="text-2xl font-semibold tabular-nums">
-            {totalShops.toLocaleString()}
-          </p>
-          <p className="mt-1 text-[12px] text-muted-foreground">Total Shops</p>
-        </div>
-        <div className="rounded-lg border border-border/50 bg-muted/30 p-4 text-center">
-          <p className="text-2xl font-semibold tabular-nums">{totalStates}</p>
-          <p className="mt-1 text-[12px] text-muted-foreground">States</p>
-        </div>
-        <div className="rounded-lg border border-border/50 bg-muted/30 p-4 text-center">
-          <p className="flex items-center justify-center gap-1 text-2xl font-semibold tabular-nums">
-            {avgRating ? (
-              <>
-                {avgRating}
-                <Star className="h-5 w-5 fill-current text-amber-500" />
-              </>
-            ) : (
-              "—"
-            )}
-          </p>
-          <p className="mt-1 text-[12px] text-muted-foreground">Avg Rating</p>
-        </div>
-        <div className="rounded-lg border border-border/50 bg-muted/30 p-4 text-center">
-          <p className="text-2xl font-semibold tabular-nums">
-            {topGames.length}
-          </p>
-          <p className="mt-1 text-[12px] text-muted-foreground">TCG Games</p>
+      {/* ── Stats band ───────────────────────────────── */}
+      <div className="bleed band-paper border-y-2 border-ink">
+        <div className="grid grid-cols-2 divide-ink sm:grid-cols-4 sm:divide-x-2">
+          <Stat value={totalShops.toLocaleString()} label="Total Shops" />
+          <Stat value={String(totalStates)} label="States" />
+          <Stat
+            value={avgRating ? String(avgRating) : "—"}
+            label="Avg Rating"
+            icon={
+              avgRating ? (
+                <Star className="h-7 w-7 fill-vermilion text-vermilion" />
+              ) : null
+            }
+          />
+          <Stat value={String(topGames.length)} label="TCG Games" />
         </div>
       </div>
 
-      {/* ── Browse by State ──────────────────────────── */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <MapPin className="h-5 w-5 text-muted-foreground" />
-            Browse by State
-          </h2>
-          <Link
-            href="/directory"
-            className="group flex items-center gap-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            All states
-            <ArrowRight className="h-3 w-3 -translate-x-0.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {popularStates.map((s) => (
-            <Link
-              key={s.state}
-              href={`/directory/${s.state?.toLowerCase()}`}
-              className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[13px] transition-colors hover:bg-muted/60"
-            >
-              <span className="font-medium">{stateName(s.state || "")}</span>
-              <span className="text-[11px] text-muted-foreground tabular-nums">
-                {s.shopCount}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       {/* ── Browse by Game ───────────────────────────── */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <Gamepad2 className="h-5 w-5 text-muted-foreground" />
-            Browse by Game
-          </h2>
-          <Link
-            href="/directory/games"
-            className="group flex items-center gap-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            All games
-            <ArrowRight className="h-3 w-3 -translate-x-0.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-          {topGames.map((g) => (
-            <Link
-              key={g.slug}
-              href={`/directory/games/${g.slug}`}
-              className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[13px] transition-colors hover:bg-muted/60"
-            >
-              <span className="font-medium">{g.displayName}</span>
-              <span className="text-[11px] text-muted-foreground tabular-nums">
-                {g.shopCount}
-              </span>
-            </Link>
-          ))}
+      <section className="pt-20 sm:pt-28">
+        <SectionHead
+          index="01 / Games"
+          title="Browse by Game"
+          href="/directory/games"
+          cta="All games"
+        />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4">
+          {topGames.map((g, i) => {
+            const t = gameTheme(g.slug, g.displayName)
+            return (
+              <Link
+                key={g.slug}
+                href={`/directory/games/${g.slug}`}
+                className="vault-card flex aspect-4/3 flex-col justify-between rounded-sm border-2 border-ink p-3.5 text-ink sm:p-4"
+                style={{ backgroundColor: `oklch(0.84 0.115 ${t.hue})` }}
+              >
+                <span className="flex items-start justify-between">
+                  <span className="label-mono text-ink">
+                    No. {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="font-serif text-3xl leading-none font-bold tabular-nums sm:text-4xl">
+                    {g.shopCount.toLocaleString()}
+                  </span>
+                </span>
+                <span className="font-serif text-[19px] leading-[1.05] font-bold tracking-tight sm:text-[22px]">
+                  {g.displayName}
+                </span>
+              </Link>
+            )
+          })}
         </div>
       </section>
 
       {/* ── Featured Shops ───────────────────────────── */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Featured Shops</h2>
-          <Link
+      <div className="bleed band-deep mt-20 border-y-2 border-ink py-16 sm:mt-28 sm:py-24">
+        <section>
+          <SectionHead
+            index="02 / Top picks"
+            title="Featured Shops"
             href="/directory"
-            className="group flex items-center gap-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            View all
-            <ArrowRight className="h-3 w-3 -translate-x-0.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredShops.map((shop) => (
-            <ShopCard key={shop.id} shop={shop} />
+            cta="View all"
+          />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredShops.map((shop) => (
+              <ShopCard key={shop.id} shop={shop} />
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* ── Browse by State ──────────────────────────── */}
+      <section className="pt-20 sm:pt-28">
+        <SectionHead
+          index="03 / Places"
+          title="Browse by State"
+          href="/directory"
+          cta="All states"
+        />
+        <ul className="grid gap-x-12 sm:grid-cols-2 lg:grid-cols-3">
+          {popularStates.map((s) => (
+            <li key={s.state}>
+              <Link
+                href={`/directory/${s.state?.toLowerCase()}`}
+                className="group flex items-baseline gap-3 border-b border-border py-3 transition-colors hover:text-primary"
+              >
+                <span className="font-serif text-[20px] font-semibold tracking-tight">
+                  {stateName(s.state || "")}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="flex-1 translate-y-[-4px] border-b-2 border-dotted border-muted-foreground/40"
+                />
+                <span className="label-mono tracking-normal tabular-nums group-hover:text-primary">
+                  {s.shopCount}
+                </span>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       {/* ── About / value proposition ────────────────── */}
-      <section className="rounded-xl border border-border/50 bg-muted/20 p-6 sm:p-8">
-        <p className="text-center text-[12px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
-          About CardShopDir
-        </p>
-        <h2 className="mt-2 text-center font-serif text-2xl tracking-tight sm:text-3xl">
-          The Collector&apos;s Guide to Local Card Shops
+      <div className="bleed band-paper mt-20 border-y-2 border-ink py-16 sm:mt-28 sm:py-24">
+        <section>
+          <p className="label-mono text-primary">About CardShopDir</p>
+          <h2 className="display mt-4 max-w-3xl text-[clamp(2.2rem,5vw,4rem)]">
+            The Collector&apos;s Guide to Local Card Shops
+          </h2>
+          <p className="mt-6 max-w-2xl text-[16px] leading-[1.75] text-muted-foreground">
+            CardShopDir connects collectors with vetted local card stores
+            carrying Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and
+            more — complete with store hours, ratings, directions, and the games
+            they carry. From major metro hubs to hidden gems in smaller
+            communities, we&apos;re building the most comprehensive card shop
+            directory in the country.
+          </p>
+          <div className="mt-12 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+            <ValueCard
+              n="01"
+              title="Every Card Type"
+              body="Pokémon, MTG, Yu-Gi-Oh!, sports cards, Flesh & Blood, Lorcana, and more."
+            />
+            <ValueCard
+              n="02"
+              title="Verified Ratings"
+              body="Real ratings and review counts from Google so you know what to expect."
+            />
+            <ValueCard
+              n="03"
+              title="Hours & Status"
+              body="See today's hours and whether a shop is open right now before you go."
+            />
+            <ValueCard
+              n="04"
+              title="Nationwide Coverage"
+              body={`Growing directory spanning ${totalStates} states, with new shops added regularly.`}
+            />
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
+
+function Stat({
+  value,
+  label,
+  icon,
+}: {
+  value: string
+  label: string
+  icon?: React.ReactNode
+}) {
+  return (
+    <div className="border-ink px-5 py-8 max-sm:odd:border-r-2 max-sm:nth-[-n+2]:border-b-2 sm:px-8 sm:py-10">
+      <p className="flex items-center gap-2 font-serif text-5xl leading-none font-bold tracking-tighter tabular-nums sm:text-6xl">
+        {value}
+        {icon}
+      </p>
+      <p className="label-mono mt-3 text-ink">{label}</p>
+    </div>
+  )
+}
+
+function SectionHead({
+  index,
+  title,
+  href,
+  cta,
+}: {
+  index: string
+  title: string
+  href: string
+  cta: string
+}) {
+  return (
+    <div className="mb-8 flex items-end justify-between gap-4 border-t-2 border-foreground pt-4">
+      <div>
+        <p className="label-mono text-primary">{index}</p>
+        <h2 className="mt-2 font-serif text-[2rem] leading-none font-bold tracking-tight sm:text-5xl">
+          {title}
         </h2>
-        <p className="mx-auto mt-3 max-w-2xl text-center text-[14px] leading-relaxed text-muted-foreground">
-          CardShopDir connects collectors with vetted local card stores carrying
-          Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more —
-          complete with store hours, ratings, directions, and the games they
-          carry. From major metro hubs to hidden gems in smaller communities,
-          we&apos;re building the most comprehensive card shop directory in the
-          country.
-        </p>
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <ValueCard
-            icon="🃏"
-            title="Every Card Type"
-            body="Pokémon, MTG, Yu-Gi-Oh!, sports cards, Flesh & Blood, Lorcana, and more."
-          />
-          <ValueCard
-            icon="★"
-            title="Verified Ratings"
-            body="Real ratings and review counts from Google so you know what to expect."
-          />
-          <ValueCard
-            icon="🕒"
-            title="Hours & Status"
-            body="See today's hours and whether a shop is open right now before you go."
-          />
-          <ValueCard
-            icon="📍"
-            title="Nationwide Coverage"
-            body={`Growing directory spanning ${totalStates} states, with new shops added regularly.`}
-          />
-        </div>
-      </section>
+      </div>
+      <Link
+        href={href}
+        className="group flex shrink-0 items-center gap-1.5 pb-1 text-[13px] font-bold tracking-wide text-primary uppercase"
+      >
+        <span className="link-draw">{cta}</span>
+        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+      </Link>
     </div>
   )
 }
 
 function ValueCard({
-  icon,
+  n,
   title,
   body,
 }: {
-  icon: string
+  n: string
   title: string
   body: string
 }) {
   return (
-    <div className="rounded-lg border border-border/50 bg-background p-4">
-      <p className="text-2xl">{icon}</p>
-      <h3 className="mt-2 text-[14px] font-semibold">{title}</h3>
-      <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+    <div className="border-t-2 border-ink pt-4">
+      <p className="label-mono text-primary">{n}</p>
+      <h3 className="mt-2 font-serif text-[22px] leading-tight font-bold tracking-tight">
+        {title}
+      </h3>
+      <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
         {body}
       </p>
     </div>

@@ -23,8 +23,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6 pt-4">
-      <header>
-        <h1 className="font-serif text-3xl tracking-tight">
+      <header className="bleed band-paper -mt-1 space-y-4 border-b-2 border-ink py-10 sm:py-14">
+        <h1 className="display text-[clamp(2.2rem,5vw,3.6rem)]">
           {query ? `Search: "${query}"` : "Search Shops"}
         </h1>
         <p className="mt-2 text-[15px] text-muted-foreground">

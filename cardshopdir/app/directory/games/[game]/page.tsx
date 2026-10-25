@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { SectionTitle } from "@/components/section-title"
 import { notFound } from "next/navigation"
-import { MapPin } from "lucide-react"
 import {
   getShopsForGame,
   getGamesWithCounts,
@@ -163,7 +163,7 @@ export default async function GameDirectoryPage({ params }: PageProps) {
   ]
 
   return (
-    <div className="space-y-8 pt-4">
+    <div className="space-y-14">
       {jsonLd.map((ld, i) => (
         <script
           key={i}
@@ -172,59 +172,68 @@ export default async function GameDirectoryPage({ params }: PageProps) {
         />
       ))}
 
-      <nav className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Home
-        </Link>
-        <span>/</span>
-        <Link href="/directory" className="hover:text-foreground">
-          Directory
-        </Link>
-        <span>/</span>
-        <Link href="/directory/games" className="hover:text-foreground">
-          Games
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">{displayName}</span>
-      </nav>
-
-      <header className="space-y-3">
-        <h1 className="font-serif text-3xl tracking-tight sm:text-4xl">
-          {displayName} Card Shops Near Me
-        </h1>
-        <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-          {GAME_INTRO[game] ?? `Find ${gameLower} card shops near you.`}{" "}
-          CardShopDir lists {shopsList.length} stores across the US that carry{" "}
-          {displayName} — from sealed product and singles to grading drop-offs
-          and play events. Search by city or zip, or browse by state below.
-        </p>
-        <SearchBox className="max-w-md" />
-        <p className="text-[13px] text-muted-foreground">
-          Looking for other local options?{" "}
+      <div className="bleed band-paper -mt-1 space-y-8 border-b-2 border-ink pt-8 pb-10 sm:pb-14">
+        <nav className="label-mono flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case [--muted-foreground:var(--ink-muted)] [--primary:var(--vermilion)]">
           <Link
-            href="/near-me"
-            className="font-medium underline underline-offset-4 hover:text-foreground"
+            href="/"
+            className="link-draw transition-colors hover:text-primary"
           >
-            Browse all card shops near you
+            Home
           </Link>
-        </p>
-      </header>
+          <span>/</span>
+          <Link
+            href="/directory"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Directory
+          </Link>
+          <span>/</span>
+          <Link
+            href="/directory/games"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Games
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{displayName}</span>
+        </nav>
+
+        <header className="space-y-5">
+          <h1 className="display text-[clamp(2.2rem,5vw,3.6rem)]">
+            {displayName} Card Shops Near Me
+          </h1>
+          <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+            {GAME_INTRO[game] ?? `Find ${gameLower} card shops near you.`}{" "}
+            CardShopDir lists {shopsList.length} stores across the US that carry{" "}
+            {displayName} — from sealed product and singles to grading drop-offs
+            and play events. Search by city or zip, or browse by state below.
+          </p>
+          <SearchBox className="max-w-md" />
+          <p className="text-[13px] text-muted-foreground">
+            Looking for other local options?{" "}
+            <Link
+              href="/near-me"
+              className="font-medium underline underline-offset-4 hover:text-foreground"
+            >
+              Browse all card shops near you
+            </Link>
+          </p>
+        </header>
+      </div>
 
       {/* Browse by state for this game */}
       {topStates.length > 0 && (
         <section>
-          <div className="mb-3 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">
-              {displayName} Shops by State
-            </h2>
-          </div>
+          <SectionTitle
+            index="01 / Places"
+            title={`${displayName} Shops by State`}
+          />
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {topStates.map(([st, n]) => (
               <Link
                 key={st}
                 href={`/directory/${st.toLowerCase()}/games/${game}`}
-                className="group flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[13px] transition-colors hover:bg-muted/60"
+                className="vault-card group flex items-center justify-between rounded-sm border-2 border-ink bg-card px-3.5 py-3 text-[13px]"
               >
                 <span className="font-medium">{st}</span>
                 <span className="text-[11px] text-muted-foreground tabular-nums">
@@ -237,20 +246,24 @@ export default async function GameDirectoryPage({ params }: PageProps) {
       )}
 
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">All {displayName} Shops</h2>
-          <span className="text-[12px] text-muted-foreground tabular-nums">
-            {shopsList.length} shops
-          </span>
-        </div>
+        <SectionTitle
+          index="02 / Shops"
+          title={`All ${displayName} Shops`}
+          aside={
+            <span className="text-[12px] text-muted-foreground tabular-nums">
+              {shopsList.length} shops
+            </span>
+          }
+        />
         <ShopGrid shops={shopsList} />
       </section>
 
       {/* SEO content */}
       <section className="prose prose-sm max-w-none">
-        <h2 className="text-lg font-semibold">
-          Finding Local {displayName} Stores Near You
-        </h2>
+        <SectionTitle
+          index="03 / Guide"
+          title={`Finding Local ${displayName} Stores Near You`}
+        />
         <div className="space-y-3 text-[14px] leading-relaxed text-muted-foreground">
           <p>
             Looking for {gameLower} shops near you? CardShopDir connects
@@ -278,9 +291,7 @@ export default async function GameDirectoryPage({ params }: PageProps) {
 
       {/* FAQ */}
       <section>
-        <h2 className="mb-4 text-lg font-semibold">
-          Frequently Asked Questions
-        </h2>
+        <SectionTitle index="04 / Q&A" title="Frequently Asked Questions" />
         <div className="space-y-3">
           <FaqItem
             question={`Are there ${displayName} card shops near me?`}
@@ -311,8 +322,8 @@ export default async function GameDirectoryPage({ params }: PageProps) {
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
-    <details className="group rounded-lg border border-border/50 bg-muted/30">
-      <summary className="cursor-pointer list-none px-4 py-3 text-[14px] font-medium transition-colors hover:bg-muted/50">
+    <details className="group border-2 border-ink bg-card">
+      <summary className="cursor-pointer list-none px-5 py-4 text-[15px] font-medium transition-colors hover:text-primary">
         <span className="inline-block">
           <span className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90">
             ›
@@ -320,7 +331,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
           {question}
         </span>
       </summary>
-      <p className="px-4 pb-3 text-[13px] leading-relaxed text-muted-foreground">
+      <p className="px-5 pb-4 pl-10 text-[14px] leading-relaxed text-muted-foreground">
         {answer}
       </p>
     </details>
