@@ -256,6 +256,7 @@ export default async function ShopPage({ params }: PageProps) {
         <nav className="label-mono flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case">
           <Link
             href="/"
+            prefetch={false}
             className="link-draw transition-colors hover:text-primary"
           >
             Home
@@ -263,6 +264,7 @@ export default async function ShopPage({ params }: PageProps) {
           <span>/</span>
           <Link
             href="/directory"
+            prefetch={false}
             className="link-draw transition-colors hover:text-primary"
           >
             Directory
@@ -272,6 +274,7 @@ export default async function ShopPage({ params }: PageProps) {
               <span>/</span>
               <Link
                 href={`/directory/${stateCode.toLowerCase()}`}
+                prefetch={false}
                 className="link-draw transition-colors hover:text-primary"
               >
                 {stateFull}
@@ -283,6 +286,7 @@ export default async function ShopPage({ params }: PageProps) {
               <span>/</span>
               <Link
                 href={`/directory/${stateCode.toLowerCase()}/${cityName.toLowerCase().replace(/\s+/g, "-")}`}
+                prefetch={false}
                 className="link-draw transition-colors hover:text-primary"
               >
                 {cityName}
@@ -386,7 +390,9 @@ export default async function ShopPage({ params }: PageProps) {
                 alt={shop.name}
                 fill
                 priority
-                sizes="(min-width: 1024px) 520px, 100vw"
+                fetchPriority="high"
+                quality={60}
+                sizes="(min-width: 1024px) 520px, 92vw"
                 className="object-cover"
               />
             ) : (
@@ -433,6 +439,7 @@ export default async function ShopPage({ params }: PageProps) {
                     <Link
                       key={g.slug}
                       href={`/directory/games/${g.slug}`}
+                      prefetch={false}
                       className="vault-card flex aspect-4/3 flex-col justify-end rounded-sm border-2 border-ink p-3.5 text-ink"
                       style={{ backgroundColor: `oklch(0.84 0.115 ${t.hue})` }}
                     >
@@ -572,6 +579,7 @@ export default async function ShopPage({ params }: PageProps) {
                     <Link
                       key={g.slug}
                       href={`/directory/games/${g.slug}`}
+                      prefetch={false}
                       className="rounded-sm border px-3 py-1.5 text-[12px] font-medium transition-transform hover:-translate-y-0.5 active:scale-95"
                       style={{
                         color: `oklch(0.82 0.12 ${t.hue})`,
@@ -606,6 +614,7 @@ export default async function ShopPage({ params }: PageProps) {
             </h2>
             <Link
               href={`/directory/${stateCode.toLowerCase()}`}
+              prefetch={false}
               className="group flex shrink-0 items-center gap-1.5 pb-1 text-[13px] font-medium text-primary"
             >
               <span className="link-draw">View all</span>
