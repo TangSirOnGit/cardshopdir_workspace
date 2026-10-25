@@ -1,5 +1,3 @@
-"use client"
-
 import Link from "next/link"
 import Image from "next/image"
 import { MapPin, Star, Phone, ArrowRight } from "lucide-react"
@@ -8,7 +6,6 @@ import {
   type ShopListItem,
   type ShopGameTag,
 } from "@/lib/shop-types"
-import { trackEvent } from "@/lib/analytics"
 import { formatHoursRange } from "@/lib/shop-hours"
 import { gameTheme, type GameTheme } from "@/lib/game-theme"
 import { FavoriteShopButton } from "@/components/favorite-shop-button"
@@ -36,13 +33,10 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
       <Link
         href={`/shop/${shop.slug}`}
         className="vault-card group flex h-full flex-col overflow-hidden rounded-sm border-2 border-ink bg-card"
-        onClick={() =>
-          trackEvent("shop_click", {
-            slug: shop.slug,
-            name: shop.name,
-            state: shop.state || "",
-          })
-        }
+        data-umami-event="shop_click"
+        data-umami-event-slug={shop.slug}
+        data-umami-event-name={shop.name}
+        data-umami-event-state={shop.state || ""}
       >
         <div className="relative aspect-16/10 w-full overflow-hidden border-b-2 border-ink bg-muted">
           {shop.imageUrl ? (
@@ -50,7 +44,8 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
               src={shop.imageUrl}
               alt={shop.name}
               fill
-              sizes="(min-width: 1024px) 340px, (min-width: 640px) 45vw, 100vw"
+              sizes="(min-width: 1024px) 340px, (min-width: 640px) 45vw, 92vw"
+              quality={60}
               className="object-cover"
             />
           ) : (
@@ -84,7 +79,7 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
         </div>
 
         <div className="flex flex-1 flex-col p-4">
-          <p className="font-serif text-[18px] leading-tight font-bold tracking-tight group-hover:text-primary">
+          <p className="font-serif text-[18px] leading-tight font-bold tracking-tight group-hover:text-vermilion">
             {shop.name}
           </p>
 
@@ -138,7 +133,7 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
                 </span>
               )}
             </div>
-            <span className="flex shrink-0 items-center gap-1 text-[12px] font-bold text-primary">
+            <span className="flex shrink-0 items-center gap-1 text-[12px] font-bold text-vermilion">
               View
               <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
             </span>

@@ -2,7 +2,10 @@ const isDev = process.env.NODE_ENV === "development"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: { inlineCss: true },
   images: {
+    deviceSizes: [360, 480, 640, 750, 1080, 1920],
+    imageSizes: [64, 128, 256, 384],
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
@@ -59,11 +62,11 @@ const nextConfig = {
           key: "Content-Security-Policy",
           value: [
             "default-src 'self'",
-            `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://challenges.cloudflare.com https://info.ewaltech.com`,
+            `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://challenges.cloudflare.com https://info.ewaltech.com https://static.cloudflareinsights.com`,
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: blob: https:",
             "font-src 'self' https://fonts.gstatic.com",
-            "connect-src 'self' https://info.ewaltech.com https://challenges.cloudflare.com",
+            "connect-src 'self' https://info.ewaltech.com https://challenges.cloudflare.com https://cloudflareinsights.com",
             "frame-src https://js.stripe.com https://challenges.cloudflare.com",
             "frame-ancestors 'none'",
             "object-src 'none'",
