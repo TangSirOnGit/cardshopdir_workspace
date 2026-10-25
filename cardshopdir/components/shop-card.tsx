@@ -45,7 +45,7 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
               alt={shop.name}
               fill
               sizes="(min-width: 1024px) 340px, (min-width: 640px) 45vw, 92vw"
-              quality={60}
+              quality={50}
               className="object-cover"
             />
           ) : (

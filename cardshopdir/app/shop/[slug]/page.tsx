@@ -599,7 +599,7 @@ export default async function ShopPage({ params }: PageProps) {
 
       {/* Nearby shops in the same city */}
       {nearbyShops.length > 0 && (
-        <section className="reveal">
+        <section className="reveal [contain-intrinsic-size:auto_900px] [content-visibility:auto]">
           <h2 className={h2Main}>More Card Shops in {cityName}</h2>
           <ShopGrid shops={nearbyShops} />
         </section>
@@ -607,7 +607,7 @@ export default async function ShopPage({ params }: PageProps) {
 
       {/* More shops in the same state */}
       {moreInState.length > 0 && (
-        <section className="reveal">
+        <section className="reveal [contain-intrinsic-size:auto_900px] [content-visibility:auto]">
           <div className="mb-5 flex items-end justify-between gap-4 border-b border-border pb-3">
             <h2 className="font-serif text-2xl font-semibold tracking-tight">
               More Card Shops in {stateFull}

@@ -253,7 +253,7 @@ export default async function Home() {
       </section>
 
       {/* ── Featured Shops ───────────────────────────── */}
-      <div className="bleed band-deep mt-20 border-y-2 border-ink py-16 sm:mt-28 sm:py-24">
+      <div className="bleed band-deep mt-20 border-y-2 border-ink py-16 [contain-intrinsic-size:auto_1400px] [content-visibility:auto] sm:mt-28 sm:py-24">
         <section>
           <SectionHead
             index="02 / Top picks"
