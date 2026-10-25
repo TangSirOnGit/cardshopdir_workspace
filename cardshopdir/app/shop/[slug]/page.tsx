@@ -17,6 +17,7 @@ import { ShopActions, ShopStickyBar } from "@/components/shop-actions"
 import { ShopGrid } from "@/components/shop-card"
 import { FavoriteShopButton } from "@/components/favorite-shop-button"
 import { ShopViewTracker } from "@/components/shop-view-tracker"
+import { ShopShareButton } from "@/components/shop-share-button"
 import {
   formatTodaySummary,
   currentWeekday,
@@ -359,7 +360,15 @@ export default async function ShopPage({ params }: PageProps) {
                 telephone={shop.telephone}
                 mapsUrl={mapsUrl}
               />
-              <FavoriteShopButton shop={browserShop} />
+              <div className="flex items-center gap-2">
+                <FavoriteShopButton shop={browserShop} />
+                <ShopShareButton
+                  slug={shop.slug}
+                  url={pageUrl}
+                  title={shop.name}
+                  text={`${shop.name} - trading card shop in ${[cityName, stateCode].filter(Boolean).join(", ")}`}
+                />
+              </div>
             </div>
           </div>
 
