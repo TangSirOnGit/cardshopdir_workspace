@@ -15,7 +15,13 @@ import {
 } from "@/lib/directory"
 import { ShopActions, ShopStickyBar } from "@/components/shop-actions"
 import { ShopGrid } from "@/components/shop-card"
-import { formatTodaySummary, currentWeekday } from "@/lib/shop-hours"
+import { FavoriteShopButton } from "@/components/favorite-shop-button"
+import { ShopViewTracker } from "@/components/shop-view-tracker"
+import {
+  formatTodaySummary,
+  currentWeekday,
+  getTodayHours,
+} from "@/lib/shop-hours"
 import { GAME_THEMES, gameTheme } from "@/lib/game-theme"
 import { isTopRated } from "@/lib/shop-types"
 
@@ -138,6 +144,23 @@ export default async function ShopPage({ params }: PageProps) {
     : []
 
   const todaySummary = formatTodaySummary(hoursRows)
+  const browserShop = {
+    id: shop.id,
+    slug: shop.slug,
+    name: shop.name,
+    city: shop.city,
+    state: shop.state,
+    street: shop.street,
+    telephone: shop.telephone,
+    imageUrl: shop.imageUrl,
+    ratingValue: shop.ratingValue,
+    reviewCount: shop.reviewCount,
+    shopType: shop.shopType,
+    description: shop.description,
+    games: shopGameRows,
+    todayHours: getTodayHours(hoursRows),
+    isOpenNow: todaySummary.open,
+  }
 
   // LocalBusiness JSON-LD
   const businessJsonLd: Record<string, unknown> = {
@@ -215,6 +238,7 @@ export default async function ShopPage({ params }: PageProps) {
 
   return (
     <div className="space-y-12 pt-6 pb-24 sm:pt-10 sm:pb-0">
+      <ShopViewTracker shop={browserShop} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd) }}
@@ -226,152 +250,157 @@ export default async function ShopPage({ params }: PageProps) {
         }}
       />
 
-      {/* Breadcrumb */}
-      <nav className="label-mono -mb-6 flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case">
-        <Link
-          href="/"
-          className="link-draw transition-colors hover:text-primary"
-        >
-          Home
-        </Link>
-        <span>/</span>
-        <Link
-          href="/directory"
-          className="link-draw transition-colors hover:text-primary"
-        >
-          Directory
-        </Link>
-        {stateCode && (
-          <>
-            <span>/</span>
-            <Link
-              href={`/directory/${stateCode.toLowerCase()}`}
-              className="link-draw transition-colors hover:text-primary"
-            >
-              {stateFull}
-            </Link>
-          </>
-        )}
-        {cityName && stateCode && (
-          <>
-            <span>/</span>
-            <Link
-              href={`/directory/${stateCode.toLowerCase()}/${cityName.toLowerCase().replace(/\s+/g, "-")}`}
-              className="link-draw transition-colors hover:text-primary"
-            >
-              {cityName}
-            </Link>
-          </>
-        )}
-        <span>/</span>
-        <span className="text-foreground">{shop.name}</span>
-      </nav>
+      <div className="space-y-6">
+        {/* Breadcrumb */}
+        <nav className="label-mono flex flex-wrap items-center gap-2 tracking-[0.08em] normal-case">
+          <Link
+            href="/"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Home
+          </Link>
+          <span>/</span>
+          <Link
+            href="/directory"
+            className="link-draw transition-colors hover:text-primary"
+          >
+            Directory
+          </Link>
+          {stateCode && (
+            <>
+              <span>/</span>
+              <Link
+                href={`/directory/${stateCode.toLowerCase()}`}
+                className="link-draw transition-colors hover:text-primary"
+              >
+                {stateFull}
+              </Link>
+            </>
+          )}
+          {cityName && stateCode && (
+            <>
+              <span>/</span>
+              <Link
+                href={`/directory/${stateCode.toLowerCase()}/${cityName.toLowerCase().replace(/\s+/g, "-")}`}
+                className="link-draw transition-colors hover:text-primary"
+              >
+                {cityName}
+              </Link>
+            </>
+          )}
+          <span>/</span>
+          <span className="text-foreground">{shop.name}</span>
+        </nav>
 
-      {/* Header */}
-      <header className="grid items-stretch gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
-        <div className="min-w-0 space-y-5 lg:py-2">
-          <p className="label-mono flex items-center gap-2.5 text-foreground">
-            <span className="h-2.5 w-2.5 bg-primary" />
-            {shopTypeLabel(shop.shopType)}
-          </p>
-          <h1 className="display text-[clamp(2.4rem,5.4vw,4.75rem)]">
-            {shop.name}
-          </h1>
+        {/* Header */}
+        <header className="grid items-stretch gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
+          <div className="min-w-0 space-y-5 lg:py-2">
+            <p className="label-mono flex items-center gap-2.5 text-foreground">
+              <span className="h-2.5 w-2.5 bg-primary" />
+              {shopTypeLabel(shop.shopType)}
+            </p>
+            <h1 className="display text-[clamp(2.4rem,5.4vw,4.75rem)]">
+              {shop.name}
+            </h1>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px]">
-            {shop.ratingValue && (
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <Star
-                      key={n}
-                      className={`h-4 w-4 ${
-                        shop.ratingValue &&
-                        n <= Math.round(parseFloat(shop.ratingValue))
-                          ? "fill-gold text-gold"
-                          : "text-muted-foreground/40"
-                      }`}
-                    />
-                  ))}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px]">
+              {shop.ratingValue && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <Star
+                        key={n}
+                        className={`h-4 w-4 ${
+                          shop.ratingValue &&
+                          n <= Math.round(parseFloat(shop.ratingValue))
+                            ? "fill-gold text-gold"
+                            : "text-muted-foreground/40"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="font-bold">{shop.ratingValue}</span>
+                  <span className="text-muted-foreground">
+                    ({shop.reviewCount} reviews)
+                  </span>
                 </div>
-                <span className="font-bold">{shop.ratingValue}</span>
-                <span className="text-muted-foreground">
-                  ({shop.reviewCount} reviews)
+              )}
+              {hoursRows.length > 0 && (
+                <p className="flex items-center gap-2 text-[13px]">
+                  <span
+                    className={`label-mono px-2 py-1 ${
+                      todaySummary.open
+                        ? "bg-open text-ink"
+                        : "border border-border text-muted-foreground"
+                    }`}
+                  >
+                    {todaySummary.status}
+                  </span>
+                  <span className="text-muted-foreground tabular-nums">
+                    {todaySummary.hours}
+                  </span>
+                </p>
+              )}
+            </div>
+
+            <p className="flex items-start gap-1.5 text-[15px] text-muted-foreground">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span>
+                {shop.street && <span>{shop.street}, </span>}
+                {[cityName, stateCode].filter(Boolean).join(", ")}{" "}
+                {shop.postalCode}
+              </span>
+            </p>
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <ShopActions
+                slug={shop.slug}
+                website={shop.website}
+                telephone={shop.telephone}
+                mapsUrl={mapsUrl}
+              />
+              <FavoriteShopButton shop={browserShop} />
+            </div>
+          </div>
+
+          <div
+            className="relative min-h-64 overflow-hidden border-2 border-ink bg-muted shadow-[8px_8px_0_0_#04150f] lg:min-h-96"
+            style={
+              shop.imageUrl
+                ? undefined
+                : { backgroundColor: `oklch(0.84 0.115 ${heroHue})` }
+            }
+          >
+            {shop.imageUrl ? (
+              <Image
+                src={shop.imageUrl}
+                alt={shop.name}
+                fill
+                priority
+                sizes="(min-width: 1024px) 520px, 100vw"
+                className="object-cover"
+              />
+            ) : (
+              <div
+                aria-hidden="true"
+                className="flex h-full w-full items-end justify-between p-5"
+              >
+                <span className="font-serif text-[11rem] leading-[0.75] font-bold text-ink/80">
+                  {shop.name.trim().charAt(0).toUpperCase()}
+                </span>
+                <span className="label-mono text-ink">
+                  {shopGameRows[0]?.displayName ?? "Card shop"}
                 </span>
               </div>
             )}
-            {hoursRows.length > 0 && (
-              <p className="flex items-center gap-2 text-[13px]">
-                <span
-                  className={`label-mono px-2 py-1 ${
-                    todaySummary.open
-                      ? "bg-open text-ink"
-                      : "border border-border text-muted-foreground"
-                  }`}
-                >
-                  {todaySummary.status}
-                </span>
-                <span className="text-muted-foreground tabular-nums">
-                  {todaySummary.hours}
-                </span>
-              </p>
+            {isTopRated(shop) && (
+              <span className="label-mono absolute top-0 right-0 bg-ink px-3 py-2 text-marigold">
+                ★ Top Rated
+              </span>
             )}
           </div>
-
-          <p className="flex items-start gap-1.5 text-[15px] text-muted-foreground">
-            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <span>
-              {shop.street && <span>{shop.street}, </span>}
-              {[cityName, stateCode].filter(Boolean).join(", ")}{" "}
-              {shop.postalCode}
-            </span>
-          </p>
-
-          <ShopActions
-            slug={shop.slug}
-            website={shop.website}
-            telephone={shop.telephone}
-            mapsUrl={mapsUrl}
-          />
-        </div>
-
-        <div
-          className="relative min-h-64 overflow-hidden border-2 border-ink bg-muted shadow-[8px_8px_0_0_#04150f] lg:min-h-96"
-          style={
-            shop.imageUrl
-              ? undefined
-              : { backgroundColor: `oklch(0.84 0.115 ${heroHue})` }
-          }
-        >
-          {shop.imageUrl ? (
-            <Image
-              src={shop.imageUrl}
-              alt={shop.name}
-              fill
-              priority
-              sizes="(min-width: 1024px) 520px, 100vw"
-              className="object-cover"
-            />
-          ) : (
-            <div
-              aria-hidden="true"
-              className="flex h-full w-full items-end justify-between p-5"
-            >
-              <span className="font-serif text-[11rem] leading-[0.75] font-bold text-ink/80">
-                {shop.name.trim().charAt(0).toUpperCase()}
-              </span>
-              <span className="label-mono text-ink">
-                {shopGameRows[0]?.displayName ?? "Card shop"}
-              </span>
-            </div>
-          )}
-          {isTopRated(shop) && (
-            <span className="label-mono absolute top-0 right-0 bg-ink px-3 py-2 text-marigold">
-              ★ Top Rated
-            </span>
-          )}
-        </div>
-      </header>
+        </header>
+      </div>
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
         {/* Main column */}

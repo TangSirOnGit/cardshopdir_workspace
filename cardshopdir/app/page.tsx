@@ -8,6 +8,7 @@ import { getSettingsTyped } from "@/lib/settings"
 import { SITE_URL } from "@/config"
 import { SearchBox } from "@/components/search-box"
 import { ShopCard } from "@/components/shop-card"
+import { PersonalShopShelf } from "@/components/personal-shop-shelf"
 import { gameTheme } from "@/lib/game-theme"
 import { HeroCardFan } from "@/components/hero-card-fan"
 import {
@@ -267,6 +268,8 @@ export default async function Home() {
           </div>
         </section>
       </div>
+
+      <PersonalShopShelf />
 
       {/* ── Browse by State ──────────────────────────── */}
       <section className="pt-20 sm:pt-28">
