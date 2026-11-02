@@ -37,6 +37,14 @@ const nextConfig = {
       destination: "/api/indexnow-key/:indexNowKey",
     },
   ],
+  redirects: async () => [
+    {
+      source: "/:path*",
+      has: [{ type: "host", value: "www.cardshopdir.com" }],
+      destination: "https://cardshopdir.com/:path*",
+      permanent: true,
+    },
+  ],
   headers: async () => [
     {
       source: "/(.*)",

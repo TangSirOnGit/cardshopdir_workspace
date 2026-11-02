@@ -4,6 +4,7 @@ import { SectionTitle } from "@/components/section-title"
 import { notFound } from "next/navigation"
 import {
   getShopsForCity,
+  getCityShopCount,
   getGamesWithCounts,
   getTopGamesForCity,
   getCitiesForState,
@@ -14,45 +15,13 @@ import {
   breadcrumbJsonLd,
 } from "@/lib/directory"
 import { ShopGrid } from "@/components/shop-card"
+import { citySeoTitle, citySeoDescription } from "@/lib/seo"
 import { SearchBox } from "@/components/search-box"
 
 export const revalidate = 3600
 
 interface PageProps {
   params: Promise<{ state: string; city: string }>
-}
-
-const CITY_METADATA: Record<string, { title: string; description: string }> = {
-  "CA/LOS-ANGELES": {
-    title: "Card Shops in Los Angeles, CA — Pokémon, MTG & Sports Cards",
-    description:
-      "Find card shops in Los Angeles, CA for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more. Browse local stores with hours, ratings, games, and directions.",
-  },
-  "MI/TRAVERSE-CITY": {
-    title: "Card Shops in Traverse City, MI — Pokémon, MTG & More",
-    description:
-      "Find card shops in Traverse City, MI for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
-  },
-  "FL/BRADENTON": {
-    title: "Card Shops in Bradenton, FL — Pokémon, MTG & More",
-    description:
-      "Find card shops in Bradenton, FL for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
-  },
-  "CA/SAN-JOSE": {
-    title: "Card Shops in San Jose, CA — Pokémon, MTG & Sports Cards",
-    description:
-      "Find card shops in San Jose, CA for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
-  },
-  "NC/RALEIGH": {
-    title: "Card Shops in Raleigh, NC — Pokémon, MTG & Sports Cards",
-    description:
-      "Find card shops in Raleigh, NC for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
-  },
-  "IN/LAFAYETTE": {
-    title: "Card Shops in Lafayette, IN — Pokémon, MTG & More",
-    description:
-      "Find card shops in Lafayette, IN for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, games, and directions.",
-  },
 }
 
 export async function generateMetadata({
@@ -62,14 +31,10 @@ export async function generateMetadata({
   const stateCode = state.toUpperCase()
   const cityName = cityDisplayName(city)
   const name = stateName(stateCode)
-  const override = CITY_METADATA[`${stateCode}/${city.toUpperCase()}`]
+  const count = await getCityShopCount(stateCode, city)
   return {
-    title:
-      override?.title ??
-      `Trading Card Shops in ${cityName}, ${stateCode} — CardShopDir`,
-    description:
-      override?.description ??
-      `Find trading card and game shops in ${cityName}, ${name}. Browse local stores for Pokemon, Magic: The Gathering, Yu-Gi-Oh!, sports cards, and more with hours, ratings, and directions.`,
+    title: citySeoTitle(count, cityName, stateCode),
+    description: citySeoDescription(count, cityName, stateCode, name),
     alternates: { canonical: `/directory/${state}/${city}` },
   }
 }

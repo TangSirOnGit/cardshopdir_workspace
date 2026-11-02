@@ -124,6 +124,19 @@ export async function getShopsForCity(
     .limit(limit)
 }
 
+/** Count shops for a state + city (same matching rule as getShopsForCity) */
+export async function getCityShopCount(state: string, city: string) {
+  const cityName = city
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(shops)
+    .where(and(eq(shops.state, state.toUpperCase()), ilike(shops.city, cityName)))
+  return row?.n ?? 0
+}
+
 /** Get top games for a specific city + state with shop counts */
 export async function getTopGamesForCity(
   stateCode: string,

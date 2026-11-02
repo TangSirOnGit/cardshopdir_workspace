@@ -25,6 +25,7 @@ import {
 } from "@/lib/shop-hours"
 import { GAME_THEMES, gameTheme } from "@/lib/game-theme"
 import { isTopRated } from "@/lib/shop-types"
+import { shopSeoTitle } from "@/lib/seo"
 
 export const revalidate = 3600
 
@@ -39,9 +40,8 @@ export async function generateMetadata({
   const shop = await db.query.shops.findFirst({ where: eq(shops.slug, slug) })
   if (!shop) return { title: "Shop not found — CardShopDir" }
 
-  const locationLabel = [shop.city, shop.state].filter(Boolean).join(", ")
   const title =
-    shop.metaTitle || `${shop.name} — ${locationLabel} | CardShopDir`
+    shop.metaTitle || shopSeoTitle(shop.name, shop.city, shop.state)
   const description = shop.metaDescription || (await buildShopDescription(shop))
 
   return {
