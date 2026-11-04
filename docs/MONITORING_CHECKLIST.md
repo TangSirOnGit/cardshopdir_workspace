@@ -493,3 +493,29 @@ curl -sS -o /dev/null -w "Shop: %{http_code}\n" https://cardshopdir.com/shop/1st
 7. **域名是否被 sandbox**
    - 新域名通常有 2-4 周 sandbox 期
    - 如果 8 周后仍无索引，可能需要增加外链
+
+---
+
+## GSC 长尾优化效果追踪(2026-11 起)
+
+基线来源:`docs/GSC_data/cardshopdir.com-Performance-on-Search-2026-11-04`(最近 3 个月,8 词以上查询)。
+
+基线数值(8 词以上查询):展示约 1,100,点击 6,CTR 约 0.5%。
+
+重点观察页面(基线排名 ≤10 且展示较多):
+- `/shop/card-fellaz-sports-cards-tcg-scottsdale-az`(111 展示,排名 6.4)
+- `/shop/magic-omens-tcg-board-games-shop-zagreb-grad-zagreb`(78 展示,排名 6.4)
+- `/shop/the-dragons-den-sedona-crystal-store-metaphysical-gift-shop-clothing-sedona-az`(57 展示,排名 9.5)
+- `/shop/trainers-backpack-of-curiosities-wonder-corp-oviedo-fl`(34 展示,排名 9.9)
+- `/shop/toyshut-pop-mart-products-labubu-sonny-angels-and-pokmon-cards-fairfield-ca`(31 展示,排名 8.8)
+- `/shop/the-adventure-begins-comics-games-more-conroe-tx`(29 展示,排名 11.2)
+- `/shop/the-collective-a-comic-game-community-altamonte-springs-fl`(25 展示,排名 8.4)
+- `/shop/one-piece-card-game-official-shop-cincinnati-oh`(32 展示,排名 10.5)
+- `/near-me`(10 展示,排名 22.6)
+
+检查方式:
+1. 上线后第 14 / 28 天,用相同过滤条件(Web、8 词正则)导出,与基线对比展示、点击、CTR、排名。
+2. 另建一套过滤:查询包含 `reviews|near me|buy|sell`,看 reviews 与 near me 类意图的变化。
+3. 用"页面"维度单独看上面列出的页面。
+4. 目标:排名 ≤10 的 shop 页 CTR 从约 0.5% 提升到 ≥2%。
+5. 对比时注意 title 改动后的 Google 重写期,至少观察 28 天再下结论。

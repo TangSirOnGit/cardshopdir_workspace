@@ -55,8 +55,14 @@ describe("shop facts", () => {
     expect(d).toContain("Rated 4.8/5 from 12 reviews.")
     expect(d).toContain("Pokémon, Magic: The Gathering")
   })
+  it("keeps acronyms uppercase in the type noun", () => {
+    expect(shopSeoDescription(base)).toContain("is a TCG specialty store in")
+  })
   it("omits rating when missing", () => {
     expect(shopSeoDescription({ ...base, ratingValue: null })).not.toContain("Rated")
+  })
+  it("shortens the closing sentence for long descriptions", () => {
+    expect(shopSeoDescription({ ...base, name: "A".repeat(60) })).toEndWith("See hours and directions.")
   })
   it("builds quick facts", () => {
     expect(shopQuickFacts(base)).toContain("1 Main St, Rome, New York 13440")

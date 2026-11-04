@@ -40,6 +40,13 @@ export interface ShopFactsInput {
   hours: { days: unknown; opens: string | null; closes: string | null }[]
 }
 
+function typeNoun(label: string): string {
+  return label
+    .split(" ")
+    .map((w) => (w.length > 1 && w === w.toUpperCase() ? w : w.toLowerCase()))
+    .join(" ")
+}
+
 export function shopSeoDescription(i: ShopFactsInput): string {
   const cityState = [i.city, i.stateFull].filter(Boolean).join(", ")
   const where = cityState ? ` in ${cityState}` : ""
@@ -49,7 +56,9 @@ export function shopSeoDescription(i: ShopFactsInput): string {
     i.ratingValue && i.reviewCount
       ? ` Rated ${i.ratingValue}/5 from ${i.reviewCount} review${i.reviewCount === 1 ? "" : "s"}.`
       : ""
-  return `${i.name} is a ${i.typeLabel.toLowerCase()}${where}${gamesPhrase}.${rating} See hours, address, directions and the games they carry.`
+  const head = `${i.name} is a ${typeNoun(i.typeLabel)}${where}${gamesPhrase}.${rating}`
+  const full = `${head} See hours, address, directions and the games they carry.`
+  return full.length <= 160 ? full : `${head} See hours and directions.`
 }
 
 const DAY_ABBR: Record<string, string> = {
@@ -90,7 +99,7 @@ export function shopAddressText(i: Pick<ShopFactsInput, "street" | "city" | "sta
 
 export function shopQuickFacts(i: ShopFactsInput): string {
   const address = shopAddressText(i)
-  const parts = [`${i.name} is a ${i.typeLabel.toLowerCase()}${address ? ` located at ${address}` : ""}.`]
+  const parts = [`${i.name} is a ${typeNoun(i.typeLabel)}${address ? ` located at ${address}` : ""}.`]
   if (i.ratingValue && i.reviewCount) {
     parts.push(`It is rated ${i.ratingValue} out of 5 from ${i.reviewCount} review${i.reviewCount === 1 ? "" : "s"}.`)
   }

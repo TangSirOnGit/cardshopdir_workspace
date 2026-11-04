@@ -1504,3 +1504,14 @@ Yu-Gi-Oh! 页面新增更明确的搜索意图：singles、sealed products、tou
 - `app/shop/[slug]/page.tsx`:description 带评分/评价数;新增 "at a Glance" 摘要段;新增 FAQ 区块与 FAQPage JSON-LD(仅用库内已有数据,缺数据的问题不生成)。
 - 手写的 `meta_title` / `meta_description` 仍优先。
 - 部署后需清 Cloudflare HTML 缓存并提交 IndexNow;记录 28 天基线对比。
+
+### 十二、GSC 长尾分析第二批实施(P0-3 到 P0-7)
+
+- **发现**:库内 7,722 家店的 `meta_description` 全部非空,其中大量是抓取的店主简介、评论原文(含 `&#x27;` 实体),页面的模板描述(第一批)因为 `shop.metaDescription` 优先而几乎不生效。
+- 新增 `scripts/regenerate-shop-meta-descriptions.ts`:按名称/类型/城市/州/游戏/评分重建 meta description,跳过两个手写脚本中的 27 家;默认 dry-run,`--apply` 才写库。**dry-run 结果:7,695 条会变更,尚未 apply。**
+- `/near-me`:FAQ 由 4 条扩到 7 条(按游戏购买、营业状态、半径查找),JSON-LD 与页面共用同一数组;新增 "Popular Card Shop Searches by State" 州×游戏入口(≥5 家店的组合,前 12)。
+- 游戏页:FAQ 增加 "Where can I buy {game} cards near me?",JSON-LD 与页面共用同一数组。
+- Shop 页:当该州携带其首个游戏的店铺 ≥3 家时,在 "More Card Shops in {state}" 下加入指向 `/directory/{state}/games/{game}` 的链接。
+- `lib/directory.ts`:新增 `countShopsForStateGame`、`getTopStateGameCombos`。
+- 同名官方店(One Piece Card Game)共 9 家,其中 5 家被收录;同名带城市的 title 已区分。重复 slug 只有 1 条(`*-xx-xx` 形式),数字后缀 slug 22 条,**仅记录,不改动**。
+- `docs/MONITORING_CHECKLIST.md`:加入基线页面清单与对比方法。

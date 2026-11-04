@@ -109,41 +109,39 @@ export default async function GameDirectoryPage({ params }: PageProps) {
   const baseUrl = process.env.BETTER_AUTH_URL || "https://cardshopdir.com"
   const pageUrl = `${baseUrl}/directory/games/${game}`
 
+  const faqs = [
+    {
+      question: `Are there ${displayName} card shops near me?`,
+      answer: `Yes. CardShopDir lists ${shopsList.length} shops across the US that carry ${displayName}. Use the search bar above with your city or zip code, or browse by state below to find local ${gameLower} stores near you.`,
+    },
+    {
+      question: `How do I find ${displayName} shops near me?`,
+      answer: `Search by city, state, or zip code using the search bar above, then filter for ${displayName}. Each shop listing includes store hours, ratings, directions, and the full range of games they carry.`,
+    },
+    {
+      question: `Where can I buy ${displayName} cards near me?`,
+      answer: `Pick your state in the list above to see local shops that carry ${displayName}. Each shop page shows its address, phone number and opening hours, so you can call ahead to ask about current ${gameLower} stock.`,
+    },
+    {
+      question: `Which states have the most ${displayName} card shops?`,
+      answer:
+        topStates.length > 0
+          ? `The states with the most ${displayName} shops in our directory are ${topStates
+              .slice(0, 3)
+              .map(([st, n]) => `${st} (${n})`)
+              .join(", ")}. Browse by state above to see all listed shops.`
+          : `${displayName} shops are spread across the US. Browse by state above to find shops in your area.`,
+    },
+  ]
+
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: `Are there ${displayName} card shops near me?`,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: `Yes. CardShopDir lists ${shopsList.length} shops across the US that carry ${displayName}. Use the search bar above with your city or zip code, or browse by state below to find local ${gameLower} stores near you.`,
-        },
-      },
-      {
-        "@type": "Question",
-        name: `How do I find ${displayName} shops near me?`,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: `Search by city, state, or zip code using the search bar above, then filter for ${displayName}. Each shop listing includes store hours, ratings, directions, and the full range of games they carry.`,
-        },
-      },
-      {
-        "@type": "Question",
-        name: `Which states have the most ${displayName} card shops?`,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text:
-            topStates.length > 0
-              ? `The states with the most ${displayName} shops in our directory are ${topStates
-                  .slice(0, 3)
-                  .map(([st, n]) => `${st} (${n})`)
-                  .join(", ")}. Browse by state above to see all listed shops.`
-              : `${displayName} shops are spread across the US. Browse by state above to find shops in your area.`,
-        },
-      },
-    ],
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
   }
 
   const jsonLd = [
@@ -293,27 +291,9 @@ export default async function GameDirectoryPage({ params }: PageProps) {
       <section>
         <SectionTitle index="04 / Q&A" title="Frequently Asked Questions" />
         <div className="space-y-3">
-          <FaqItem
-            question={`Are there ${displayName} card shops near me?`}
-            answer={`Yes. CardShopDir lists ${shopsList.length} shops across the US that carry ${displayName}. Use the search bar above with your city or zip code, or browse by state above to find local ${gameLower} stores near you.`}
-          />
-          <FaqItem
-            question={`How do I find ${displayName} shops near me?`}
-            answer={`Search by city, state, or zip code using the search bar above, then filter for ${displayName}. Each shop listing includes store hours, ratings, directions, and the full range of games they carry.`}
-          />
-          <FaqItem
-            question={`Which states have the most ${displayName} card shops?`}
-            answer={
-              topStates.length > 0
-                ? `The states with the most ${displayName} shops in our directory are ${topStates
-                    .slice(0, 3)
-                    .map(([st, n]) => `${st} (${n})`)
-                    .join(
-                      ", "
-                    )}. Browse by state above to see all listed shops.`
-                : `${displayName} shops are spread across the US. Browse by state above to find shops in your area.`
-            }
-          />
+          {faqs.map((f) => (
+            <FaqItem key={f.question} question={f.question} answer={f.answer} />
+          ))}
         </div>
       </section>
     </div>

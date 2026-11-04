@@ -12,6 +12,7 @@ import {
   breadcrumbJsonLd,
   getNearbyShopsInCity,
   getMoreShopsInState,
+  countShopsForStateGame,
 } from "@/lib/directory"
 import { ShopActions, ShopStickyBar } from "@/components/shop-actions"
 import { ShopGrid } from "@/components/shop-card"
@@ -139,6 +140,11 @@ export default async function ShopPage({ params }: PageProps) {
       )
     : []
 
+  const primaryGame = shopGameRows[0]
+  const primaryGameShopCount =
+    primaryGame && stateCode
+      ? await countShopsForStateGame(stateCode, primaryGame.slug)
+      : 0
   const todaySummary = formatTodaySummary(hoursRows)
   const facts = {
     name: shop.name,
@@ -676,6 +682,17 @@ export default async function ShopPage({ params }: PageProps) {
             </Link>
           </div>
           <ShopGrid shops={moreInState} />
+          {primaryGame && primaryGameShopCount >= 3 && (
+            <p className="mt-5 text-[14px]">
+              <Link
+                href={`/directory/${stateCode.toLowerCase()}/games/${primaryGame.slug}`}
+                prefetch={false}
+                className="link-draw font-medium text-primary"
+              >
+                See all {primaryGame.displayName} shops in {stateFull} →
+              </Link>
+            </p>
+          )}
         </section>
       )}
 

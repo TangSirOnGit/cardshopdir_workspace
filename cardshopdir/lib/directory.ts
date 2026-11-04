@@ -261,6 +261,39 @@ export async function getShopsForStateGame(
     .limit(limit)
 }
 
+/** Number of shops in a state that carry a game */
+export async function countShopsForStateGame(
+  state: string,
+  gameSlug: string
+): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(shops)
+    .innerJoin(shopGames, eq(shops.id, shopGames.shopId))
+    .innerJoin(games, eq(shopGames.gameId, games.id))
+    .where(and(eq(shops.state, state.toUpperCase()), eq(games.slug, gameSlug)))
+  return row?.n ?? 0
+}
+
+/** Top state + game combinations by shop count (for internal linking) */
+export async function getTopStateGameCombos(limit = 12, minShops = 5) {
+  return db
+    .select({
+      state: shops.state,
+      gameSlug: games.slug,
+      gameName: games.displayName,
+      shopCount: sql<number>`count(*)::int`,
+    })
+    .from(shops)
+    .innerJoin(shopGames, eq(shops.id, shopGames.shopId))
+    .innerJoin(games, eq(shopGames.gameId, games.id))
+    .where(sql`${shops.state} is not null and ${shops.state} != ''`)
+    .groupBy(shops.state, games.slug, games.displayName)
+    .having(sql`count(*) >= ${minShops}`)
+    .orderBy(desc(sql`count(*)`))
+    .limit(limit)
+}
+
 /** Search shops by query string (name, city, state, street, zip) */
 export async function searchShops(
   query: string,

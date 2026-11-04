@@ -7,6 +7,7 @@ import { eq, desc, sql, count } from "drizzle-orm"
 import { SearchBox } from "@/components/search-box"
 import {
   getPopularCities,
+  getTopStateGameCombos,
   getStatesWithCounts,
   getGamesWithCounts,
   stateName,
@@ -40,6 +41,7 @@ export default async function NearMePage() {
     topGames,
     popularStates,
     popularCities,
+    stateGameCombos,
   ] = await Promise.all([
     db
       .select({ count: count() })
@@ -68,48 +70,57 @@ export default async function NearMePage() {
       .limit(8),
     getStatesWithCounts(),
     getPopularCities(8),
+    getTopStateGameCombos(12, 5),
   ])
 
   const baseUrl = SITE_URL
   const pageUrl = `${baseUrl}/near-me`
 
+  const faqs = [
+    {
+      question: "How do I find card shops near me?",
+      answer: `Use the search bar above to look up shops by city, state, zip code, or store name. You can also browse our directory of ${totalShops.toLocaleString()} card shops across ${totalStates} states by selecting your state below.`,
+    },
+    {
+      question: "What types of card stores are near me?",
+      answer:
+        "CardShopDir lists local stores for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards (baseball, basketball, football), Flesh & Blood, Lorcana, One Piece, and more. Browse by game category to find shops that carry what you collect.",
+    },
+    {
+      question: "Are there Pokémon card shops near me?",
+      answer:
+        "Yes — Pokémon is one of the most widely stocked TCGs in our directory. Use the search bar with your city or zip, or browse the Pokémon category to find local stores selling sealed product, singles, and grading services.",
+    },
+    {
+      question:
+        "Where can I buy Magic: The Gathering, Yu-Gi-Oh!, Lorcana or One Piece cards near me?",
+      answer:
+        "Open the game category you collect, such as Magic: The Gathering, Yu-Gi-Oh!, Lorcana or One Piece, then pick your state or city. Each game page lists the local shops that carry that game, with their address, phone number and store hours.",
+    },
+    {
+      question: "How can I tell if a card shop near me is open right now?",
+      answer:
+        "Every shop page shows today's opening hours and whether the store is currently open, along with its full weekly schedule. Check the shop page or call the store before you go, since hours can change on holidays.",
+    },
+    {
+      question: "How can I find card shops within 5 or 10 miles of me?",
+      answer:
+        "Search by your zip code or city, then open your city page to see every listed shop in that area with its street address. Use the directions link on a shop page to see the exact distance from where you are.",
+    },
+    {
+      question: "How many card shops are in the United States?",
+      answer: `CardShopDir currently lists ${totalShops.toLocaleString()} trading card shops across ${totalStates} states and ${totalCities.toLocaleString()} cities, with new stores added regularly.`,
+    },
+  ]
+
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "How do I find card shops near me?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: `Use the search bar above to look up shops by city, state, zip code, or store name. You can also browse our directory of ${totalShops.toLocaleString()} card shops across ${totalStates} states by selecting your state below.`,
-        },
-      },
-      {
-        "@type": "Question",
-        name: "What types of card stores are near me?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: `CardShopDir lists local stores for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards (baseball, basketball, football), Flesh & Blood, Lorcana, One Piece, and more. Browse by game category to find shops that carry what you collect.`,
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Are there Pokémon card shops near me?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: `Yes — Pokémon is one of the most widely stocked TCGs in our directory. Use the search bar with your city or zip, or browse the Pokémon category to find local stores selling sealed product, singles, and grading services.`,
-        },
-      },
-      {
-        "@type": "Question",
-        name: "How many card shops are in the United States?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: `CardShopDir currently lists ${totalShops.toLocaleString()} trading card shops across ${totalStates} states and ${totalCities.toLocaleString()} cities, with new stores added regularly.`,
-        },
-      },
-    ],
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
   }
 
   const jsonLd = [
@@ -240,6 +251,32 @@ export default async function NearMePage() {
         </div>
       </section>
 
+      {/* Popular game + state combinations */}
+      {stateGameCombos.length > 0 && (
+        <section>
+          <SectionTitle
+            index="02b / Local"
+            title="Popular Card Shop Searches by State"
+          />
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+            {stateGameCombos.map((c) => (
+              <Link
+                key={`${c.state}-${c.gameSlug}`}
+                href={`/directory/${c.state!.toLowerCase()}/games/${c.gameSlug}`}
+                className="vault-card group flex items-center justify-between rounded-sm border-2 border-ink bg-card px-3.5 py-3 text-[13px]"
+              >
+                <span className="font-medium">
+                  {c.gameName} shops in {stateName(c.state || "")}
+                </span>
+                <span className="text-[11px] text-muted-foreground tabular-nums">
+                  {c.shopCount}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* SEO content */}
       <section className="prose prose-sm max-w-none">
         <SectionTitle
@@ -280,22 +317,9 @@ export default async function NearMePage() {
       <section>
         <SectionTitle index="04 / Q&A" title="Frequently Asked Questions" />
         <div className="space-y-3">
-          <FaqItem
-            question="How do I find card shops near me?"
-            answer={`Use the search bar above to look up shops by city, state, zip code, or store name. You can also browse our directory of ${totalShops.toLocaleString()} card shops across ${totalStates} states by selecting your state above.`}
-          />
-          <FaqItem
-            question="What types of card stores are near me?"
-            answer="CardShopDir lists local stores for Pokémon, Magic: The Gathering, Yu-Gi-Oh!, sports cards (baseball, basketball, football), Flesh & Blood, Lorcana, One Piece, and more. Browse by game category to find shops that carry what you collect."
-          />
-          <FaqItem
-            question="Are there Pokémon card shops near me?"
-            answer="Yes — Pokémon is one of the most widely stocked TCGs in our directory. Use the search bar with your city or zip, or browse the Pokémon category to find local stores selling sealed product, singles, and grading services."
-          />
-          <FaqItem
-            question="How many card shops are in the United States?"
-            answer={`CardShopDir currently lists ${totalShops.toLocaleString()} trading card shops across ${totalStates} states and ${totalCities.toLocaleString()} cities, with new stores added regularly.`}
-          />
+          {faqs.map((f) => (
+            <FaqItem key={f.question} question={f.question} answer={f.answer} />
+          ))}
         </div>
       </section>
     </div>
