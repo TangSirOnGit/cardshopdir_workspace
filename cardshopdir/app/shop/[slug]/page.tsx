@@ -25,7 +25,12 @@ import {
 } from "@/lib/shop-hours"
 import { GAME_THEMES, gameTheme } from "@/lib/game-theme"
 import { isTopRated } from "@/lib/shop-types"
-import { shopSeoTitle } from "@/lib/seo"
+import {
+  shopSeoTitle,
+  shopSeoDescription,
+  shopQuickFacts,
+  shopFaqItems,
+} from "@/lib/seo"
 
 export const revalidate = 3600
 
@@ -56,29 +61,16 @@ export async function generateMetadata({
   }
 }
 
-/**
- * Build a rich, SEO-friendly meta description for a shop when no
- * hand-written metaDescription is stored in the database.
- *
- * Template: "{Name} is a {type} in {city}, {state} carrying {games}.
- *            Find store hours, ratings, directions, and the games they carry."
- *
- * Falls back gracefully when games/city/state are missing.
- */
 async function buildShopDescription(shop: {
   name: string
   shopType: string
   city: string | null
   state: string | null
   description: string | null
+  ratingValue: string | null
+  reviewCount: number | null
   id: number
 }): Promise<string> {
-  const typeLabel = shopTypeLabel(shop.shopType).toLowerCase()
-  const cityState = [shop.city, stateName(shop.state || "")]
-    .filter(Boolean)
-    .join(", ")
-
-  // Fetch games for this shop to enrich the description
   const gameRows = await db
     .select({ displayName: games.displayName })
     .from(games)
@@ -87,14 +79,17 @@ async function buildShopDescription(shop: {
     .orderBy(games.sortOrder)
     .limit(4)
 
-  const gamesPhrase =
-    gameRows.length > 0
-      ? ` carrying ${gameRows.map((g) => g.displayName).join(", ")}`
-      : ""
+  const base = shopSeoDescription({
+    name: shop.name,
+    typeLabel: shopTypeLabel(shop.shopType),
+    city: shop.city,
+    stateFull: shop.state ? stateName(shop.state) : null,
+    ratingValue: shop.ratingValue,
+    reviewCount: shop.reviewCount,
+    games: gameRows.map((g) => g.displayName),
+    hours: [],
+  })
 
-  const base = `${shop.name} is a ${typeLabel} in ${cityState}${gamesPhrase}. Find store hours, ratings, directions, and the games they carry.`
-
-  // If still under ~150 chars, append a snippet of the shop's own description
   if (base.length < 150 && shop.description) {
     const snippet = shop.description.slice(0, 160 - base.length - 1).trim()
     if (snippet) return `${base} ${snippet}`
@@ -145,6 +140,33 @@ export default async function ShopPage({ params }: PageProps) {
     : []
 
   const todaySummary = formatTodaySummary(hoursRows)
+  const facts = {
+    name: shop.name,
+    typeLabel: shopTypeLabel(shop.shopType),
+    street: shop.street,
+    city: shop.city,
+    stateFull: stateCode ? stateFull : null,
+    postalCode: shop.postalCode,
+    telephone: shop.telephone,
+    ratingValue: shop.ratingValue,
+    reviewCount: shop.reviewCount,
+    games: shopGameRows.map((g) => g.displayName),
+    hours: hoursRows,
+  }
+  const quickFacts = shopQuickFacts(facts)
+  const faqItems = shopFaqItems(facts)
+  const faqJsonLd =
+    faqItems.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqItems.map((f) => ({
+            "@type": "Question",
+            name: f.question,
+            acceptedAnswer: { "@type": "Answer", text: f.answer },
+          })),
+        }
+      : null
   const browserShop = {
     id: shop.id,
     slug: shop.slug,
@@ -250,6 +272,13 @@ export default async function ShopPage({ params }: PageProps) {
           __html: JSON.stringify(breadcrumbJsonLdData),
         }}
       />
+
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
 
       <div className="space-y-6">
         {/* Breadcrumb */}
@@ -420,6 +449,13 @@ export default async function ShopPage({ params }: PageProps) {
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
         {/* Main column */}
         <div className="min-w-0 space-y-12">
+          <section>
+            <h2 className={h2Main}>{shop.name} at a Glance</h2>
+            <p className="max-w-[68ch] text-[16px] leading-[1.8] text-muted-foreground">
+              {quickFacts}
+            </p>
+          </section>
+
           {shop.description && (
             <section>
               <h2 className={h2Main}>About {shop.name}</h2>
@@ -488,6 +524,22 @@ export default async function ShopPage({ params }: PageProps) {
                   )
                 })}
               </div>
+            </section>
+          )}
+
+          {faqItems.length > 0 && (
+            <section>
+              <h2 className={h2Main}>Frequently Asked Questions</h2>
+              <dl className="divide-y divide-border border-y border-border">
+                {faqItems.map((f) => (
+                  <div key={f.question} className="space-y-1 py-4">
+                    <dt className="text-[15px] font-bold">{f.question}</dt>
+                    <dd className="text-[14px] leading-relaxed text-muted-foreground">
+                      {f.answer}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </section>
           )}
         </div>

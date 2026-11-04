@@ -1497,3 +1497,10 @@ GSC 导出目录名虽然包含 `filter_out_iimpression_click`，但 `Filters.cs
 - 游戏页：Yu-Gi-Oh!
 
 Yu-Gi-Oh! 页面新增更明确的搜索意图：singles、sealed products、tournaments、local trading card events；不新增 URL，不修改 canonical，不新增重复页面。
+
+### 十一、GSC 长尾分析第一批实施(详见 `SEO_GSC_LONGTAIL_PLAN.md` P0-1 / P0-2)
+
+- `lib/seo.ts`:`shopSeoTitle` 全部候选加入 `Reviews`;新增 `shopSeoDescription`、`shopQuickFacts`、`shopFaqItems` 等纯函数。
+- `app/shop/[slug]/page.tsx`:description 带评分/评价数;新增 "at a Glance" 摘要段;新增 FAQ 区块与 FAQPage JSON-LD(仅用库内已有数据,缺数据的问题不生成)。
+- 手写的 `meta_title` / `meta_description` 仍优先。
+- 部署后需清 Cloudflare HTML 缓存并提交 IndexNow;记录 28 天基线对比。
