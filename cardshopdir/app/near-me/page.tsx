@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { shops, games, shopGames } from "@/lib/db/schema"
 import { eq, desc, sql, count } from "drizzle-orm"
 import { SearchBox } from "@/components/search-box"
+import { NearbyShops } from "@/components/nearby-shops"
 import {
   getPopularCities,
   getTopStateGameCombos,
@@ -105,7 +106,7 @@ export default async function NearMePage() {
     {
       question: "How can I find card shops within 5 or 10 miles of me?",
       answer:
-        "Search by your zip code or city, then open your city page to see every listed shop in that area with its street address. Use the directions link on a shop page to see the exact distance from where you are.",
+        "Tap the Use my location button at the top of this page and choose a 5, 10, 20 or 50 mile radius to see the closest card shops first, with the distance to each one. You can also search by zip code or city instead.",
     },
     {
       question: "How many card shops are in the United States?",
@@ -194,6 +195,15 @@ export default async function NearMePage() {
           )}
         </header>
       </div>
+
+      {/* Nearby shops (client-side, opt-in geolocation) */}
+      <section>
+        <SectionTitle
+          index="00 / Nearby"
+          title="Find Card Shops Closest to You"
+        />
+        <NearbyShops />
+      </section>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-0.5 border-2 border-ink bg-ink sm:grid-cols-4">

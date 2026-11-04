@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm"
 import type { ShopListItem, ShopGameTag } from "@/lib/shop-types"
 import { getTodayHours, isOpenNow } from "@/lib/shop-hours"
+import { boundingBox, type NearbyParams } from "@/lib/geo"
 
 // Re-export shared types and helpers (safe for client/server)
 export {
@@ -425,6 +426,61 @@ export async function enrichShopsWithCardMeta(
       ),
     }
   })
+}
+
+// ── Nearby shops by coordinates (for /near-me) ──────────────────
+
+export type NearbyShop = ShopListItem & { distanceMiles: number }
+
+export async function getShopsNearCoordinates(
+  { lat, lng, radius }: NearbyParams,
+  limit = 24
+): Promise<NearbyShop[]> {
+  const box = boundingBox(lat, lng, radius)
+  const slat = sql`${shops.latitude}::float8`
+  const slng = sql`${shops.longitude}::float8`
+  const distance = sql<number>`3958.8 * 2 * asin(least(1, sqrt(
+    power(sin(radians(${slat} - ${lat}) / 2), 2) +
+    cos(radians(${lat})) * cos(radians(${slat})) *
+    power(sin(radians(${slng} - ${lng}) / 2), 2)
+  )))`
+
+  const rows = await db
+    .select({
+      id: shops.id,
+      slug: shops.slug,
+      name: shops.name,
+      city: shops.city,
+      state: shops.state,
+      street: shops.street,
+      telephone: shops.telephone,
+      imageUrl: shops.imageUrl,
+      ratingValue: shops.ratingValue,
+      reviewCount: shops.reviewCount,
+      shopType: shops.shopType,
+      description: shops.description,
+      distanceMiles: distance,
+    })
+    .from(shops)
+    .where(
+      and(
+        sql`${shops.latitude} is not null and ${shops.longitude} is not null`,
+        sql`${slat} between ${box.minLat} and ${box.maxLat}`,
+        sql`${slng} between ${box.minLng} and ${box.maxLng}`,
+        sql`${distance} <= ${radius}`
+      )
+    )
+    .orderBy(distance)
+    .limit(limit)
+
+  const enriched = await enrichShopsWithCardMeta(rows)
+  const byId = new Map(rows.map((r) => [r.id, r.distanceMiles]))
+  return enriched.map((s) => ({
+    ...s,
+    todayHours: undefined,
+    isOpenNow: undefined,
+    distanceMiles: Number(byId.get(s.id)),
+  }))
 }
 
 // ── Nearby shops (for shop detail page) ─────────────────────────

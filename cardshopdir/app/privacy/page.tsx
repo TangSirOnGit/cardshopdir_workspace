@@ -66,6 +66,18 @@ export default async function PrivacyPage() {
 
         <section>
           <h2 className="mb-2 text-lg font-semibold text-foreground">
+            Location
+          </h2>
+          <p>
+            If you choose &ldquo;Use my location&rdquo; on the Near Me page,
+            your browser asks for permission and sends approximate coordinates
+            to our server once to find nearby shops. We do not store or log
+            these coordinates.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 text-lg font-semibold text-foreground">
             Third-Party Services
           </h2>
           <p>

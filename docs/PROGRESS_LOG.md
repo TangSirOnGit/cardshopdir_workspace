@@ -1515,3 +1515,13 @@ Yu-Gi-Oh! 页面新增更明确的搜索意图：singles、sealed products、tou
 - `lib/directory.ts`:新增 `countShopsForStateGame`、`getTopStateGameCombos`。
 - 同名官方店(One Piece Card Game)共 9 家,其中 5 家被收录;同名带城市的 title 已区分。重复 slug 只有 1 条(`*-xx-xx` 形式),数字后缀 slug 22 条,**仅记录,不改动**。
 - `docs/MONITORING_CHECKLIST.md`:加入基线页面清单与对比方法。
+
+### 十三、`/near-me` 浏览器定位 + 附近店铺(P1-1)
+
+- 新增 `GET /api/shops/nearby?lat=&lng=&radius=`:半径仅允许 5/10/20/50 英里,坐标校验并取整到约 100 米,IP 限流 30 次/分钟,`Cache-Control: private, no-store`,不记录坐标。
+- `lib/geo.ts`:Haversine、包围盒、参数校验(`lib/__tests__/geo.test.ts`)。
+- `lib/directory.ts`:`getShopsNearCoordinates`,先按经纬度范围过滤再按距离排序,取前 24 家(含全部店铺,不限 `should_index`)。7,711/7,722 家有坐标。未新增索引(数据量小,先观察接口耗时)。
+- `components/nearby-shops.tsx`:点击"Use my location"才请求授权;拒绝或失败回退到搜索框提示;结果按距离排序显示。
+- 附近结果有意不显示"Open now/Closed":店铺没有时区字段,而现有 `isOpenNow` 用服务器时间,可能不准。
+- `/near-me` 服务端首屏内容不变,定位区块为客户端增强;半径 FAQ 已改为描述定位功能。
+- 隐私页新增 Location 说明。
