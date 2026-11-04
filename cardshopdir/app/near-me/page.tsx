@@ -106,7 +106,7 @@ export default async function NearMePage() {
     {
       question: "How can I find card shops within 5 or 10 miles of me?",
       answer:
-        "Tap the Use my location button at the top of this page and choose a 5, 10, 20 or 50 mile radius to see the closest card shops first, with the distance to each one. You can also search by zip code or city instead.",
+        "The Near Me section at the top of this page lists the closest card shops first, with the distance to each one, and you can choose a 5, 10, 20 or 50 mile radius. You can also search by zip code or city instead.",
     },
     {
       question: "How many card shops are in the United States?",

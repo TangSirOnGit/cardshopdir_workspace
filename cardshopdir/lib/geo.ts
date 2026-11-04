@@ -53,3 +53,40 @@ export function parseNearbyParams(input: {
     radius: radius as NearbyRadius,
   }
 }
+
+export type IpLocation = {
+  lat: number
+  lng: number
+  city: string | null
+  region: string | null
+  country: string | null
+}
+
+/**
+ * Approximate visitor location from Cloudflare's "Add visitor location
+ * headers" managed transform. Returns null when the headers are absent.
+ */
+export function ipLocationFromHeaders(headers: Headers): IpLocation | null {
+  const lat = Number(headers.get("cf-iplatitude"))
+  const lng = Number(headers.get("cf-iplongitude"))
+  if (!headers.get("cf-iplatitude") || !headers.get("cf-iplongitude"))
+    return null
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null
+  const decode = (v: string | null) => {
+    if (!v) return null
+    try {
+      return decodeURIComponent(v).slice(0, 80)
+    } catch {
+      return null
+    }
+  }
+  return {
+    lat: Math.round(lat * 100) / 100,
+    lng: Math.round(lng * 100) / 100,
+    city: decode(headers.get("cf-ipcity")),
+    region:
+      decode(headers.get("cf-region-code")) ?? decode(headers.get("cf-region")),
+    country: decode(headers.get("cf-ipcountry")),
+  }
+}

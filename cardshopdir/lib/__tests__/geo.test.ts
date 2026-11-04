@@ -1,5 +1,10 @@
 import { describe, expect, it } from "bun:test"
-import { boundingBox, haversineMiles, parseNearbyParams } from "../geo"
+import {
+  boundingBox,
+  haversineMiles,
+  ipLocationFromHeaders,
+  parseNearbyParams,
+} from "../geo"
 
 describe("geo", () => {
   it("computes haversine distance", () => {
@@ -30,5 +35,28 @@ describe("geo", () => {
     expect(parseNearbyParams({ lat: "abc", lng: "0", radius: "5" })).toBeNull()
     expect(parseNearbyParams({ lat: "0", lng: "0", radius: "7" })).toBeNull()
     expect(parseNearbyParams({ lat: null, lng: "0", radius: "5" })).toBeNull()
+  })
+
+  it("reads approximate location from Cloudflare headers", () => {
+    const h = new Headers({
+      "cf-iplatitude": "41.8781",
+      "cf-iplongitude": "-87.6298",
+      "cf-ipcity": "Chicago",
+      "cf-region-code": "IL",
+      "cf-ipcountry": "US",
+    })
+    expect(ipLocationFromHeaders(h)).toEqual({
+      lat: 41.88,
+      lng: -87.63,
+      city: "Chicago",
+      region: "IL",
+      country: "US",
+    })
+    expect(ipLocationFromHeaders(new Headers())).toBeNull()
+    expect(
+      ipLocationFromHeaders(
+        new Headers({ "cf-iplatitude": "x", "cf-iplongitude": "1" })
+      )
+    ).toBeNull()
   })
 })

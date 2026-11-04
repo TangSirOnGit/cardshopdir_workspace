@@ -69,10 +69,11 @@ export default async function PrivacyPage() {
             Location
           </h2>
           <p>
-            If you choose &ldquo;Use my location&rdquo; on the Near Me page,
-            your browser asks for permission and sends approximate coordinates
-            to our server once to find nearby shops. We do not store or log
-            these coordinates.
+            On the Near Me page we use your approximate network (IP-based)
+            location to list nearby shops. If you choose &ldquo;Use precise
+            location&rdquo;, your browser asks for permission and sends your
+            coordinates to our server to find nearby shops. We do not store or
+            log either location.
           </p>
         </section>
 

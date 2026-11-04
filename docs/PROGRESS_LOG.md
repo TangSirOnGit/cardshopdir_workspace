@@ -1525,3 +1525,13 @@ Yu-Gi-Oh! 页面新增更明确的搜索意图：singles、sealed products、tou
 - 附近结果有意不显示"Open now/Closed":店铺没有时区字段,而现有 `isOpenNow` 用服务器时间,可能不准。
 - `/near-me` 服务端首屏内容不变,定位区块为客户端增强;半径 FAQ 已改为描述定位功能。
 - 隐私页新增 Location 说明。
+
+### 十四、`/near-me` 改为默认按 IP 近似位置自动展示
+
+- 原方案需要点击按钮并授权,体验差,且本地验证时授权弹窗可能看不到(浏览器未响应时 `getCurrentPosition` 的 timeout 不会开始计时,按钮会一直转圈)。
+- 现在页面加载后客户端自动请求 `/api/shops/nearby`(不带坐标),服务端读取 Cloudflare 的访客位置头(`cf-iplatitude`、`cf-iplongitude`、`cf-ipcity`、`cf-region-code`)按近似位置返回附近店铺,默认半径 20 英里,无需授权。
+- "Use precise location" 仅作为可选精确定位;被拒绝、浏览器无响应(12 秒)、权限已被禁用时回退到 IP 结果并给出提示。
+- **上线前置条件**:Cloudflare 控制台 → Rules → Settings → Managed Transforms → 开启 "Add visitor location headers"。未开启时接口返回 `located:false`,页面只显示 "Use my location" 按钮(旧行为)。
+- 本地开发没有 Cloudflare 头:设置环境变量 `NEARBY_DEV_LOCATION="41.88,-87.63"` 模拟(仅非 production 生效)。
+- IP 定位只到城市级,移动网络可能偏差更大,页面已注明 "Based on your network location"。
+- 隐私页文案同步更新。
