@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowLeft, Check, Mail } from "lucide-react"
+import { ArrowLeft, Check } from "lucide-react"
 import { getSettingsTyped } from "@/lib/settings"
 
 const PLANS = [
@@ -26,25 +26,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdvertisePage() {
   const settings = await getSettingsTyped()
-  const contactEmail =
-    settings.contactEmail ||
-    `contact@${new URL(process.env.BETTER_AUTH_URL ?? "http://localhost:3000").hostname}`
 
-  const ctaFor = (plan: (typeof PLANS)[number]) => {
-    const link = process.env[`ADVERTISE_PAYMENT_LINK_${plan.id.toUpperCase()}`]
-    if (link) return { href: link, label: "Buy now", external: true }
-    const subject = encodeURIComponent(
-      `Feature my shop: ${plan.name} (${plan.days} days)`
-    )
-    const body = encodeURIComponent(
-      "Shop name and page URL:\nPreferred start date:\n"
-    )
-    return {
-      href: `mailto:${contactEmail}?subject=${subject}&body=${body}`,
-      label: "Request this plan",
-      external: false,
-    }
-  }
+  const linkFor = (plan: (typeof PLANS)[number]) =>
+    process.env[`ADVERTISE_PAYMENT_LINK_${plan.id.toUpperCase()}`]
 
   return (
     <div className="mx-auto max-w-3xl space-y-10 pt-2 sm:pt-4">
@@ -69,7 +53,7 @@ export default async function AdvertisePage() {
 
       <section className="grid gap-4 sm:grid-cols-3">
         {PLANS.map((plan) => {
-          const cta = ctaFor(plan)
+          const link = linkFor(plan)
           const popular = "popular" in plan && plan.popular
           return (
             <div
@@ -88,15 +72,20 @@ export default async function AdvertisePage() {
                 {plan.days} days &middot; ${(plan.price / plan.days).toFixed(2)}
                 /day
               </p>
-              <a
-                href={cta.href}
-                {...(cta.external
-                  ? { target: "_blank", rel: "noopener noreferrer" }
-                  : {})}
-                className="mt-5 inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-[13px] font-medium text-primary-foreground transition-opacity hover:opacity-80"
-              >
-                {cta.label}
-              </a>
+              {link ? (
+                <a
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-[13px] font-medium text-primary-foreground transition-opacity hover:opacity-80"
+                >
+                  Buy now
+                </a>
+              ) : (
+                <span className="mt-5 inline-flex items-center justify-center rounded-md bg-muted px-3 py-2 text-[13px] font-medium text-muted-foreground">
+                  Coming soon
+                </span>
+              )}
             </div>
           )
         })}
@@ -118,31 +107,13 @@ export default async function AdvertisePage() {
         <section className="space-y-2">
           <h2 className="font-medium text-foreground">How it works</h2>
           <ol className="list-inside list-decimal space-y-1 pl-1">
-            <li>Pick a plan and complete payment (or request it by email).</li>
+            <li>Pick a plan and complete payment on Stripe.</li>
             <li>
-              Send us your shop page URL and preferred start date if you
-              haven&rsquo;t already.
+              Enter your shop name and page URL in the checkout form so we know
+              which listing to feature.
             </li>
-            <li>
-              We activate your listing, usually within 1 business day, and
-              confirm by email.
-            </li>
+            <li>We activate your listing, usually within 1 business day.</li>
           </ol>
-        </section>
-
-        <section className="space-y-3">
-          <h2 className="font-medium text-foreground">Questions?</h2>
-          <p>
-            Need a custom package, multiple locations, or a different date
-            range? Email us.
-          </p>
-          <a
-            href={`mailto:${contactEmail}?subject=${encodeURIComponent("Advertising enquiry")}`}
-            className="inline-flex items-center gap-2.5 rounded-lg border border-border/50 bg-muted/40 px-4 py-3 text-[14px] font-medium text-foreground transition-colors hover:bg-muted/70"
-          >
-            <Mail className="h-4 w-4 text-muted-foreground" />
-            {contactEmail}
-          </a>
         </section>
       </div>
     </div>
