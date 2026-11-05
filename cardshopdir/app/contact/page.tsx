@@ -59,7 +59,11 @@ export default async function ContactPage() {
             </li>
             <li>
               <strong>Sponsorships</strong> &mdash; custom packages, volume
-              discounts, or long-term partnerships.
+              discounts, or long-term partnerships. See{" "}
+              <Link href="/advertise" className="underline">
+                Advertise
+              </Link>
+              .
             </li>
             <li>
               <strong>Feedback</strong> &mdash; suggestions, bug reports, or

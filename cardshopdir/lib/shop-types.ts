@@ -22,6 +22,7 @@ export interface ShopListItem {
   reviewCount: number | null
   shopType: string
   description: string | null
+  featured?: boolean
   // Enriched card metadata (populated by enrichShopsWithCardMeta)
   games?: ShopGameTag[]
   todayHours?: { opens: string | null; closes: string | null } | null

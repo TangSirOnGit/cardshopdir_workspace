@@ -23,6 +23,9 @@ export {
   isTopRated,
 } from "@/lib/shop-types"
 
+/** Paid placement that is currently active. */
+export const featuredExpr = sql<boolean>`(${shops.isSponsored} and ${shops.sponsoredExpiresAt} > now())`
+
 // ── Queries ────────────────────────────────────────────────────
 
 /** Get all states with shop counts, sorted by count desc then state asc */
@@ -77,10 +80,12 @@ export async function getShopsForState(
       reviewCount: shops.reviewCount,
       shopType: shops.shopType,
       description: shops.description,
+      featured: featuredExpr,
     })
     .from(shops)
     .where(eq(shops.state, statePattern))
     .orderBy(
+      desc(featuredExpr),
       desc(shops.shouldIndex),
       desc(shops.ratingValue),
       desc(shops.reviewCount)
@@ -114,10 +119,12 @@ export async function getShopsForCity(
       reviewCount: shops.reviewCount,
       shopType: shops.shopType,
       description: shops.description,
+      featured: featuredExpr,
     })
     .from(shops)
     .where(and(eq(shops.state, statePattern), ilike(shops.city, cityName)))
     .orderBy(
+      desc(featuredExpr),
       desc(shops.shouldIndex),
       desc(shops.ratingValue),
       desc(shops.reviewCount)
@@ -215,12 +222,14 @@ export async function getShopsForGame(
       reviewCount: shops.reviewCount,
       shopType: shops.shopType,
       description: shops.description,
+      featured: featuredExpr,
     })
     .from(shops)
     .innerJoin(shopGames, eq(shops.id, shopGames.shopId))
     .innerJoin(games, eq(shopGames.gameId, games.id))
     .where(eq(games.slug, gameSlug))
     .orderBy(
+      desc(featuredExpr),
       desc(shops.shouldIndex),
       desc(shops.ratingValue),
       desc(shops.reviewCount)
@@ -249,12 +258,14 @@ export async function getShopsForStateGame(
       reviewCount: shops.reviewCount,
       shopType: shops.shopType,
       description: shops.description,
+      featured: featuredExpr,
     })
     .from(shops)
     .innerJoin(shopGames, eq(shops.id, shopGames.shopId))
     .innerJoin(games, eq(shopGames.gameId, games.id))
     .where(and(eq(shops.state, statePattern), eq(games.slug, gameSlug)))
     .orderBy(
+      desc(featuredExpr),
       desc(shops.shouldIndex),
       desc(shops.ratingValue),
       desc(shops.reviewCount)
@@ -321,6 +332,7 @@ export async function searchShops(
       reviewCount: shops.reviewCount,
       shopType: shops.shopType,
       description: shops.description,
+      featured: featuredExpr,
     })
     .from(shops)
     .where(
@@ -507,6 +519,7 @@ export async function getNearbyShopsInCity(
       reviewCount: shops.reviewCount,
       shopType: shops.shopType,
       description: shops.description,
+      featured: featuredExpr,
     })
     .from(shops)
     .where(
@@ -542,6 +555,7 @@ export async function getMoreShopsInState(
       reviewCount: shops.reviewCount,
       shopType: shops.shopType,
       description: shops.description,
+      featured: featuredExpr,
     })
     .from(shops)
     .where(

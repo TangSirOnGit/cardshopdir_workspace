@@ -62,7 +62,12 @@ export function ShopCard({ shop }: { shop: ShopListItem }) {
               </span>
             </div>
           )}
-          {top && (
+          {shop.featured && (
+            <span className="label-mono absolute top-0 right-0 bg-ink px-2.5 py-1.5 text-[10px] tracking-wider text-marigold!">
+              ★ Featured
+            </span>
+          )}
+          {top && !shop.featured && (
             <span className="label-mono absolute top-0 right-0 bg-ink px-2.5 py-1.5 text-[10px] tracking-wider text-marigold!">
               ★ Top Rated
             </span>

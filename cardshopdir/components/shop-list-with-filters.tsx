@@ -45,6 +45,7 @@ export function ShopListWithFilters({
     if (openOnly) list = list.filter((s) => s.isOpenNow)
     const sorted = [...list]
     sorted.sort((a, b) => {
+      if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1
       if (sort === "alpha") return a.name.localeCompare(b.name)
       if (sort === "reviews") return (b.reviewCount ?? 0) - (a.reviewCount ?? 0)
       const ra = a.ratingValue ? parseFloat(a.ratingValue) : 0

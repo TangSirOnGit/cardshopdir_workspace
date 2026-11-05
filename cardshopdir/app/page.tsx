@@ -15,6 +15,7 @@ import { HeroCardFan } from "@/components/hero-card-fan"
 import {
   getPopularCities,
   enrichShopsWithCardMeta,
+  featuredExpr,
   stateName,
 } from "@/lib/directory"
 
@@ -91,10 +92,11 @@ export default async function Home() {
         reviewCount: shops.reviewCount,
         shopType: shops.shopType,
         description: shops.description,
+        featured: featuredExpr,
       })
       .from(shops)
       .where(eq(shops.shouldIndex, true))
-      .orderBy(desc(shops.ratingValue), desc(shops.reviewCount))
+      .orderBy(desc(featuredExpr), desc(shops.ratingValue), desc(shops.reviewCount))
       .limit(6),
     // Popular states by shop count
     db
@@ -345,6 +347,20 @@ export default async function Home() {
           </div>
         </section>
       </div>
+
+      <section className="pt-16 text-center sm:pt-20">
+        <p className="label-mono text-primary">Own a card shop?</p>
+        <h2 className="mt-3 font-serif text-2xl font-bold tracking-tight sm:text-3xl">
+          Get your shop featured
+        </h2>
+        <Link
+          href="/advertise"
+          className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-bold tracking-wide text-primary uppercase"
+        >
+          <span className="link-draw">See plans</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </section>
     </div>
   )
 }
