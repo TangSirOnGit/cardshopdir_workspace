@@ -8,14 +8,25 @@ interface Props {
   cta?: string
   aside?: React.ReactNode
   id?: string
+  noRule?: boolean
 }
 
 /** Section heading: heavy rule, mono index, big serif title, optional CTA. */
-export function SectionTitle({ index, title, href, cta, aside, id }: Props) {
+export function SectionTitle({
+  index,
+  title,
+  href,
+  cta,
+  aside,
+  id,
+  noRule,
+}: Props) {
   return (
     <div
       id={id}
-      className="mb-8 flex items-end justify-between gap-4 border-t-2 border-foreground pt-4"
+      className={`mb-8 flex items-end justify-between gap-4 ${
+        noRule ? "" : "border-t-2 border-foreground pt-4"
+      }`}
     >
       <div className="min-w-0">
         {index && <p className="label-mono text-primary">{index}</p>}

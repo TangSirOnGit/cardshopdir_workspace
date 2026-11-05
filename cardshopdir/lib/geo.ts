@@ -34,6 +34,20 @@ export function boundingBox(lat: number, lng: number, radiusMiles: number) {
 
 export type NearbyParams = { lat: number; lng: number; radius: NearbyRadius }
 
+export const MAX_NEARBY_LIMIT = 24
+
+export function parseLimit(raw: string | null): number {
+  const n = Number(raw)
+  return Number.isInteger(n) && n >= 1 && n <= MAX_NEARBY_LIMIT
+    ? n
+    : MAX_NEARBY_LIMIT
+}
+
+/** Round to a ~7 mile grid so approximate (IP) lookups share one cache entry. */
+export function gridCoord(v: number): number {
+  return Math.round(v * 10) / 10
+}
+
 /** Validate raw query values. Coordinates are rounded to ~100 m. */
 export function parseNearbyParams(input: {
   lat: string | null

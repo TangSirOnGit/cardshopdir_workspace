@@ -60,3 +60,19 @@ describe("geo", () => {
     ).toBeNull()
   })
 })
+
+import { gridCoord, parseLimit } from "../geo"
+
+describe("geo helpers", () => {
+  it("parses limit with a safe default", () => {
+    expect(parseLimit("6")).toBe(6)
+    expect(parseLimit(null)).toBe(24)
+    expect(parseLimit("0")).toBe(24)
+    expect(parseLimit("999")).toBe(24)
+    expect(parseLimit("abc")).toBe(24)
+  })
+  it("snaps coordinates to a grid", () => {
+    expect(gridCoord(41.8781)).toBe(41.9)
+    expect(gridCoord(-87.6298)).toBe(-87.6)
+  })
+})

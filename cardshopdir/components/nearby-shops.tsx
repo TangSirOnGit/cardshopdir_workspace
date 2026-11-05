@@ -5,33 +5,18 @@ import { Crosshair, Loader2 } from "lucide-react"
 import { ShopCard } from "@/components/shop-card"
 import { trackEvent } from "@/lib/analytics"
 import { NEARBY_RADII } from "@/lib/geo"
-import type { ShopListItem } from "@/lib/shop-types"
+import {
+  fetchNearby,
+  type NearbyData,
+  type NearbyShop,
+  type NearbySource,
+} from "@/lib/nearby-client"
 
-type NearbyShop = ShopListItem & { distanceMiles: number }
-type Source = { kind: "ip" } | { kind: "gps"; lat: number; lng: number }
 type Status = "loading" | "done" | "unavailable" | "error"
+type Source = NearbySource
 
 const INITIAL_RADIUS = 20
 const GPS_TIMEOUT_MS = 12000
-
-type NearbyData = {
-  located?: boolean
-  place?: string | null
-  shops: NearbyShop[]
-}
-
-async function fetchNearby(src: Source, r: number): Promise<NearbyData | null> {
-  const qs =
-    src.kind === "gps"
-      ? `lat=${src.lat}&lng=${src.lng}&radius=${r}`
-      : `radius=${r}`
-  try {
-    const res = await fetch(`/api/shops/nearby?${qs}`)
-    return res.ok ? ((await res.json()) as NearbyData) : null
-  } catch {
-    return null
-  }
-}
 
 export function NearbyShops() {
   const [radius, setRadius] = useState<number>(INITIAL_RADIUS)
@@ -62,7 +47,9 @@ export function NearbyShops() {
     let cancelled = false
     const src: Source = { kind: "ip" }
     fetchNearby(src, INITIAL_RADIUS).then((d) => {
-      if (!cancelled) apply(src, d)
+      if (cancelled) return
+      trackEvent("near_me_ip_result", { located: d?.located !== false && !!d })
+      apply(src, d)
     })
     return () => {
       cancelled = true

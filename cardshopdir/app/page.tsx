@@ -9,6 +9,7 @@ import { SITE_URL } from "@/config"
 import { SearchBox } from "@/components/search-box"
 import { ShopCard } from "@/components/shop-card"
 import { PersonalShopShelf } from "@/components/personal-shop-shelf"
+import { HomeNearbyShops } from "@/components/home-nearby-shops"
 import { gameTheme } from "@/lib/game-theme"
 import { HeroCardFan } from "@/components/hero-card-fan"
 import {
@@ -216,6 +217,9 @@ export default async function Home() {
           <Stat value={String(topGames.length)} label="TCG Games" />
         </div>
       </div>
+
+      {/* ── Near you (client-side, approximate location) ── */}
+      <HomeNearbyShops />
 
       {/* ── Browse by Game ───────────────────────────── */}
       <section className="pt-20 sm:pt-28">

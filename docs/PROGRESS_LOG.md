@@ -1535,3 +1535,12 @@ Yu-Gi-Oh! 页面新增更明确的搜索意图：singles、sealed products、tou
 - 本地开发没有 Cloudflare 头:设置环境变量 `NEARBY_DEV_LOCATION="41.88,-87.63"` 模拟(仅非 production 生效)。
 - IP 定位只到城市级,移动网络可能偏差更大,页面已注明 "Based on your network location"。
 - 隐私页文案同步更新。
+
+### 十五、首页"附近店铺"轻量模块 + 接口缓存 + 定位埋点
+
+- Umami(90 天)显示首页是主要入口(647 访客,55%),`/directory/search` 109 访客,因此在首页加入附近模块。
+- `components/home-nearby-shops.tsx`:位于 stats band 之后、Browse by Game 之前;只用 IP 近似位置,**不弹授权**;`IntersectionObserver`(提前 800px)进入视口才请求;位置未知或附近不足 3 家店时整块不渲染,原有精选店铺/热门州城市内容不变;底部链接到 `/near-me`;标题上方不带分隔线(`SectionTitle` 新增 `noRule`)。
+- `lib/nearby-client.ts`:`/near-me` 与首页共用的客户端请求函数。
+- 接口 `/api/shops/nearby`:新增 `limit`(1–24);近似位置(IP)结果按约 7 英里网格取整后写入 Redis,缓存 1 小时,Redis 不可用时直接查库;精确定位(GPS)结果不缓存。IP 结果的距离相对网格中心计算,属近似值。
+- Umami 事件:`near_me_ip_result{located}`、`home_nearby_result{located,shown}`、`home_nearby_click{href}`、`near_me_locate_click`、`near_me_locate_failed`。
+- 上线检查:先确认 Cloudflare "Add visitor location headers" 已开启,再看 `located=true` 的比例。
