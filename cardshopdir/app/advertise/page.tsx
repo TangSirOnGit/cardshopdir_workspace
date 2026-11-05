@@ -77,6 +77,9 @@ export default async function AdvertisePage() {
                   href={link}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-umami-event="advertise_buy_click"
+                  data-umami-event-plan={plan.id}
+                  data-umami-event-price={plan.price}
                   className="mt-5 inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-[13px] font-medium text-primary-foreground transition-opacity hover:opacity-80"
                 >
                   Buy now
@@ -109,8 +112,17 @@ export default async function AdvertisePage() {
           <ol className="list-inside list-decimal space-y-1 pl-1">
             <li>Pick a plan and complete payment on Stripe.</li>
             <li>
-              Enter your shop name and page URL in the checkout form so we know
-              which listing to feature.
+              In the checkout form, enter the URL of your shop&rsquo;s page on{" "}
+              {settings.siteName} (not your own website), so we know which
+              listing to feature. Example:{" "}
+              <code className="rounded bg-muted px-1.5 py-0.5 text-[13px] text-foreground">
+                https://cardshopdir.com/shop/your-shop-name-city-st
+              </code>
+              . Find yours by searching for your shop in the{" "}
+              <Link href="/directory" className="underline">
+                directory
+              </Link>
+              .
             </li>
             <li>We activate your listing, usually within 1 business day.</li>
           </ol>

@@ -355,6 +355,8 @@ export default async function Home() {
         </h2>
         <Link
           href="/advertise"
+          data-umami-event="advertise_cta_click"
+          data-umami-event-source="home"
           className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-bold tracking-wide text-primary uppercase"
         >
           <span className="link-draw">See plans</span>
