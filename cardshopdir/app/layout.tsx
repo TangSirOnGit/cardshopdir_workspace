@@ -77,6 +77,11 @@ export default async function RootLayout({
             />
           </>
         ) : null}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7395913142802119"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className="flex min-h-svh flex-col overflow-x-clip bg-background font-sans text-foreground">
         <script
